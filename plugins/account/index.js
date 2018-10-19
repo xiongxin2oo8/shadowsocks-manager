@@ -706,6 +706,11 @@ const getAccountForSubscribe = async (token, ip) => {
   } else {
     account.data = {};
   }
+  if (account.server) {
+    account.server = JSON.parse(account.server);
+  } else {
+    account.server = []
+  }
   const servers = await serverManager.list({ status: false });
   const validServers = servers.filter(server => {
     //account.data.server不存在
