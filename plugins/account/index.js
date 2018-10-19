@@ -7,12 +7,12 @@ const orderPlugin = appRequire('plugins/webgui_order');
 const accountFlow = appRequire('plugins/account/accountFlow');
 
 const addAccount = async (type, options) => {
-  if(!options.hasOwnProperty('active')) { options.active = 1; }
-  if(type === 6 || type === 7) {
+  if (!options.hasOwnProperty('active')) { options.active = 1; }
+  if (type === 6 || type === 7) {
     type = 3;
   }
-  if(type === 1) {
-    const [ accountId ] = await knex('account_plugin').insert({
+  if (type === 1) {
+    const [accountId] = await knex('account_plugin').insert({
       type,
       orderId: 0,
       userId: options.user,
@@ -25,7 +25,7 @@ const addAccount = async (type, options) => {
     await accountFlow.add(accountId);
     return;
   } else if (type >= 2 && type <= 5) {
-    const [ accountId ] = await knex('account_plugin').insert({
+    const [accountId] = await knex('account_plugin').insert({
       type,
       orderId: options.orderId || 0,
       userId: options.user,
@@ -55,16 +55,16 @@ const changePort = async (id, port) => {
 
 const getAccount = async (options = {}) => {
   const where = {};
-  if(options.id) {
+  if (options.id) {
     where['account_plugin.id'] = options.id;
   }
-  if(options.userId) {
+  if (options.userId) {
     where['user.id'] = options.userId;
   }
-  if(options.port) {
+  if (options.port) {
     where['account_plugin.port'] = options.port;
   }
-  if(options.group >= 0) {
+  if (options.group >= 0) {
     where['user.group'] = options.group;
   }
   const account = await knex('account_plugin').select([
@@ -84,14 +84,14 @@ const getAccount = async (options = {}) => {
     'user.id as userId',
     'user.email as user',
   ])
-  .leftJoin('user', 'user.id', 'account_plugin.userId')
-  .where(where);
+    .leftJoin('user', 'user.id', 'account_plugin.userId')
+    .where(where);
   return account;
 };
 
 const delAccount = async id => {
   const accountInfo = await knex('account_plugin').where({ id }).then(s => s[0]);
-  if(!accountInfo) {
+  if (!accountInfo) {
     return Promise.reject('Account id[' + id + '] not found');
   }
   const result = await knex('account_plugin').delete().where({ id });
@@ -101,10 +101,10 @@ const delAccount = async id => {
       command: 'del',
       port: accountInfo.port + server.shift,
     }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    });
+        host: server.host,
+        port: server.port,
+        password: server.password,
+      });
   });
   await accountFlow.del(id);
   return result;
@@ -112,44 +112,44 @@ const delAccount = async id => {
 
 const editAccount = async (id, options) => {
   const account = await knex('account_plugin').where({ id }).then(success => {
-    if(success.length) {
+    if (success.length) {
       return success[0];
     }
     return Promise.reject('account not found');
   });
   const update = {};
-  if(options.hasOwnProperty('active')) { update.active = options.active; }
+  if (options.hasOwnProperty('active')) { update.active = options.active; }
   update.type = options.type;
   update.orderId = options.orderId;
   update.userId = options.userId;
   update.autoRemove = options.autoRemove;
   update.autoRemoveDelay = options.autoRemoveDelay;
   update.multiServerFlow = options.multiServerFlow;
-  if(options.hasOwnProperty('server')) {
+  if (options.hasOwnProperty('server')) {
     update.server = options.server ? JSON.stringify(options.server) : null;
   }
-  if(options.type === 1) {
+  if (options.type === 1) {
     update.data = null;
-  } else if(options.type >= 2 && options.type <= 5) {
+  } else if (options.type >= 2 && options.type <= 5) {
     update.data = JSON.stringify({
       create: options.time || Date.now(),
       flow: options.flow || 1 * 1000 * 1000 * 1000,
       limit: options.limit || 1,
     });
   }
-  if(options.port) {
+  if (options.port) {
     update.port = +options.port;
-    if(+options.port !== account.port) {
+    if (+options.port !== account.port) {
       const servers = await knex('server').where({});
       servers.forEach(server => {
         manager.send({
           command: 'del',
           port: account.port + server.shift,
         }, {
-          host: server.host,
-          port: server.port,
-          password: server.password,
-        });
+            host: server.host,
+            port: server.port,
+            password: server.password,
+          });
       });
     }
   }
@@ -161,7 +161,7 @@ const editAccount = async (id, options) => {
 const editAccountTime = async (id, timeString, check) => {
   const time = +timeString;
   let accountInfo = await knex('account_plugin').where({ id }).then(s => s[0]);
-  if(accountInfo.type < 2 || accountInfo.type > 5) { return; }
+  if (accountInfo.type < 2 || accountInfo.type > 5) { return; }
   accountInfo.data = JSON.parse(accountInfo.data);
   const timePeriod = {
     '2': 7 * 86400 * 1000,
@@ -170,7 +170,7 @@ const editAccountTime = async (id, timeString, check) => {
     '5': 3600 * 1000,
   };
   accountInfo.data.create += time;
-  while(time > 0 && accountInfo.data.create >= Date.now()) {
+  while (time > 0 && accountInfo.data.create >= Date.now()) {
     accountInfo.data.limit += 1;
     accountInfo.data.create -= timePeriod[accountInfo.type];
   }
@@ -183,7 +183,7 @@ const editAccountTime = async (id, timeString, check) => {
 const editAccountTimeForRef = async (id, timeString, check) => {
   const time = +timeString;
   let accountInfo = await knex('account_plugin').where({ id }).then(s => s[0]);
-  if(accountInfo.type < 2 || accountInfo.type > 5) { return; }
+  if (accountInfo.type < 2 || accountInfo.type > 5) { return; }
   accountInfo.data = JSON.parse(accountInfo.data);
   const timePeriod = {
     '2': 7 * 86400 * 1000,
@@ -191,13 +191,13 @@ const editAccountTimeForRef = async (id, timeString, check) => {
     '4': 1 * 86400 * 1000,
     '5': 3600 * 1000,
   };
-  if(accountInfo.data.create + timePeriod[accountInfo.type] * accountInfo.data.limit <= Date.now()) {
+  if (accountInfo.data.create + timePeriod[accountInfo.type] * accountInfo.data.limit <= Date.now()) {
     accountInfo.data.limit = 1;
     accountInfo.data.create = Date.now() + time - timePeriod[accountInfo.type];
   } else {
     accountInfo.data.create += time;
   }
-  while(time > 0 && accountInfo.data.create >= Date.now()) {
+  while (time > 0 && accountInfo.data.create >= Date.now()) {
     accountInfo.data.limit += 1;
     accountInfo.data.create -= timePeriod[accountInfo.type];
   }
@@ -209,7 +209,7 @@ const editAccountTimeForRef = async (id, timeString, check) => {
 
 const changePassword = async (id, password) => {
   const account = await knex('account_plugin').select().where({ id }).then(success => {
-    if(success.length) {
+    if (success.length) {
       return success[0];
     }
     return Promise.reject('account not found');
@@ -223,12 +223,12 @@ const changePassword = async (id, password) => {
 
 const addAccountLimit = async (id, number = 1) => {
   const account = await knex('account_plugin').select().where({ id }).then(success => {
-    if(success.length) {
+    if (success.length) {
       return success[0];
     }
     return Promise.reject('account not found');
   });
-  if(account.type < 2 || account.type > 5) { return; }
+  if (account.type < 2 || account.type > 5) { return; }
   const accountData = JSON.parse(account.data);
   const timePeriod = {
     '2': 7 * 86400 * 1000,
@@ -236,7 +236,7 @@ const addAccountLimit = async (id, number = 1) => {
     '4': 1 * 86400 * 1000,
     '5': 3600 * 1000,
   };
-  if(accountData.create + accountData.limit * timePeriod[account.type] <= Date.now()) {
+  if (accountData.create + accountData.limit * timePeriod[account.type] <= Date.now()) {
     accountData.create = Date.now();
     accountData.limit = number;
   } else {
@@ -249,20 +249,20 @@ const addAccountLimit = async (id, number = 1) => {
 };
 
 const addAccountLimitToMonth = async (userId, accountId, number = 1) => {
-  if(!accountId) {
+  if (!accountId) {
     const port = await knex('account_plugin').select()
-    .orderBy('port', 'DESC').limit(1)
-    .then(success => {
-      if(success.length) {
-        return success[0].port + 1;
-      } else {
-        return 50000;
-      }
-    });
+      .orderBy('port', 'DESC').limit(1)
+      .then(success => {
+        if (success.length) {
+          return success[0].port + 1;
+        } else {
+          return 50000;
+        }
+      });
     await addAccount(3, {
       user: userId,
       port,
-      password: Math.random().toString().substr(2,10),
+      password: Math.random().toString().substr(2, 10),
       time: Date.now(),
       limit: number,
       flow: 200 * 1000 * 1000 * 1000,
@@ -271,16 +271,16 @@ const addAccountLimitToMonth = async (userId, accountId, number = 1) => {
     return;
   }
   const account = await knex('account_plugin').select().where({ id: accountId }).then(success => {
-    if(success.length) {
+    if (success.length) {
       return success[0];
     }
     return Promise.reject('account not found');
   });
-  if(account.type < 2 || account.type > 5) { return; }
+  if (account.type < 2 || account.type > 5) { return; }
   const accountData = JSON.parse(account.data);
   accountData.flow = 200 * 1000 * 1000 * 1000;
-  if(account.type === 3) {
-    if(accountData.create + accountData.limit * 30 * 86400 * 1000 <= Date.now()) {
+  if (account.type === 3) {
+    if (accountData.create + accountData.limit * 30 * 86400 * 1000 <= Date.now()) {
       accountData.create = Date.now();
       accountData.limit = number;
     } else {
@@ -294,14 +294,14 @@ const addAccountLimitToMonth = async (userId, accountId, number = 1) => {
       '5': 3600 * 1000,
     };
     let expireTime = accountData.create + accountData.limit * timePeriod[account.type];
-    if(expireTime <= Date.now()) {
+    if (expireTime <= Date.now()) {
       expireTime = 30 * 86400 * 1000 * number + Date.now();
     } else {
       expireTime += 30 * 86400 * 1000 * number;
     }
     accountData.create = expireTime;
     accountData.limit = 0;
-    while(accountData.create >= Date.now()) {
+    while (accountData.create >= Date.now()) {
       accountData.limit += 1;
       accountData.create -= 30 * 86400 * 1000;
     }
@@ -316,7 +316,7 @@ const addAccountLimitToMonth = async (userId, accountId, number = 1) => {
 
 const setAccountLimit = async (userId, accountId, orderId) => {
   const orderInfo = await orderPlugin.getOneOrder(orderId);
-  if(orderInfo.baseId) {
+  if (orderInfo.baseId) {
     await knex('webgui_flow_pack').insert({
       accountId,
       flow: orderInfo.flow,
@@ -328,45 +328,45 @@ const setAccountLimit = async (userId, accountId, orderId) => {
   const limit = orderInfo.cycle;
   const orderType = orderInfo.type;
   let account;
-  if(accountId) {
+  if (accountId) {
     account = await knex('account_plugin').select().where({ id: accountId }).then(success => {
-      if(success.length) {
+      if (success.length) {
         return success[0];
       }
       return null;
     });
   }
-  if(!accountId || !account) {
+  if (!accountId || !account) {
     const getNewPort = () => {
       let orderPorts = [];
-      if(orderInfo.portRange !== '0') {
+      if (orderInfo.portRange !== '0') {
         try {
           orderInfo.portRange.split(',').filter(f => f.trim()).forEach(f => {
-            if(f.indexOf('-')) {
+            if (f.indexOf('-')) {
               const start = f.split('-').filter(f => f.trim())[0];
               const end = f.split('-').filter(f => f.trim())[1];
-              if(start >= end) { return; }
-              for(let p = start; p <= end; p++) {
+              if (start >= end) { return; }
+              for (let p = start; p <= end; p++) {
                 orderPorts.indexOf(p) >= 0 || orderPorts.push(p);
               }
             } else {
               orderPorts.indexOf(+f) >= 0 || orderPorts.push(+f);
             }
           });
-        } catch(err) {
+        } catch (err) {
           console.log(err);
         }
       }
       return knex('webguiSetting').select().where({
         key: 'account',
       }).then(success => {
-        if(!success.length) { return Promise.reject('settings not found'); }
+        if (!success.length) { return Promise.reject('settings not found'); }
         success[0].value = JSON.parse(success[0].value);
         return success[0].value.port;
       }).then(port => {
-        if(port.random) {
+        if (port.random) {
           const getRandomPort = () => {
-            if(orderPorts.length) {
+            if (orderPorts.length) {
               return orderPorts[Math.floor(Math.random() * orderPorts.length)];
             } else {
               return Math.floor(Math.random() * (port.end - port.start + 1) + port.start);
@@ -377,47 +377,47 @@ const setAccountLimit = async (userId, accountId, orderId) => {
           const checkIfPortExists = port => {
             let myPort = port;
             return knex('account_plugin').select()
-            .where({ port }).then(success => {
-              if(success.length && retry <= 30) {
-                retry++;
-                myPort = getRandomPort();
-                return checkIfPortExists(myPort);
-              } else if (success.length && retry > 30) {
-                return Promise.reject('Can not get a random port');
-              } else {
-                return myPort;
-              }
-            });
+              .where({ port }).then(success => {
+                if (success.length && retry <= 30) {
+                  retry++;
+                  myPort = getRandomPort();
+                  return checkIfPortExists(myPort);
+                } else if (success.length && retry > 30) {
+                  return Promise.reject('Can not get a random port');
+                } else {
+                  return myPort;
+                }
+              });
           };
           return checkIfPortExists(myPort);
         } else {
           let query;
-          if(orderPorts.length) {
+          if (orderPorts.length) {
             query = knex('account_plugin').select()
-            .whereIn('port', orderPorts)
-            .orderBy('port', 'ASC');
+              .whereIn('port', orderPorts)
+              .orderBy('port', 'ASC');
           } else {
             query = knex('account_plugin').select()
-            .whereBetween('port', [port.start, port.end])
-            .orderBy('port', 'ASC');
+              .whereBetween('port', [port.start, port.end])
+              .orderBy('port', 'ASC');
           }
           return query.then(success => {
             const portArray = success.map(m => m.port);
             let myPort;
-            if(orderPorts.length) {
-              for(const p of orderPorts) {
-                if(portArray.indexOf(+p) < 0) {
+            if (orderPorts.length) {
+              for (const p of orderPorts) {
+                if (portArray.indexOf(+p) < 0) {
                   myPort = p; break;
                 }
               }
             } else {
-              for(let p = port.start; p <= port.end; p++) {
-                if(portArray.indexOf(+p) < 0) {
+              for (let p = port.start; p <= port.end; p++) {
+                if (portArray.indexOf(+p) < 0) {
                   myPort = p; break;
                 }
               }
             }
-            if(myPort) {
+            if (myPort) {
               return myPort;
             } else {
               return Promise.reject('no port');
@@ -431,7 +431,7 @@ const setAccountLimit = async (userId, accountId, orderId) => {
       orderId,
       user: userId,
       port,
-      password: Math.random().toString().substr(2,10),
+      password: Math.random().toString().substr(2, 10),
       time: Date.now(),
       limit,
       flow: orderInfo.flow,
@@ -454,17 +454,17 @@ const setAccountLimit = async (userId, accountId, orderId) => {
     '7': 12 * 30 * 86400 * 1000,
   };
   let expireTime = accountData.create + accountData.limit * timePeriod[account.type];
-  if(expireTime <= Date.now()) {
+  if (expireTime <= Date.now()) {
     expireTime = timePeriod[orderType] * limit + Date.now();
   } else {
     expireTime += timePeriod[orderType] * limit;
   }
   let countTime = timePeriod[orderType];
-  if(orderType === 6) { countTime = timePeriod[3]; }
-  if(orderType === 7) { countTime = timePeriod[3]; }
+  if (orderType === 6) { countTime = timePeriod[3]; }
+  if (orderType === 7) { countTime = timePeriod[3]; }
   accountData.create = expireTime - countTime;
   accountData.limit = 1;
-  while(accountData.create >= Date.now()) {
+  while (accountData.create >= Date.now()) {
     accountData.limit += 1;
     accountData.create -= countTime;
   }
@@ -496,7 +496,7 @@ const addAccountTime = async (userId, accountId, accountType, accountPeriod = 1)
   const paymentInfo = await knex('webguiSetting').select().where({
     key: 'payment',
   }).then(success => {
-    if(!success.length) {
+    if (!success.length) {
       return Promise.reject('settings not found');
     }
     success[0].value = JSON.parse(success[0].value);
@@ -511,55 +511,55 @@ const addAccountTime = async (userId, accountId, accountType, accountPeriod = 1)
     };
     return paymentInfo[pay[type]];
   };
-  
+
   const checkIfAccountExists = async (accountId) => {
-    if(!accountId) { return null; }
+    if (!accountId) { return null; }
     const account = await knex('account_plugin').where({ id: accountId });
-    if(!account.length) { return null; }
+    if (!account.length) { return null; }
     const accountInfo = account[0];
     accountInfo.data = JSON.parse(account[0].data);
     return accountInfo;
   };
-  
+
   const accountInfo = await checkIfAccountExists(accountId);
-  if(!accountInfo) {
+  if (!accountInfo) {
     const getNewPort = async () => {
       const port = await knex('webguiSetting').select().where({
         key: 'account',
       }).then(success => {
-        if(!success.length) { return Promise.reject('settings not found'); }
+        if (!success.length) { return Promise.reject('settings not found'); }
         success[0].value = JSON.parse(success[0].value);
         return success[0].value.port;
       });
-      if(port.random) {
+      if (port.random) {
         const getRandomPort = () => Math.floor(Math.random() * (port.end - port.start + 1) + port.start);
         let retry = 0;
         let myPort = getRandomPort();
         const checkIfPortExists = port => {
           let myPort = port;
           return knex('account_plugin').select()
-          .where({ port }).then(success => {
-            if(success.length && retry <= 30) {
-              retry++;
-              myPort = getRandomPort();
-              return checkIfPortExists(myPort);
-            } else if (success.length && retry > 30) {
-              return Promise.reject('Can not get a random port');
-            } else {
-              return myPort;
-            }
-          });
+            .where({ port }).then(success => {
+              if (success.length && retry <= 30) {
+                retry++;
+                myPort = getRandomPort();
+                return checkIfPortExists(myPort);
+              } else if (success.length && retry > 30) {
+                return Promise.reject('Can not get a random port');
+              } else {
+                return myPort;
+              }
+            });
         };
         return checkIfPortExists(myPort);
       } else {
         return knex('account_plugin').select()
-        .whereBetween('port', [port.start, port.end])
-        .orderBy('port', 'DESC').limit(1).then(success => {
-          if(success.length) {
-            return success[0].port + 1;
-          }
-          return port.start;
-        });
+          .whereBetween('port', [port.start, port.end])
+          .orderBy('port', 'DESC').limit(1).then(success => {
+            if (success.length) {
+              return success[0].port + 1;
+            }
+            return port.start;
+          });
       }
     };
     const port = await getNewPort();
@@ -568,7 +568,7 @@ const addAccountTime = async (userId, accountId, accountType, accountPeriod = 1)
       userId,
       server: getPaymentInfo(accountType).server ? JSON.stringify(getPaymentInfo(accountType).server) : null,
       port,
-      password: Math.random().toString().substr(2,10),
+      password: Math.random().toString().substr(2, 10),
       data: JSON.stringify({
         create: Date.now(),
         flow: getPaymentInfo(accountType).flow * 1000 * 1000,
@@ -581,25 +581,25 @@ const addAccountTime = async (userId, accountId, accountType, accountPeriod = 1)
   }
 
   let onlyIncreaseTime = false;
-  if(accountInfo.type === 3 && accountType !== 3) { onlyIncreaseTime = true; }
-  if(accountInfo.type === 2 && (accountType === 4 || accountType === 5)) { onlyIncreaseTime = true; }
-  if(accountInfo.type === 4 && accountType === 5) { onlyIncreaseTime = true; }
+  if (accountInfo.type === 3 && accountType !== 3) { onlyIncreaseTime = true; }
+  if (accountInfo.type === 2 && (accountType === 4 || accountType === 5)) { onlyIncreaseTime = true; }
+  if (accountInfo.type === 4 && accountType === 5) { onlyIncreaseTime = true; }
 
   const isAccountOutOfDate = accountInfo => {
     const expire = accountInfo.data.create + accountInfo.data.limit * getTimeByType(accountInfo.type);
     return expire <= Date.now();
   };
 
-  if(onlyIncreaseTime) {
+  if (onlyIncreaseTime) {
     let expireTime;
-    if(isAccountOutOfDate(accountInfo)) {
+    if (isAccountOutOfDate(accountInfo)) {
       expireTime = Date.now() + getTimeByType(accountType) * accountPeriod;
     } else {
       expireTime = accountInfo.data.create + getTimeByType(accountInfo.type) * accountInfo.data.limit + getTimeByType(accountType) * accountPeriod;
     }
     let createTime = expireTime - getTimeByType(accountInfo.type);
     let limit = 1;
-    while(createTime >= Date.now()) {
+    while (createTime >= Date.now()) {
       limit += 1;
       createTime -= getTimeByType(accountInfo.type);
     }
@@ -614,14 +614,14 @@ const addAccountTime = async (userId, accountId, accountType, accountPeriod = 1)
   }
 
   let expireTime;
-  if(isAccountOutOfDate(accountInfo)) {
+  if (isAccountOutOfDate(accountInfo)) {
     expireTime = Date.now() + getTimeByType(accountType) * accountPeriod;
   } else {
     expireTime = accountInfo.data.create + getTimeByType(accountInfo.type) * accountInfo.data.limit + getTimeByType(accountType) * accountPeriod;
   }
   let createTime = expireTime - getTimeByType(accountType);
   let limit = 1;
-  while(createTime >= Date.now()) {
+  while (createTime >= Date.now()) {
     limit += 1;
     createTime -= getTimeByType(accountType);
   }
@@ -660,18 +660,18 @@ const getBanAccount = async options => {
   ]).where({
     serverId, accountId, status: 'ban'
   });
-  if(!accountInfo.length) { return { banTime: 0 }; }
+  if (!accountInfo.length) { return { banTime: 0 }; }
   return accountInfo[0];
 };
 
 const loginLog = {};
 const scanLoginLog = ip => {
-  for(let i in loginLog) {
-    if(Date.now() - loginLog[i].time >= 10 * 60 * 1000) {
+  for (let i in loginLog) {
+    if (Date.now() - loginLog[i].time >= 10 * 60 * 1000) {
       delete loginLog[i];
     }
   }
-  if(!loginLog[ip]) {
+  if (!loginLog[ip]) {
     return false;
   } else if (loginLog[ip].mac.length <= 10) {
     return false;
@@ -680,10 +680,10 @@ const scanLoginLog = ip => {
   }
 };
 const loginFail = (mac, ip) => {
-  if(!loginLog[ip]) {
-    loginLog[ip] = { mac: [ mac ], time: Date.now() };
+  if (!loginLog[ip]) {
+    loginLog[ip] = { mac: [mac], time: Date.now() };
   } else {
-    if(loginLog[ip].mac.indexOf(mac) < 0) {
+    if (loginLog[ip].mac.indexOf(mac) < 0) {
       loginLog[ip].mac.push(mac);
       loginLog[ip].time = Date.now();
     }
@@ -691,24 +691,25 @@ const loginFail = (mac, ip) => {
 };
 
 const getAccountForSubscribe = async (token, ip) => {
-  if(scanLoginLog(ip)) {
+  if (scanLoginLog(ip)) {
     return Promise.reject('ip is in black list');
   }
   const account = await knex('account_plugin').where({
     subscribe: token
   }).then(s => s[0]);
-  if(!account) {
+  if (!account) {
     loginFail(token, ip);
     return Promise.reject('can not find account');
   }
-  if(account.data) {
+  if (account.data) {
     account.data = JSON.parse(account.data);
   } else {
     account.data = {};
   }
   const servers = await serverManager.list({ status: false });
   const validServers = servers.filter(server => {
-    if(!account.data.server) { return true; }
+    //account.data.server不存在
+    if (!account.data.server) { return true; }
     return account.data.server.indexOf(server.id) >= 0;
   });
   return { server: validServers, account };
@@ -717,19 +718,19 @@ const getAccountForSubscribe = async (token, ip) => {
 const editMultiAccounts = async (orderId, update) => {
   const accounts = await knex('account_plugin').where({ orderId });
   const updateData = {};
-  for(const account of accounts) {
-    if(update.hasOwnProperty('flow')) {
+  for (const account of accounts) {
+    if (update.hasOwnProperty('flow')) {
       const accountData = JSON.parse(account.data);
       accountData.flow = update.flow;
       updateData.data = JSON.stringify(accountData);
     }
-    if(update.hasOwnProperty('server')) {
-      updateData.server = update.server ? JSON.stringify(update.server): null;
+    if (update.hasOwnProperty('server')) {
+      updateData.server = update.server ? JSON.stringify(update.server) : null;
     }
-    if(update.hasOwnProperty('autoRemove')) {
+    if (update.hasOwnProperty('autoRemove')) {
       updateData.autoRemove = update.autoRemove;
     }
-    if(Object.keys(updateData).length === 0) { break; }
+    if (Object.keys(updateData).length === 0) { break; }
     await knex('account_plugin').update(updateData).where({ id: account.id });
     await accountFlow.edit(account.id);
   }
@@ -739,7 +740,7 @@ const activeAccount = async accountId => {
   const accountInfo = await getAccount({ id: accountId }).then(s => s[0]);
   await knex('account_plugin').update({ active: 1 }).where({ id: accountInfo.id });
   await accountFlow.edit(accountInfo.id);
-  if(accountInfo.type > 1) {
+  if (accountInfo.type > 1) {
     const accountData = JSON.parse(accountInfo.data);
     accountData.create = Date.now();
     await knex('account_plugin').update({ data: JSON.stringify(accountData) }).where({ id: accountInfo.id });

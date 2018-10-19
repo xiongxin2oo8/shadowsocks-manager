@@ -87,11 +87,14 @@ cron.minute(() => {
   knex('saveFlow5min').delete().whereBetween('time', [0, Date.now() - 7 * 24 * 3600 * 1000]).then();
 }, 37);
 cron.minute(() => {
+  logger.info('每5分钟执行一次');
   generateFlow('5min');
 }, 5);
 cron.cron(() => {
+  logger.info('每小时执行一次');
   generateFlow('hour');
 }, '1 * * * *');
 cron.cron(() => {
+  logger.info('每天0点1分钟执行');
   generateFlow('day');
 }, '1 0 * * *');
