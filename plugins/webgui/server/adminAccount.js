@@ -221,7 +221,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }
 
       let result = subscribeAccount.server.map(s => {
-        let tag = account.server.indexOf(s.id) >= 0 ? '' : '[当前套餐不可用]';
+        let tag = accountInfo.server.indexOf(s.id) >= 0 ? '' : '[当前套餐不可用]';
         if (ssr === '1') {
           return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64((s.comment || '这里显示备注') + tag) + '&group=' + urlsafeBase64(baseSetting.title));
         }
