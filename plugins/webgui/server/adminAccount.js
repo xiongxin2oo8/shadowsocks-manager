@@ -5,6 +5,7 @@ const flowPack = appRequire('plugins/webgui_order/flowPack');
 const dns = require('dns');
 const net = require('net');
 const knex = appRequire('init/knex').knex;
+const moment = require('moment');
 
 const formatMacAddress = mac => mac.replace(/-/g, '').replace(/:/g, '').toLowerCase();
 
@@ -206,7 +207,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           tip_time = '不限时不限量';
         } else {
           tip += 'ss://' + Buffer.from('aes-256-cfb:123456@114.114.114.114:50000').toString('base64') + '#使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack) + '\r\n';
-          tip_time = accountInfo.data.expire <= new Date() ? '已过期' : new Date(accountInfo.data.expire).Format('yyyy-MM-dd hh:mm:ss');
+          tip_time = accountInfo.data.expire <= new Date() ? '已过期' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss");
         }
         tip += 'ss://' + Buffer.from('aes-256-cfb:123456@115.115.115.115:50000').toString('base64') + '#过期时间：' + tip_time + '\r\n';
       } else {
@@ -215,7 +216,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           tip_time = '不限时不限量';
         } else {
           tip += 'ssr://' + urlsafeBase64('114.114.114.114:8080:origin:aes-256-cfb:plain:' + urlsafeBase64('123456') + '/?obfsparam=&remarks=' + urlsafeBase64('使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
-          tip_time = accountInfo.data.expire <= new Date() ? '已过期' : new Date(accountInfo.data.expire).Format('yyyy-MM-dd hh:mm:ss');
+          tip_time = accountInfo.data.expire <= new Date() ? '已过期' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss");
         }
         tip += 'ssr://' + urlsafeBase64('115.115.115.115:8080:origin:aes-256-cfb:plain:' + urlsafeBase64('123456') + '/?obfsparam=&remarks=' + urlsafeBase64('过期时间：' + tip_time) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
       }
@@ -240,23 +241,3 @@ const flowNumber = (number) => {
   else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' MB';
   else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(3) + ' GB';
 };
-const toDate = (date) => {
-  date = new Date(date);
-  var time = date.getFullYear() + "-" + (date.getMonth() < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "-" + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
-  return time;
-}
-Date.prototype.Format = function (fmt) {
-  var o = {
-    "M+": this.getMonth() + 1, //月份 
-    "d+": this.getDate(), //日 
-    "h+": this.getHours(), //小时 
-    "m+": this.getMinutes(), //分 
-    "s+": this.getSeconds(), //秒 
-    "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-    "S": this.getMilliseconds() //毫秒 
-  };
-  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-  for (var k in o)
-    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-  return fmt;
-}

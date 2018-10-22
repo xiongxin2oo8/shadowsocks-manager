@@ -39,12 +39,13 @@ app.factory('qrcodeDialog', [ '$mdDialog', ($mdDialog) => {
     fullscreen: true,
     clickOutsideToClose: true,
   };
-  const show = (serverName, ssAddress) => {
+  const show = (serverName, ssAddress,ssrAddress) => {
     if(isDialogShow()) {
       return dialogPromise;
     }
     publicInfo.serverName = serverName;
     publicInfo.ssAddress = ssAddress;
+    publicInfo.ssrAddress = ssrAddress;
     dialogPromise = $mdDialog.show(dialog);
     return dialogPromise;
   };

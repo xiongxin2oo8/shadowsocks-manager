@@ -193,14 +193,22 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
           return String.fromCharCode('0x' + p1);
         }));
       };
+      const urlsafeBase64 = str => {
+        return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+      };
       $scope.createQrCode = (method, password, host, port, serverName) => {
         let str = 'ss://' + base64Encode(method + ':' + password + '@' + host + ':' + port);
         console.log('str', str);
         return str;
       };
+      $scope.SSRAddress = (method, password, host, port, serverName) => {
+        let str = 'ssr://' + urlsafeBase64(host + ':' + port + ':origin:' + method + ':plain:' + urlsafeBase64(password) + '/?obfsparam=&remarks=' + urlsafeBase64(serverName));
+        return str;
+      };
       $scope.showQrcodeDialog = (method, password, host, port, serverName) => {
         const ssAddress = $scope.createQrCode(method, password, host, port, serverName);
-        qrcodeDialog.show(serverName, ssAddress);
+        const ssrAddress = $scope.SSRAddress(method, password, host, port, serverName);
+        qrcodeDialog.show(serverName, ssAddress,ssrAddress);
       };
       $scope.editAccount = id => {
         $state.go('admin.editAccount', { accountId: id });

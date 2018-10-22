@@ -17,7 +17,18 @@
                 <div>
                     <br>{{ '点击二维码或者用移动设备扫描二维码可自动填充服务器信息' | translate }}
                 </div>
-                <div style="word-break: break-all;"><br>{{ publicInfo.ssAddress }}</div>
+            </div>
+            <div layout="row" layout-align="center" style="margin-top: 25px;">
+                <div>
+                    <md-button class="md-primary" ngclipboard data-clipboard-text="{{ publicInfo.ssAddress+'#'+ publicInfo.serverName }}" ngclipboard-success="toast(e);">
+                        复制SS链接
+                    </md-button>
+                </div>
+                <div>
+                    <md-button class="md-primary" ngclipboard data-clipboard-text="{{ publicInfo.ssrAddress }}" ngclipboard-success="toast(e);">
+                        复制SSR链接
+                    </md-button>
+                </div>
             </div>
         </div>
     </md-dialog-content>
