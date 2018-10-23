@@ -1,136 +1,156 @@
 const app = angular.module('app');
 
-app
-  .controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', '$http', '$interval', '$localStorage', 'userApi', 'configManager',
-    ($scope, $mdMedia, $mdSidenav, $state, $http, $interval, $localStorage, userApi, configManager) => {
-      const config = configManager.getConfig();
-      if (config.status === 'admin') {
-        return $state.go('admin.index');
-      } else if (!config.status) {
-        return $state.go('home.index');
+app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', '$http', '$interval', '$localStorage', 'userApi', 'configManager',
+  ($scope, $mdMedia, $mdSidenav, $state, $http, $interval, $localStorage, userApi, configManager) => {
+    const config = configManager.getConfig();
+    if (config.status === 'admin') {
+      return $state.go('admin.index');
+    } else if (!config.status) {
+      return $state.go('home.index');
+    } else {
+      $scope.setMainLoading(false);
+    }
+    $scope.setConfig(config);
+
+    $scope.innerSideNav = true;
+    $scope.sideNavWidth = () => {
+      if ($scope.innerSideNav) {
+        return {
+          width: '200px',
+        };
       } else {
-        $scope.setMainLoading(false);
+        return {
+          width: '60px',
+        };
       }
-      $scope.setConfig(config);
+    };
+    $scope.menuButton = function () {
+      if ($scope.menuButtonIcon) {
+        return $scope.menuButtonClick();
+      }
+      if ($mdMedia('gt-sm')) {
+        $scope.innerSideNav = !$scope.innerSideNav;
+      } else {
+        $mdSidenav('left').toggle();
+      }
+    };
+    $scope.menus = [{
+      name: '首页',
+      icon: 'home',
+      click: 'user.index'
+    }, {
+      name: '账号',
+      icon: 'account_circle',
+      click: 'user.account'
+    }, {
+      name: '订单',
+      icon: 'attach_money',
+      click: 'user.order',
+      hide: true,
+    }, {
+      name: '设置',
+      icon: 'settings',
+      click: 'user.settings'
+    }, {
+      name: 'divider',
+    }, {
+      name: '退出',
+      icon: 'exit_to_app',
+      click: function () {
+        $http.post('/api/home/logout').then(() => {
+          $localStorage.home = {};
+          $localStorage.user = {};
+          configManager.deleteConfig();
+          $state.go('home.index');
+        });
+      },
+    }];
+    $scope.menuClick = index => {
+      $mdSidenav('left').close();
+      if (typeof $scope.menus[index].click === 'function') {
+        $scope.menus[index].click();
+      } else {
+        $state.go($scope.menus[index].click);
+      }
+    };
 
-      $scope.innerSideNav = true;
-      $scope.sideNavWidth = () => {
-        if ($scope.innerSideNav) {
-          return {
-            width: '200px',
-          };
-        } else {
-          return {
-            width: '60px',
-          };
-        }
+    $http.get('/api/user/order').then(success => {
+      if (success.data.length) {
+        $scope.menus[2].hide = false;
       };
-      $scope.menuButton = function () {
-        if ($scope.menuButtonIcon) {
-          return $scope.menuButtonClick();
-        }
-        if ($mdMedia('gt-sm')) {
-          $scope.innerSideNav = !$scope.innerSideNav;
-        } else {
-          $mdSidenav('left').toggle();
-        }
-      };
-      $scope.menus = [{
-        name: '首页',
-        icon: 'home',
-        click: 'user.index'
-      }, {
-        name: '账号',
-        icon: 'account_circle',
-        click: 'user.account'
-      }, {
-        name: '订单',
-        icon: 'attach_money',
-        click: 'user.order',
-        hide: true,
-      }, {
-        name: '设置',
-        icon: 'settings',
-        click: 'user.settings'
-      }, {
-        name: 'divider',
-      }, {
-        name: '退出',
-        icon: 'exit_to_app',
-        click: function () {
-          $http.post('/api/home/logout').then(() => {
-            $localStorage.home = {};
-            $localStorage.user = {};
-            configManager.deleteConfig();
-            $state.go('home.index');
-          });
-        },
-      }];
-      $scope.menuClick = index => {
-        $mdSidenav('left').close();
-        if (typeof $scope.menus[index].click === 'function') {
-          $scope.menus[index].click();
-        } else {
-          $state.go($scope.menus[index].click);
-        }
-      };
+    });
 
-      $http.get('/api/user/order').then(success => {
-        if (success.data.length) {
-          $scope.menus[2].hide = false;
-        };
-      });
-
-      $scope.menuButtonIcon = '';
-      $scope.menuButtonClick = () => { };
-      $scope.setMenuButton = (icon, to) => {
-        $scope.menuButtonIcon = icon;
-        $scope.menuButtonClick = () => {
-          $state.go(to);
-        };
+    $scope.menuButtonIcon = '';
+    $scope.menuButtonClick = () => { };
+    $scope.setMenuButton = (icon, to) => {
+      $scope.menuButtonIcon = icon;
+      $scope.menuButtonClick = () => {
+        $state.go(to);
       };
+    };
 
-      $scope.title = '';
-      $scope.setTitle = str => { $scope.title = str; };
+    $scope.title = '';
+    $scope.setTitle = str => { $scope.title = str; };
+    $scope.fabButton = false;
+    $scope.fabButtonIcon = '';
+    $scope.fabButtonClick = () => { };
+    $scope.setFabButton = (fn, icon = '') => {
+      $scope.fabButtonIcon = icon;
+      if (!fn) {
+        $scope.fabButton = false;
+        $scope.fabButtonClick = () => { };
+        return;
+      }
+      $scope.fabButton = true;
+      $scope.fabButtonClick = fn;
+    };
+    //搜索
+    $scope.menuSearchButtonIcon = '';
+    $scope.menuSearch = {
+      input: false,
+      text: '',
+    };
+    $scope.menuSearchButtonClick = () => {
+      $scope.menuSearch.input = true;
+    };
+    $scope.setMenuSearchButton = (icon) => {
+      $scope.menuSearchButtonIcon = icon;
+    };
+    $scope.cancelSearch = () => {
+      $scope.menuSearch.text = '';
+      $scope.menuSearch.input = false;
+      $scope.$broadcast('cancelSearch', 'cancel');
+    };
+    //搜索end
+    $scope.interval = null;
+    $scope.setInterval = interval => {
+      $scope.interval = interval;
+    };
+    $scope.$on('$stateChangeStart', function (event, toUrl, fromUrl) {
       $scope.fabButton = false;
       $scope.fabButtonIcon = '';
-      $scope.fabButtonClick = () => { };
-      $scope.setFabButton = (fn, icon = '') => {
-        $scope.fabButtonIcon = icon;
-        if (!fn) {
-          $scope.fabButton = false;
-          $scope.fabButtonClick = () => { };
-          return;
-        }
-        $scope.fabButton = true;
-        $scope.fabButtonClick = fn;
-      };
-      $scope.interval = null;
-      $scope.setInterval = interval => {
-        $scope.interval = interval;
-      };
-      $scope.$on('$stateChangeStart', function (event, toUrl, fromUrl) {
-        $scope.fabButton = false;
-        $scope.fabButtonIcon = '';
-        $scope.title = '';
-        $scope.interval && $interval.cancel($scope.interval);
-        $scope.menuButtonIcon = '';
-      });
+      $scope.title = '';
+      $scope.interval && $interval.cancel($scope.interval);
+      $scope.menuButtonIcon = '';
+      $scope.menuSearchButtonIcon = '';
+      $scope.menuSearch.text = '';
+      $scope.menuSearch.input = false;
+    });
 
-      if (!$localStorage.user.serverInfo && !$localStorage.user.accountInfo) {
-        userApi.getUserAccount().then(success => {
-          $localStorage.user.serverInfo = {
-            data: success.servers,
-            time: Date.now(),
-          };
-          $localStorage.user.accountInfo = {
-            data: success.account,
-            time: Date.now(),
-          };
-        });
-      };
-    }
-  ])
+    if (!$localStorage.user.serverInfo && !$localStorage.user.accountInfo) {
+      userApi.getUserAccount().then(success => {
+        $localStorage.user.serverInfo = {
+          data: success.servers,
+          time: Date.now(),
+        };
+        $localStorage.user.accountInfo = {
+          data: success.account,
+          time: Date.now(),
+        };
+      });
+    };
+  }
+])
   .controller('UserIndexController', ['$scope', '$state', 'userApi', 'markdownDialog',
     ($scope, $state, userApi, markdownDialog) => {
       $scope.setTitle('首页');
@@ -151,9 +171,15 @@ app
       };
     }
   ])
-  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', '$q', '$state',
-    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, $q, $state) => {
+  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', '$q', '$state', '$timeout',
+    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, $q, $state, $timeout) => {
       $scope.setTitle('账号');
+      $scope.setMenuSearchButton('search');
+      $scope.currentPage = 1;
+      const getPageSize = 10;
+      $scope.isUserLoading = false;
+      $scope.isUserPageFinish = false;
+      $scope.users = [];
       $scope.setFabButton($scope.config.multiAccount ? () => {
         $scope.createOrder();
       } : null);
@@ -171,7 +197,8 @@ app
           data: [],
         };
       }
-      $scope.account = $localStorage.user.accountInfo.data;
+      //$scope.account = $localStorage.user.accountInfo.data;
+      $scope.account = [];
       if ($scope.account.length >= 2) {
         $scope.flexGtSm = 50;
       }
@@ -185,39 +212,88 @@ app
       };
       setAccountServerList($scope.account, $scope.servers);
 
-      const getUserAccountInfo = () => {
-        userApi.getUserAccount().then(success => {
+      const getUserAccountInfo = (search) => {
+        $scope.isUserLoading = true;
+        userApi.getUserAccountPage({
+          page: $scope.currentPage,
+          pageSize: getPageSize,
+          search
+        }).then(success => {
+          $scope.total = success.account.total;
+          if (!search && $scope.menuSearch.text) { return; }
+          if (search && search !== $scope.menuSearch.text) { return; }
           $scope.servers = success.servers;
-          if (success.account.map(m => m.id).join('') === $scope.account.map(m => m.id).join('')) {
-            success.account.forEach((a, index) => {
-              $scope.account[index].data = a.data;
-              $scope.account[index].password = a.password;
-              $scope.account[index].port = a.port;
-              $scope.account[index].type = a.type;
-              $scope.account[index].active = a.active;
-            });
-          } else {
-            $scope.account = success.account;
-            $scope.account.forEach(f => {
-              const serverId = $scope.servers.filter((server, index) => {
-                if (!f.server) { return index === 0; }
-                return f.server.indexOf(server.id) >= 0;
-              })[0].id;
-              $scope.getServerPortData(f, serverId);
-            });
-          }
+          // if (success.account.map(m => m.id).join('') === $scope.account.map(m => m.id).join('')) {
+          //   success.account.forEach((a, index) => {
+          //     $scope.account[index].data = a.data;
+          //     $scope.account[index].password = a.password;
+          //     $scope.account[index].port = a.port;
+          //     $scope.account[index].type = a.type;
+          //     $scope.account[index].active = a.active;
+          //   });
+          // } else {
+          //   $scope.account = success.account;
+          //   $scope.account.forEach(f => {
+          //     const serverId = $scope.servers.filter((server, index) => {
+          //       if (!f.server) { return index === 0; }
+          //       return f.server.indexOf(server.id) >= 0;
+          //     })[0].id;
+          //     $scope.getServerPortData(f, serverId);
+          //   });
+          // }
+          success.account.account.forEach(f => {
+            const serverId = $scope.servers.filter((server, index) => {
+              if (!f.server) { return index === 0; }
+              return f.server.indexOf(server.id) >= 0;
+            })[0].id;
+            $scope.getServerPortData(f, serverId);
+            $scope.account.push(f);
+          });
+          console.log($scope.account);
+          //$scope.account = success.account;
           setAccountServerList($scope.account, $scope.servers);
           $localStorage.user.serverInfo.data = success.servers;
           $localStorage.user.serverInfo.time = Date.now();
-          $localStorage.user.accountInfo.data = success.account;
+          //$localStorage.user.accountInfo.data = success.account;
           $localStorage.user.accountInfo.time = Date.now();
           if ($scope.account.length >= 2) {
             $scope.flexGtSm = 50;
           }
+          if (success.account.maxPage > $scope.currentPage) {
+            $scope.currentPage++;
+          } else {
+            console.log(success.account.maxPage, $scope.currentPage);
+            $scope.isUserPageFinish = true;
+          }
+          $scope.isUserLoading = false;
         });
       };
-      getUserAccountInfo();
+      getUserAccountInfo($scope.menuSearch.text);
 
+      $scope.$on('cancelSearch', () => {
+        $scope.account = [];
+        $scope.currentPage = 1;
+        $scope.isUserPageFinish = false;
+        getUserAccountInfo($scope.menuSearch.text);
+      });
+
+      let timeoutPromise;
+      $scope.$watch('menuSearch.text', () => {
+        console.log($scope.menuSearch.text);
+        $scope.isUserPageFinish = false;
+        $scope.account = [];
+        $scope.currentPage = 1;
+        if (!$scope.menuSearch.text) { return; }
+        timeoutPromise && $timeout.cancel(timeoutPromise);
+        timeoutPromise = $timeout(() => {
+          //getUserAccountInfo($scope.menuSearch.text);
+        }, 500);
+      });
+      $scope.view = (inview) => {
+        console.log('上拉加载', inview, $scope.isUserLoading, $scope.isUserPageFinish);
+        if (!inview || $scope.isUserLoading || $scope.isUserPageFinish) { return; }
+        getUserAccountInfo($scope.menuSearch.text);
+      };
       const base64Encode = str => {
         return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
           return String.fromCharCode('0x' + p1);

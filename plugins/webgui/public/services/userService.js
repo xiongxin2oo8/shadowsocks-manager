@@ -3,7 +3,7 @@ const app = angular.module('app');
 app.factory('userApi', ['$q', '$http', ($q, $http) => {
   let userAccountPromise = null;
   const getUserAccount = () => {
-    if(userAccountPromise && !userAccountPromise.$$state.status) {
+    if (userAccountPromise && !userAccountPromise.$$state.status) {
       return userAccountPromise;
     }
     let account = null;
@@ -25,8 +25,41 @@ app.factory('userApi', ['$q', '$http', ($q, $http) => {
     return userAccountPromise;
   };
 
+  let userAccountPagePromise = null;
+  const getUserAccountPage = (opt) => {
+    if (userAccountPagePromise && !userAccountPagePromise.$$state.status) {
+      return userAccountPagePromise;
+    }
+    opt = opt || {};
+    const search = opt.search || '';
+    const page = opt.page || 1;
+    const pageSize = opt.pageSize || 10;
+    let account = null;
+    let servers = null;
+    userAccountPagePromise = $q.all([
+      $http.get('/api/user/accountpage', {
+        params: {
+          search,
+          page,
+          pageSize
+        }
+      }),
+      $http.get('/api/user/server'),
+    ]).then(success => {
+      return {
+        account: success[0].data,
+        servers: success[1].data.map(server => {
+          // if(server.host.indexOf(':') >= 0) {
+          //   server.host = server.host.split(':')[1];
+          // }
+          return server;
+        }),
+      };
+    });
+    return userAccountPagePromise;
+  };
   const changeShadowsocksPassword = (accountId, password) => {
-    return $http.put(`/api/user/${ accountId }/password`, {
+    return $http.put(`/api/user/${accountId}/password`, {
       password,
     });
   };
@@ -39,7 +72,7 @@ app.factory('userApi', ['$q', '$http', ($q, $http) => {
   };
 
   const updateAccount = account => {
-    if(!account.length) {
+    if (!account.length) {
       return $http.get('/api/user/account').then(success => {
         success.data.forEach(a => {
           account.push(a);
@@ -47,8 +80,8 @@ app.factory('userApi', ['$q', '$http', ($q, $http) => {
       });
     } else {
       account.forEach((a, index) => {
-        $http.get(`/api/user/account/${ a.id }`).then(success => {
-          if(!success.data.id) {
+        $http.get(`/api/user/account/${a.id}`).then(success => {
+          if (!success.data.id) {
             account.splice(index, 1);
             return;
           }
@@ -63,24 +96,24 @@ app.factory('userApi', ['$q', '$http', ($q, $http) => {
 
   let serverPortDataPromise = {};
   const getServerPortData = (account, serverId) => {
-    if(serverPortDataPromise[`${ account.id }`] && !serverPortDataPromise[`${ account.id }`].$$state.status) {
-      return serverPortDataPromise[`${ account.id }`];
+    if (serverPortDataPromise[`${account.id}`] && !serverPortDataPromise[`${account.id}`].$$state.status) {
+      return serverPortDataPromise[`${account.id}`];
     }
     const Promises = [
-      $http.get(`/api/user/flow/${ serverId }/${ account.id }/lastConnect`),
+      $http.get(`/api/user/flow/${serverId}/${account.id}/lastConnect`),
     ];
-    if(account.type >= 2 && account.type <= 5) {
+    if (account.type >= 2 && account.type <= 5) {
       Promises.push(
-        $http.get(`/api/user/flow/${ serverId }/${ account.id }`)
+        $http.get(`/api/user/flow/${serverId}/${account.id}`)
       );
     }
-    serverPortDataPromise[`${ account.id }`] = $q.all(Promises).then(success => {
+    serverPortDataPromise[`${account.id}`] = $q.all(Promises).then(success => {
       return {
         lastConnect: success[0].data.lastConnect,
         flow: success[1] ? success[1].data[0] : null,
       };
     });
-    return serverPortDataPromise[`${ account.id }`];
+    return serverPortDataPromise[`${account.id}`];
   };
 
   const getNotice = () => {
@@ -90,6 +123,7 @@ app.factory('userApi', ['$q', '$http', ($q, $http) => {
   return {
     getServerPortData,
     getUserAccount,
+    getUserAccountPage,
     changeShadowsocksPassword,
     changePassword,
     updateAccount,
