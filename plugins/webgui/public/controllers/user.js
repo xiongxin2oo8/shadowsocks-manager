@@ -179,7 +179,6 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       const getPageSize = 10;
       $scope.isUserLoading = false;
       $scope.isUserPageFinish = false;
-      $scope.users = [];
       $scope.setFabButton($scope.config.multiAccount ? () => {
         $scope.createOrder();
       } : null);
@@ -199,6 +198,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       }
       //$scope.account = $localStorage.user.accountInfo.data;
       $scope.account = [];
+      $scope.total =0;
       if ($scope.account.length >= 2) {
         $scope.flexGtSm = 50;
       }
