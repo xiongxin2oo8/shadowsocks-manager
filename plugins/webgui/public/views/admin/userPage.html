@@ -132,7 +132,7 @@
             <md-card-content>
                 <div layout="row" layout-align="space-between center">
                     <div flex="70" style="font-size: 0.9em;">
-                        <span>{{order.orderId+(order.account?'('+order.account+')'':'')}}</span>
+                        <span>{{order.orderId+(order.account?'('+order.account+')':'')}}</span>
                         <br>
                         <span style="font-size: 0.9em;">{{order.createTime | timeago }}</span>
                     </div>
