@@ -51,7 +51,8 @@ const saveFlow = async () => {
           clear: true,
         };
 
-        if (!server.enable) {
+        if (server.enable === 0) {
+          console.log('saveFlow', '服务器未启用')
           return;
         }
         let flow = await manager.send({
