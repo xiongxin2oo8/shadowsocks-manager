@@ -26,7 +26,7 @@ const modifyAccountFlow = async (serverId, accountId, time) => {
 
 const isPortExists = async (server, account) => {
   if (!server.enable) {
-    console.log('服务器未启用');
+    console.log('isPortExists 服务器未启用');
     return false;
   }
   const ports = (await manager.send({ command: 'list' }, {
