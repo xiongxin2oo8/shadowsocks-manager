@@ -151,11 +151,18 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
     };
   }
 ])
-  .controller('UserIndexController', ['$scope', '$state', 'userApi', 'markdownDialog',
-    ($scope, $state, userApi, markdownDialog) => {
+  .controller('UserIndexController', ['$scope', '$state', 'userApi', 'markdownDialog', '$sessionStorage', 'autopopDialog',
+    ($scope, $state, userApi, markdownDialog, $sessionStorage, autopopDialog) => {
       $scope.setTitle('首页');
       userApi.getNotice().then(success => {
         $scope.notices = success;
+        if (!$sessionStorage.showNotice) {
+          $sessionStorage.showNotice = true;
+          const autopopNotice = $scope.notices.filter(notice => notice.autopop);
+          if (autopopNotice.length) {
+            autopopDialog.show(autopopNotice);
+          }
+        }
       });
       $scope.toMyAccount = () => {
         $state.go('user.account');
@@ -176,7 +183,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.setTitle('账号');
       $scope.setMenuSearchButton('search');
       $scope.currentPage = 1;
-      const getPageSize = 10;
+      const getPageSize = 6;
       $scope.isUserLoading = false;
       $scope.isUserPageFinish = false;
       $scope.setFabButton($scope.config.multiAccount ? () => {
@@ -198,7 +205,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       }
       //$scope.account = $localStorage.user.accountInfo.data;
       $scope.account = [];
-      $scope.total =0;
+      $scope.total = 0;
       if ($scope.account.length >= 2) {
         $scope.flexGtSm = 50;
       }
@@ -247,7 +254,9 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
               return f.server.indexOf(server.id) >= 0;
             })[0].id;
             $scope.getServerPortData(f, serverId);
-            $scope.account.push(f);
+            if ($scope.account.map(m => m.id).indexOf(f.id) < 0) {
+              $scope.account.push(f);
+            }
           });
           console.log($scope.account);
           //$scope.account = success.account;

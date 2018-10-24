@@ -1,5 +1,6 @@
-<md-dialog aria-label="qrcode dialog" ng-style="setDialogWidth()">
-    <md-toolbar hide-gt-sm>
+<md-dialog aria-label="qrcode dialog">
+    <!-- ng-style="setDialogWidth()" -->
+    <!-- <md-toolbar hide-gt-sm>
         <div class="md-toolbar-tools">
             <h2>{{ publicInfo.serverName }}</h2>
             <span flex></span>
@@ -7,25 +8,29 @@
                 <md-icon class="material-icons" aria-label="Close dialog">close</md-icon>
             </md-button>
         </div>
-    </md-toolbar>
+    </md-toolbar> -->
     <md-dialog-content>
         <div class="md-dialog-content">
-            <div layout="column" layout-align="center center">
+            <div style="text-align:center;font-size:20px;display: -webkit-box;word-break: break-all;-webkit-box-orient: vertical;-webkit-line-clamp: 1; overflow: hidden;text-overflow: ellipsis">{{ publicInfo.serverName }}</div>
+            <div layout="column" layout-align="center center" style="margin-top:10px">
                 <a ng-href="{{ publicInfo.ssAddress+'#'+ publicInfo.serverName }}">
                     <qr layout-margin text="publicInfo.ssAddress" image="true"></qr>
                 </a>
                 <div>
-                    <br>{{ '点击二维码或者用移动设备扫描二维码可自动填充服务器信息' | translate }}
+                    <br>
+                    <span style="font-size:14px;">{{ '点击二维码或者用移动设备扫描二维码可自动填充服务器信息' | translate }}</span>
                 </div>
             </div>
             <div layout="row" layout-align="center" style="margin-top: 25px;">
                 <div>
-                    <md-button class="md-primary" ngclipboard data-clipboard-text="{{ publicInfo.ssAddress+'#'+ publicInfo.serverName }}" ngclipboard-success="toast(e);">
+                    <md-button class="md-primary" ngclipboard data-clipboard-text="{{ publicInfo.ssAddress+'#'+ publicInfo.serverName }}"
+                        ngclipboard-success="toast(e);">
                         复制SS链接
                     </md-button>
                 </div>
                 <div>
-                    <md-button class="md-primary" ngclipboard data-clipboard-text="{{ publicInfo.ssrAddress }}" ngclipboard-success="toast(e);">
+                    <md-button class="md-primary" ngclipboard data-clipboard-text="{{ publicInfo.ssrAddress }}"
+                        ngclipboard-success="toast(e);">
                         复制SSR链接
                     </md-button>
                 </div>
