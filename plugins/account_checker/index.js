@@ -200,7 +200,7 @@ const addPort = (server, account) => {
 const deleteExtraPorts = async serverInfo => {
   try {
     if (!serverInfo.enable) {
-      console.log('服务器未启用');
+      console.log('deleteExtraPorts 服务器未启用');
       return false;
     }
     const currentPorts = await manager.send({ command: 'list' }, {

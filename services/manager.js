@@ -46,7 +46,7 @@ const checkData = async (receive) => {
 };
 
 const sendMessage = (data, options) => {
-  if (!options.enable) {
+  if (options.enable == 0) {
     console.log('服务器未启用！');
     return null;
   }
