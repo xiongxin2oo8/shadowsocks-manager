@@ -9,9 +9,9 @@
             <md-list-item ng-repeat="order in orders track by $index">
                 <div flex layout="row" layout-align="space-between center" ng-click="showOrderInfo(order)">
                     <div flex="30" flex-xs="60">
-                        <span hide-xs hide-sm>{{order.orderId+(order.account?'('+order.account+')':'')}}</span>
+                        <span hide-xs hide-sm>{{order.orderId}}</span>
                         <span hide-gt-sm>
-                            <span style="font-size: 0.9em;">{{ order.orderId }}</span><br><span style="font-size: 0.9em;">{{
+                            <span style="font-size: 0.9em;">{{ order.orderId+(order.account?'('+order.account+')':'') }}</span><br><span style="font-size: 0.9em;">{{
                                 order.createTime | timeago }}</span>
                         </span>
                     </div>

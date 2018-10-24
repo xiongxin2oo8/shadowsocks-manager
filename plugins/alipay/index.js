@@ -337,7 +337,7 @@ const getUserFinishOrder = async userId => {
       type: '支付宝',
       amount: order.amount,
       createTime: order.createTime,
-      account
+      account: order.account
     };
   });
   return orders;
