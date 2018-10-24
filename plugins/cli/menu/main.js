@@ -31,14 +31,17 @@ const mainMeun = () => {
   inquirer.prompt(main)
   .then(success => {
     if(success.mainMeun === 'list port') {
+      console.log('list port');
       return listPort.list();
     } else if(success.mainMeun === 'add port') {
       return addPort.add();
     } else if(success.mainMeun === 'list server') {
+      console.log('list server');
       return listServer.list();
     } else if(success.mainMeun === 'add server') {
       return addServer.add();
     } else if(success.mainMeun === 'flow') {
+      console.log('flow');
       return flow.getFlow();
     }
   }).then(() => {

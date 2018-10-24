@@ -27,7 +27,7 @@ const updateAccountFlow = async (serverId, accountId, flow) => {
     serverId,
     accountId,
   }).then(success => success[0]);
-  if(!exists) { return; }
+  if (!exists) { return; }
   await knex('account_flow').update({
     flow: exists.flow + flow,
     updateTime: Date.now(),
@@ -46,18 +46,22 @@ const saveFlow = async () => {
       const lastestFlow = await knex('saveFlow').select(['time']).where({
         id: server.id,
       }).orderBy('time', 'desc').limit(1);
-      if(lastestFlow.length === 0 || Date.now() - lastestFlow[0].time >= time) {
+      if (lastestFlow.length === 0 || Date.now() - lastestFlow[0].time >= time) {
         const options = {
           clear: true,
         };
+
+        if (!server.enable) {
+          return;
+        }
         let flow = await manager.send({
           command: 'flow',
           options,
         }, {
-          host: server.host,
-          port: server.port,
-          password: server.password,
-        });
+            host: server.host,
+            port: server.port,
+            password: server.password,
+          });
         flow = flow.map(f => {
           return {
             id: server.id,
@@ -69,14 +73,14 @@ const saveFlow = async () => {
         }).filter(f => {
           return f.flow > 0;
         });
-        if(flow.length === 0) {
+        if (flow.length === 0) {
           return;
         }
         flow.forEach(async f => {
           await updateAccountFlow(f.id, f.accountId, f.flow);
         });
         const insertPromises = [];
-        for(let i = 0; i < Math.ceil(flow.length / 50); i++) {
+        for (let i = 0; i < Math.ceil(flow.length / 50); i++) {
           const insert = knex('saveFlow').insert(flow.slice(i * 50, i * 50 + 50));
           insertPromises.push(insert);
         }
@@ -87,10 +91,10 @@ const saveFlow = async () => {
     //   promises.push(saveServerFlow(server));
     // });
     // await Promise.all(promises);
-    for(const server of servers) {
+    for (const server of servers) {
       await saveServerFlow(server);
     }
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     return;
   }

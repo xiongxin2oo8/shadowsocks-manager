@@ -41,6 +41,7 @@ const password = {
 
 const listPort = async () => {
   try {
+    console.log('cli/menu/listPort');
     const result = await manager.send({
       command: 'list',
     }, index.getManagerAddress());

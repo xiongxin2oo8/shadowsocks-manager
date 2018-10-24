@@ -124,6 +124,7 @@ const setKey = async (key, value) => {
 };
 
 const checkPort = async () => {
+  console.log('checkPort')
   let changePasswordMark = false;
   const accounts = await manager.send({ command: 'list' });
   accounts.forEach(account => {

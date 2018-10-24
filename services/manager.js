@@ -46,6 +46,10 @@ const checkData = async (receive) => {
 };
 
 const sendMessage = (data, options) => {
+  if (!options.enable) {
+    console.log('服务器未启用！');
+    return null;
+  }
   if (options && options.host) {
     options.host = options.host.split(':')[0];
   }
@@ -132,6 +136,7 @@ const send = async (data, options) => {
         host: ip,
         port: options.port,
         password: options.password,
+        enable: options.enable
       }).catch(err => {
         return null;
       });

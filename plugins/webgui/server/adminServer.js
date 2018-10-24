@@ -20,20 +20,21 @@ exports.getOneServer = (req, res) => {
   knex('server').select().where({
     id: +serverId,
   }).then(success => {
-    if(success.length) {
+    if (success.length) {
       result = success[0];
-      if(noPort) { return; }
+      if (noPort) { return; }
       return manager.send({
         command: 'list',
       }, {
-        host: success[0].host,
-        port: success[0].port,
-        password: success[0].password,
-      });
+          host: success[0].host,
+          port: success[0].port,
+          password: success[0].password,
+          enable: success[0].enable
+        });
     }
     res.status(404).end();
   }).then(success => {
-    if(success) { result.ports = success; }
+    if (success) { result.ports = success; }
     res.send(result);
   }).catch(err => {
     console.log(err);
@@ -44,24 +45,27 @@ exports.getOneServer = (req, res) => {
 exports.addServer = (req, res) => {
   req.checkBody('name', 'Invalid name').notEmpty();
   req.checkBody('address', 'Invalid address').notEmpty();
-  req.checkBody('port', 'Invalid port').isInt({min: 1, max: 65535});
+  req.checkBody('port', 'Invalid port').isInt({ min: 1, max: 65535 });
   req.checkBody('password', 'Invalid password').notEmpty();
   req.checkBody('method', 'Invalid method').notEmpty();
   req.checkBody('scale', 'Invalid scale').notEmpty();
   req.checkBody('shift', 'Invalid shift').isInt();
+  req.checkBody('enable', 'Invalid enable').isInt();
   req.getValidationResult().then(result => {
-    if(result.isEmpty()) {
+    if (result.isEmpty()) {
       const address = req.body.address;
       const port = +req.body.port;
       const password = req.body.password;
+      const enable = +req.body.enable;
       return manager.send({
         command: 'flow',
         options: { clear: false, },
       }, {
-        host: address,
-        port,
-        password,
-      });
+          host: address,
+          port,
+          password,
+          enable
+        });
     }
     result.throw();
   }).then(success => {
@@ -73,6 +77,7 @@ exports.addServer = (req, res) => {
     const method = req.body.method;
     const scale = req.body.scale;
     const shift = req.body.shift;
+    const enable = +req.body.enable;
     // return serverManager.add(name, address, port, password, method, scale, comment, shift);
     return serverManager.add({
       name,
@@ -83,6 +88,7 @@ exports.addServer = (req, res) => {
       scale,
       comment,
       shift,
+      enable
     });
   }).then(success => {
     res.send('success');
@@ -95,24 +101,27 @@ exports.addServer = (req, res) => {
 exports.editServer = (req, res) => {
   req.checkBody('name', 'Invalid name').notEmpty();
   req.checkBody('address', 'Invalid address').notEmpty();
-  req.checkBody('port', 'Invalid port').isInt({min: 1, max: 65535});
+  req.checkBody('port', 'Invalid port').isInt({ min: 1, max: 65535 });
   req.checkBody('password', 'Invalid password').notEmpty();
   req.checkBody('method', 'Invalid method').notEmpty();
   req.checkBody('scale', 'Invalid scale').notEmpty();
   req.checkBody('shift', 'Invalid shift').isInt();
+  req.checkBody('enable', 'Invalid enable').isInt();
   req.getValidationResult().then(result => {
-    if(result.isEmpty()) {
+    if (result.isEmpty()) {
       const address = req.body.address;
       const port = +req.body.port;
       const password = req.body.password;
+      const enable = +req.body.enable;
       return manager.send({
         command: 'flow',
         options: { clear: false, },
       }, {
-        host: address,
-        port,
-        password,
-      });
+          host: address,
+          port,
+          password,
+          enable
+        });
     }
     result.throw();
   }).then(success => {
@@ -126,6 +135,7 @@ exports.editServer = (req, res) => {
     const scale = req.body.scale;
     const shift = req.body.shift;
     const check = +req.body.check;
+    const enable = +req.body.enable;
     return serverManager.edit({
       id: serverId,
       name,
@@ -137,6 +147,7 @@ exports.editServer = (req, res) => {
       comment,
       shift,
       check,
+      enable
     });
   }).then(success => {
     res.send('success');
@@ -149,10 +160,10 @@ exports.editServer = (req, res) => {
 exports.deleteServer = (req, res) => {
   const serverId = req.params.serverId;
   serverManager.del(serverId)
-  .then(success => {
-    res.send('success');
-  }).catch(err => {
-    console.log(err);
-    res.status(403).end();
-  });
+    .then(success => {
+      res.send('success');
+    }).catch(err => {
+      console.log(err);
+      res.status(403).end();
+    });
 };

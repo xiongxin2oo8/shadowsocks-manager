@@ -3,8 +3,8 @@ const manager = appRequire('services/manager');
 const accountFlow = appRequire('plugins/account/accountFlow');
 
 const add = async options => {
-  const { name, host, port, password, method, scale = 1, comment = '', shift = 0 } = options;
-  const [ serverId ] = await knex('server').insert({
+  const { name, host, port, password, method, scale = 1, comment = '', shift = 0, enable = 1 } = options;
+  const [serverId] = await knex('server').insert({
     name,
     comment,
     host,
@@ -13,39 +13,40 @@ const add = async options => {
     method,
     scale,
     shift,
+    enable
   });
   accountFlow.addServer(serverId);
-  return [ serverId ];
+  return [serverId];
 };
 
 const del = (id) => {
   return knex.transaction(trx => {
     return knex('server').transacting(trx).where({ id }).delete()
-    .then(() => knex('saveFlow').transacting(trx).where({ id }).delete())
-    .then(trx.commit)
-    .catch(trx.rollback);
+      .then(() => knex('saveFlow').transacting(trx).where({ id }).delete())
+      .then(trx.commit)
+      .catch(trx.rollback);
   });
 };
 
 const edit = async options => {
-  const { id, name, host, port, password, method, scale = 1, comment = '', shift = 0, check } = options;
+  const { id, name, host, port, password, method, scale = 1, comment = '', shift = 0, check, enable = 1 } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
-  if(serverInfo.shift !== shift) {
+  if (serverInfo.shift !== shift) {
     const accounts = await knex('account_plugin').where({});
     (async server => {
-      for(account of accounts) {
+      for (account of accounts) {
         await manager.send({
           command: 'del',
           port: account.port + server.shift,
         }, {
-          host: server.host,
-          port: server.port,
-          password: server.password,
-        }).catch();
+            host: server.host,
+            port: server.port,
+            password: server.password,
+          }).catch();
       }
     })(serverInfo);
   }
-  if(check) { accountFlow.editServer(id); }
+  if (check) { accountFlow.editServer(id); }
   return knex('server').where({ id }).update({
     name,
     comment,
@@ -55,6 +56,7 @@ const edit = async options => {
     method,
     scale,
     shift,
+    enable
   });
 };
 
@@ -70,20 +72,20 @@ const list = async (options = {}) => {
     'comment',
     'shift',
   ]).orderBy('name');
-  if(options.status) {
+  if (options.status) {
     const serverStatus = [];
     const getServerStatus = (server, index) => {
       return manager.send({
         command: 'version',
       }, {
-        host: server.host,
-        port: server.port,
-        password: server.password,
-      }).then(success => {
-        return { status: success.version, isGfw: success.isGfw, index };
-      }).catch(error => {
-        return { status: -1, index };
-      });
+          host: server.host,
+          port: server.port,
+          password: server.password,
+        }).then(success => {
+          return { status: success.version, isGfw: success.isGfw, index };
+        }).catch(error => {
+          return { status: -1, index };
+        });
     };
     serverList.forEach((server, index) => {
       serverStatus.push(getServerStatus(server, index));

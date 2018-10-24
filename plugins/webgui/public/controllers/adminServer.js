@@ -400,6 +400,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           comment: $scope.server.comment,
           scale: $scope.server.scale,
           shift: $scope.server.shift,
+          enabled: 1
         }, {
             timeout: 15000,
           }).then(success => {
@@ -457,6 +458,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.method = success.data.method;
           $scope.server.scale = success.data.scale;
           $scope.server.shift = success.data.shift;
+          $scope.server.enable = success.data.enable;
         });
       $scope.confirm = () => {
         alertDialog.loading();
@@ -470,6 +472,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           scale: $scope.server.scale,
           shift: $scope.server.shift,
           check: $scope.server.check,
+          enable: $scope.server.enable,
         }).then(success => {
           alertDialog.show('修改服务器成功', '确定');
           $state.go('admin.serverPage', { serverId: $stateParams.serverId });

@@ -18,6 +18,7 @@ const createTable = async () => {
       table.string('method').defaultTo('aes-256-cfb');
       table.string('comment').defaultTo('');
       table.integer('shift').defaultTo(0);
+      table.integer('enable').defaultTo(0);
     });
   }
   const list = await knex('server').select(['name', 'host', 'port', 'password']);
