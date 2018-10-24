@@ -208,6 +208,7 @@ const orderList = async (options = {}) => {
     'alipay.alipayData',
     'alipay.createTime',
     'alipay.expireTime',
+    'alipay.account'
   ])
     .leftJoin('user', 'user.id', 'alipay.user')
     .leftJoin('account_plugin', 'account_plugin.id', 'alipay.account')
@@ -243,6 +244,7 @@ const orderListAndPaging = async (options = {}) => {
     'alipay.alipayData',
     'alipay.createTime',
     'alipay.expireTime',
+    'alipay.account'
   ])
     .leftJoin('user', 'user.id', 'alipay.user')
     .leftJoin('account_plugin', 'account_plugin.id', 'alipay.account')
@@ -297,6 +299,7 @@ const getCsvOrder = async (options = {}) => {
     'alipay.alipayData',
     'alipay.createTime',
     'alipay.expireTime',
+    'alipay.account'
   ])
     .leftJoin('user', 'user.id', 'alipay.user')
     .leftJoin('account_plugin', 'account_plugin.id', 'alipay.account')
@@ -324,6 +327,7 @@ const getUserFinishOrder = async userId => {
     'orderId',
     'amount',
     'createTime',
+    'account'
   ]).where({
     user: userId,
   }).orderBy('createTime', 'DESC');
@@ -333,6 +337,7 @@ const getUserFinishOrder = async userId => {
       type: '支付宝',
       amount: order.amount,
       createTime: order.createTime,
+      account
     };
   });
   return orders;

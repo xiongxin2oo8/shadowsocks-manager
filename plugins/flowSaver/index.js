@@ -39,7 +39,7 @@ const updateAccountFlow = async (serverId, accountId, flow) => {
 
 const saveFlow = async () => {
   try {
-    const servers = await knex('server').select(['id', 'name', 'host', 'port', 'password', 'shift']);
+    const servers = await knex('server').select(['id', 'name', 'host', 'port', 'password', 'shift', 'enable']);
     await updateAccountInfo();
     // const promises = [];
     const saveServerFlow = async server => {
