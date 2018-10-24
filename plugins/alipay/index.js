@@ -143,7 +143,8 @@ cron.minute(async () => {
       });
       isTelegram && telegram.push(`订单[ ${ order.orderId } ][ ${ order.amount } ]支付成功`);
       return account.setAccountLimit(userId, accountId, order.orderType)
-      .then(() => {
+      .then((port) => {
+        console.log('alipay_port',port);
         return knex('alipay').update({
           status: 'FINISH',
         }).where({
