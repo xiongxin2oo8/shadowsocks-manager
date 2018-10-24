@@ -194,6 +194,7 @@ const addPort = (server, account) => {
       host: server.host,
       port: server.port,
       password: server.password,
+      enable: server.enable
     }).catch();
 };
 
@@ -308,7 +309,7 @@ const checkAccount = async (serverId, accountId) => {
     } catch (err) {
       console.log(err);
       const end = Date.now();
-      if(end - start <= 67 * 1000) {
+      if (end - start <= 67 * 1000) {
         await sleep(67 * 1000 - (end - start));
       }
     }
@@ -347,8 +348,8 @@ const checkAccount = async (serverId, accountId) => {
     } catch (err) { }
 
     try {
-      if(accounts.length <= 120) {
-        for(const account of accounts) {
+      if (accounts.length <= 120) {
+        for (const account of accounts) {
           const start = Date.now();
           await checkAccount(account.serverId, account.accountId).catch();
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
@@ -361,9 +362,9 @@ const checkAccount = async (serverId, accountId) => {
           });
         }));
       }
-      if(accounts.length) {
-        logger.info(`check ${ accounts.length } accounts, ${ Date.now() - start } ms`);
-        if(accounts.length < 30) {
+      if (accounts.length) {
+        logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms`);
+        if (accounts.length < 30) {
           await sleep((30 - accounts.length) * 1000);
         }
       } else {
@@ -371,7 +372,7 @@ const checkAccount = async (serverId, accountId) => {
       }
     } catch (err) {
       const end = Date.now();
-      if(end - start <= 60 * 1000) {
+      if (end - start <= 60 * 1000) {
         await sleep(60 * 1000 - (end - start));
       }
     }
