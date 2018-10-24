@@ -287,20 +287,25 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       });
 
       let timeoutPromise;
+      let flag = false;//防止搜索过程触发上拉加载
       $scope.$watch('menuSearch.text', () => {
         console.log($scope.menuSearch.text);
+        flag = true;
         $scope.isUserPageFinish = false;
         $scope.account = [];
         $scope.currentPage = 1;
         if (!$scope.menuSearch.text) { return; }
         timeoutPromise && $timeout.cancel(timeoutPromise);
         timeoutPromise = $timeout(() => {
-          //getUserAccountInfo($scope.menuSearch.text);
+          console.log('开始搜索...');
+          getUserAccountInfo($scope.menuSearch.text);
+          flag = false;
         }, 500);
       });
       $scope.view = (inview) => {
+        console.log(flag);
         console.log('上拉加载', inview, $scope.isUserLoading, $scope.isUserPageFinish);
-        if (!inview || $scope.isUserLoading || $scope.isUserPageFinish) { return; }
+        if (!inview || $scope.isUserLoading || $scope.isUserPageFinish || flag) { return; }
         getUserAccountInfo($scope.menuSearch.text);
       };
       const base64Encode = str => {
