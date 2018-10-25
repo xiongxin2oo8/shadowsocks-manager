@@ -208,19 +208,10 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
       $scope.showQrcodeDialog = (method, password, host, port, serverName) => {
         const ssAddress = $scope.createQrCode(method, password, host, port, serverName);
         const ssrAddress = $scope.SSRAddress(method, password, host, port, serverName);
-        qrcodeDialog.show(serverName, ssAddress,ssrAddress);
+        qrcodeDialog.show(serverName, ssAddress, ssrAddress);
       };
       $scope.editAccount = id => {
         $state.go('admin.editAccount', { accountId: id });
-      };
-
-      $scope.getQrCodeSize = () => {
-        if ($mdMedia('xs')) {
-          return 230;
-        } else if ($mdMedia('lg')) {
-          return 240;
-        }
-        return 180;
       };
 
       $scope.flowType = {
@@ -264,11 +255,11 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
                 label: function (tooltipItem, data) {
                   const label = data.labels[tooltipItem.index];
                   const datasetLabel = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                  return label + ': ' + scaleLabel(datasetLabel);
+                  return [label, scaleLabel(datasetLabel)];
                 }
-              }
+              },
             },
-          },
+          }
         };
         $scope.lineChart = {
           data: [lineData],
@@ -306,6 +297,9 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
             $scope.sumFlow = success[0].data.reduce((a, b) => {
               return a + b;
             }, 0);
+            $scope.sumFlowForAllServer = success[1].data.reduce((a, b) => {
+              return { flow: a.flow + b.flow };
+            }, { flow: 0 });
             setChart(success[0].data, success[1].data);
           });
         if ($scope.flowType.value === 'hour') {
@@ -324,90 +318,97 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
           day: 24 * 3600 * 1000,
           week: 7 * 24 * 3600 * 1000,
         };
-        flowTime[$scope.flowType.value] += number * time[$scope.flowType.value];
-        $scope.getChartData(serverId);
-      };
-      $scope.resetFlowTime = serverId => {
-        flowTime[$scope.flowType.value] = Date.now();
-        $scope.getChartData(serverId);
-      };
-      $scope.getChartSize = () => {
-        if ($mdMedia('xs')) {
-          return {
-            line: [320, 170],
-            pie: [170, 170],
+        $scope.changeFlowTime = (serverId, number) => {
+          const time = {
+            hour: 3600 * 1000,
+            day: 24 * 3600 * 1000,
+            week: 7 * 24 * 3600 * 1000,
           };
-        } else if ($mdMedia('sm')) {
-          return {
-            line: [360, 190],
-            pie: [190, 190],
-          };
-        } else if ($mdMedia('md')) {
-          return {
-            line: [360, 180],
-            pie: [180, 180],
-          };
-        } else if ($mdMedia('gt-md')) {
-          return {
-            line: [540, 240],
-            pie: [240, 240],
-          };
-        }
-      };
-      $scope.fontColor = account => {
-        if (account.data.expire >= Date.now()) {
-          return {
-            color: '#333',
-          };
-        }
-        return {
-          color: '#a33',
+          flowTime[$scope.flowType.value] += number * time[$scope.flowType.value];
+          $scope.getChartData(serverId);
         };
-      };
-      $scope.toUserPage = userId => {
-        if (!userId) { return; }
-        $state.go('admin.userPage', { userId });
-      };
-      $scope.clientIp = (serverId, accountId) => {
-        ipDialog.show(serverId, accountId);
-      };
-      $scope.cycleStyle = account => {
-        let percent = 0;
-        if (account.type !== 1) {
-          percent = ((Date.now() - account.data.from) / (account.data.to - account.data.from) * 100).toFixed(0);
-        }
-        if (percent > 100) {
-          percent = 100;
-        }
-        return {
-          background: `linear-gradient(90deg, rgba(0,0,0,0.12) ${percent}%, rgba(0,0,0,0) 0%)`
+        $scope.resetFlowTime = serverId => {
+          flowTime[$scope.flowType.value] = Date.now();
+          $scope.getChartData(serverId);
         };
-      };
-      $scope.setFabButton($scope.id === 1 ? () => {
-        $scope.editAccount($scope.account.id);
-      } : null, 'mode_edit');
-      $scope.setExpireTime = number => {
-        $scope.expireTimeShift += number;
-      };
-      $scope.expireTimeSheet = time => {
-        if ($scope.id !== 1) { return; }
-        if (!time) { return; }
-        $scope.expireTimeShift = 0;
-        $mdBottomSheet.show({
-          templateUrl: '/public/views/admin/setExpireTime.html',
-          preserveScope: true,
-          scope: $scope,
-        }).catch(() => {
-          $http.put(`/api/admin/account/${$scope.accountId}/time`, {
-            time: $scope.expireTimeShift,
-            check: true,
-          }).then(success => {
-            $http.get(`/api/admin/account/${$scope.accountId}`).then(success => {
-              $scope.account = success.data;
+        $scope.getChartSize = () => {
+          if ($mdMedia('xs')) {
+            return {
+              line: [320, 170],
+              pie: [170, 170],
+            };
+          } else if ($mdMedia('sm')) {
+            return {
+              line: [360, 190],
+              pie: [190, 190],
+            };
+          } else if ($mdMedia('md')) {
+            return {
+              line: [360, 180],
+              pie: [180, 180],
+            };
+          } else if ($mdMedia('gt-md')) {
+            return {
+              line: [540, 240],
+              pie: [240, 240],
+            };
+          }
+        };
+        $scope.fontColor = account => {
+          if (account.data.expire >= Date.now()) {
+            return {
+              color: '#333',
+            };
+          }
+          return {
+            color: '#a33',
+          };
+        };
+        $scope.toUserPage = userId => {
+          if (!userId) { return; }
+          $state.go('admin.userPage', { userId });
+        };
+        $scope.clientIp = (serverId, accountId) => {
+          ipDialog.show(serverId, accountId);
+        };
+        $scope.cycleStyle = account => {
+          let percent = 0;
+          if (account.type !== 1) {
+            percent = ((Date.now() - account.data.from) / (account.data.to - account.data.from) * 100).toFixed(0);
+          }
+          if (percent > 100) {
+            percent = 100;
+          }
+          return {
+            background: `linear-gradient(90deg, rgba(0,0,0,0.12) ${percent}%, rgba(0,0,0,0) 0%)`
+          };
+        };
+        $scope.setFabButton($scope.id === 1 ? () => {
+          $scope.editAccount($scope.account.id);
+        } : null, 'mode_edit');
+        $scope.setExpireTime = number => {
+          $scope.expireTimeShift += number;
+        };
+        $scope.expireTimeSheet = time => {
+          if ($scope.id !== 1) { return; }
+          if (!time) { return; }
+          $scope.expireTimeShift = 0;
+          $mdBottomSheet.show({
+            templateUrl: '/public/views/admin/setExpireTime.html',
+            preserveScope: true,
+            scope: $scope,
+          }).catch(() => {
+            $http.put(`/api/admin/account/${$scope.accountId}/time`, {
+              time: $scope.expireTimeShift,
+              check: true,
+            }).then(success => {
+              $http.get(`/api/admin/account/${$scope.accountId}`).then(success => {
+                $scope.account = success.data;
+              });
             });
           });
-        });
-      };
+        };
+      }
     }
   ])
   .controller('AdminAddAccountController', ['$scope', '$state', '$stateParams', '$http', '$mdBottomSheet', 'alertDialog', '$filter',

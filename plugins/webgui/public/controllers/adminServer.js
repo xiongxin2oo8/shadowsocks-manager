@@ -388,6 +388,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       $scope.server = {
         scale: 1,
         shift: 0,
+        enable: 1
       };
       $scope.confirm = () => {
         alertDialog.loading();
@@ -400,7 +401,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           comment: $scope.server.comment,
           scale: $scope.server.scale,
           shift: $scope.server.shift,
-          enabled: 1
+          enable: $scope.server.enable
         }, {
             timeout: 15000,
           }).then(success => {

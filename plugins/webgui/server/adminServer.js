@@ -52,6 +52,7 @@ exports.addServer = (req, res) => {
   req.checkBody('shift', 'Invalid shift').isInt();
   req.checkBody('enable', 'Invalid enable').isInt();
   req.getValidationResult().then(result => {
+    console.log('req.body',req.body);
     if (result.isEmpty()) {
       const address = req.body.address;
       const port = +req.body.port;
