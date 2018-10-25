@@ -226,7 +226,7 @@ const deleteExtraPorts = async serverInfo => {
 
 const checkAccount = async (serverId, accountId) => {
   try {
-    console.log('checkAccount')
+    //console.log('checkAccount')
     const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
     if (!serverInfo) {
       await knex('account_flow').delete().where({ serverId });
