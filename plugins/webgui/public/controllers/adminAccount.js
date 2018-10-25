@@ -198,7 +198,6 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
       };
       $scope.createQrCode = (method, password, host, port, serverName) => {
         let str = 'ss://' + base64Encode(method + ':' + password + '@' + host + ':' + port);
-        console.log('str', str);
         return str;
       };
       $scope.SSRAddress = (method, password, host, port, serverName) => {
@@ -318,97 +317,90 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
           day: 24 * 3600 * 1000,
           week: 7 * 24 * 3600 * 1000,
         };
-        $scope.changeFlowTime = (serverId, number) => {
-          const time = {
-            hour: 3600 * 1000,
-            day: 24 * 3600 * 1000,
-            week: 7 * 24 * 3600 * 1000,
-          };
-          flowTime[$scope.flowType.value] += number * time[$scope.flowType.value];
-          $scope.getChartData(serverId);
-        };
-        $scope.resetFlowTime = serverId => {
-          flowTime[$scope.flowType.value] = Date.now();
-          $scope.getChartData(serverId);
-        };
-        $scope.getChartSize = () => {
-          if ($mdMedia('xs')) {
-            return {
-              line: [320, 170],
-              pie: [170, 170],
-            };
-          } else if ($mdMedia('sm')) {
-            return {
-              line: [360, 190],
-              pie: [190, 190],
-            };
-          } else if ($mdMedia('md')) {
-            return {
-              line: [360, 180],
-              pie: [180, 180],
-            };
-          } else if ($mdMedia('gt-md')) {
-            return {
-              line: [540, 240],
-              pie: [240, 240],
-            };
-          }
-        };
-        $scope.fontColor = account => {
-          if (account.data.expire >= Date.now()) {
-            return {
-              color: '#333',
-            };
-          }
+        flowTime[$scope.flowType.value] += number * time[$scope.flowType.value];
+        $scope.getChartData(serverId);
+      };
+      $scope.resetFlowTime = serverId => {
+        flowTime[$scope.flowType.value] = Date.now();
+        $scope.getChartData(serverId);
+      };
+      $scope.getChartSize = () => {
+        if ($mdMedia('xs')) {
           return {
-            color: '#a33',
+            line: [320, 170],
+            pie: [170, 170],
           };
-        };
-        $scope.toUserPage = userId => {
-          if (!userId) { return; }
-          $state.go('admin.userPage', { userId });
-        };
-        $scope.clientIp = (serverId, accountId) => {
-          ipDialog.show(serverId, accountId);
-        };
-        $scope.cycleStyle = account => {
-          let percent = 0;
-          if (account.type !== 1) {
-            percent = ((Date.now() - account.data.from) / (account.data.to - account.data.from) * 100).toFixed(0);
-          }
-          if (percent > 100) {
-            percent = 100;
-          }
+        } else if ($mdMedia('sm')) {
           return {
-            background: `linear-gradient(90deg, rgba(0,0,0,0.12) ${percent}%, rgba(0,0,0,0) 0%)`
+            line: [360, 190],
+            pie: [190, 190],
           };
+        } else if ($mdMedia('md')) {
+          return {
+            line: [360, 180],
+            pie: [180, 180],
+          };
+        } else if ($mdMedia('gt-md')) {
+          return {
+            line: [540, 240],
+            pie: [240, 240],
+          };
+        }
+      };
+      $scope.fontColor = account => {
+        if (account.data.expire >= Date.now()) {
+          return {
+            color: '#333',
+          };
+        }
+        return {
+          color: '#a33',
         };
-        $scope.setFabButton($scope.id === 1 ? () => {
-          $scope.editAccount($scope.account.id);
-        } : null, 'mode_edit');
-        $scope.setExpireTime = number => {
-          $scope.expireTimeShift += number;
+      };
+      $scope.toUserPage = userId => {
+        if (!userId) { return; }
+        $state.go('admin.userPage', { userId });
+      };
+      $scope.clientIp = (serverId, accountId) => {
+        ipDialog.show(serverId, accountId);
+      };
+      $scope.cycleStyle = account => {
+        let percent = 0;
+        if (account.type !== 1) {
+          percent = ((Date.now() - account.data.from) / (account.data.to - account.data.from) * 100).toFixed(0);
+        }
+        if (percent > 100) {
+          percent = 100;
+        }
+        return {
+          background: `linear-gradient(90deg, rgba(0,0,0,0.12) ${percent}%, rgba(0,0,0,0) 0%)`
         };
-        $scope.expireTimeSheet = time => {
-          if ($scope.id !== 1) { return; }
-          if (!time) { return; }
-          $scope.expireTimeShift = 0;
-          $mdBottomSheet.show({
-            templateUrl: '/public/views/admin/setExpireTime.html',
-            preserveScope: true,
-            scope: $scope,
-          }).catch(() => {
-            $http.put(`/api/admin/account/${$scope.accountId}/time`, {
-              time: $scope.expireTimeShift,
-              check: true,
-            }).then(success => {
-              $http.get(`/api/admin/account/${$scope.accountId}`).then(success => {
-                $scope.account = success.data;
-              });
+      };
+      $scope.setFabButton($scope.id === 1 ? () => {
+        $scope.editAccount($scope.account.id);
+      } : null, 'mode_edit');
+      $scope.setExpireTime = number => {
+        $scope.expireTimeShift += number;
+      };
+      $scope.expireTimeSheet = time => {
+        if ($scope.id !== 1) { return; }
+        if (!time) { return; }
+        $scope.expireTimeShift = 0;
+        $mdBottomSheet.show({
+          templateUrl: '/public/views/admin/setExpireTime.html',
+          preserveScope: true,
+          scope: $scope,
+        }).catch(() => {
+          $http.put(`/api/admin/account/${$scope.accountId}/time`, {
+            time: $scope.expireTimeShift,
+            check: true,
+          }).then(success => {
+            $http.get(`/api/admin/account/${$scope.accountId}`).then(success => {
+              $scope.account = success.data;
             });
           });
-        };
-      }
+        });
+      };
     }
   ])
   .controller('AdminAddAccountController', ['$scope', '$state', '$stateParams', '$http', '$mdBottomSheet', 'alertDialog', '$filter',
