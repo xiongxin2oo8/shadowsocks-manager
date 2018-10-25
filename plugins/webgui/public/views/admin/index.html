@@ -58,7 +58,7 @@
                     <md-list-item ng-repeat="order in orders">
                         <div flex layout="row" layout-align="space-between center" ng-click="showOrderInfo(order)">
                             <div flex="30" flex-xs="60">
-                                <span style="font-size: 0.9em;">{{ order.orderId+(order.account?'('+order.account+')':'')  }}</span><br><span style="font-size: 0.9em;">{{
+                                <span style="font-size: 0.9em;">{{ order.orderId }}({{order.port||'端口已删除'}})</span><br><span style="font-size: 0.9em;">{{
                                     order.createTime | timeago }}</span>
                             </div>
                             <div flex="30" flex-xs="40" style="text-align: right;">

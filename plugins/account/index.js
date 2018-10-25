@@ -23,7 +23,7 @@ const addAccount = async (type, options) => {
       autoRemove: 0,
     });
     await accountFlow.add(accountId);
-    return;
+    return accountId;
   } else if (type >= 2 && type <= 5) {
     const [accountId] = await knex('account_plugin').insert({
       type,
@@ -44,7 +44,7 @@ const addAccount = async (type, options) => {
       active: options.active,
     });
     await accountFlow.add(accountId);
-    return;
+    return accountId;
   }
 };
 
@@ -382,7 +382,7 @@ const addAccountLimitToMonth = async (userId, accountId, number = 1) => {
 };
 
 const setAccountLimit = async (userId, accountId, orderId) => {
-  console.log('新端口？',userId, accountId, orderId);
+  console.log('新端口？', userId, accountId, orderId);
   const orderInfo = await orderPlugin.getOneOrder(orderId);
   if (orderInfo.baseId) {
     await knex('webgui_flow_pack').insert({
@@ -495,7 +495,7 @@ const setAccountLimit = async (userId, accountId, orderId) => {
       });
     };
     const port = await getNewPort();
-    await addAccount(orderType, {
+    let accountId = await addAccount(orderType, {
       orderId,
       user: userId,
       port,
@@ -509,7 +509,7 @@ const setAccountLimit = async (userId, accountId, orderId) => {
       multiServerFlow: orderInfo.multiServerFlow ? 1 : 0,
       active: 0,
     });
-    return port;
+    return accountId;
   }
   const accountData = JSON.parse(account.data);
   accountData.flow = orderInfo.flow;

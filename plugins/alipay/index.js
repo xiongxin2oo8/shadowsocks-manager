@@ -143,11 +143,11 @@ cron.minute(async () => {
       });
       isTelegram && telegram.push(`订单[ ${order.orderId} ][ ${order.amount} ]支付成功`);
       return account.setAccountLimit(userId, accountId, order.orderType)
-        .then((port) => {
+        .then((accountId) => {
           console.log('alipay_port', port);
           return knex('alipay').update({
             status: 'FINISH',
-            account: port || null
+            account: accountId || null
           }).where({
             orderId: order.orderId,
           });
@@ -200,6 +200,7 @@ const orderList = async (options = {}) => {
   const orders = await knex('alipay').select([
     'alipay.orderId',
     'alipay.orderType',
+    'webgui_order.name as orderName',
     'user.id as userId',
     'user.username',
     'account_plugin.port',
@@ -207,11 +208,11 @@ const orderList = async (options = {}) => {
     'alipay.status',
     'alipay.alipayData',
     'alipay.createTime',
-    'alipay.expireTime',
-    'alipay.account'
+    'alipay.expireTime'
   ])
     .leftJoin('user', 'user.id', 'alipay.user')
     .leftJoin('account_plugin', 'account_plugin.id', 'alipay.account')
+    .leftJoin('webgui_order', 'webgui_order.id', 'alipay.orderType')
     .where(where)
     .orderBy('alipay.createTime', 'DESC');
   orders.forEach(f => {
@@ -243,8 +244,7 @@ const orderListAndPaging = async (options = {}) => {
     'alipay.status',
     'alipay.alipayData',
     'alipay.createTime',
-    'alipay.expireTime',
-    'alipay.account'
+    'alipay.expireTime'
   ])
     .leftJoin('user', 'user.id', 'alipay.user')
     .leftJoin('account_plugin', 'account_plugin.id', 'alipay.account')
@@ -290,6 +290,7 @@ const getCsvOrder = async (options = {}) => {
   let orders = knex('alipay').select([
     'alipay.orderId',
     'alipay.orderType',
+    'webgui_order.name as orderName',
     'user.id as userId',
     'user.group as group',
     'user.username',
@@ -298,11 +299,11 @@ const getCsvOrder = async (options = {}) => {
     'alipay.status',
     'alipay.alipayData',
     'alipay.createTime',
-    'alipay.expireTime',
-    'alipay.account'
+    'alipay.expireTime'
   ])
     .leftJoin('user', 'user.id', 'alipay.user')
     .leftJoin('account_plugin', 'account_plugin.id', 'alipay.account')
+    .leftJoin('webgui_order', 'webgui_order.id', 'alipay.orderType')
     .whereBetween('alipay.createTime', [start, end]);
 
   if (filter.length) {
@@ -327,17 +328,19 @@ const getUserFinishOrder = async userId => {
     'orderId',
     'amount',
     'createTime',
-    'account'
-  ]).where({
-    user: userId,
-  }).orderBy('createTime', 'DESC');
+    'account_plugin.port',
+  ])
+    .leftJoin('account_plugin', 'account_plugin.id', 'alipay.account')
+    .where({
+      user: userId,
+    }).orderBy('createTime', 'DESC');
   orders = orders.map(order => {
     return {
       orderId: order.orderId,
       type: '支付宝',
       amount: order.amount,
       createTime: order.createTime,
-      account: order.account
+      port: order.port
     };
   });
   return orders;
