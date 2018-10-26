@@ -61,7 +61,7 @@ const day_push = async () => {
   const pay_info = await knex('alipay')
     .sum('amount')
     .count('id as count')
-    .where('createTime', [begin_time, end_time])
+    .whereBetween('createTime', [begin_time, end_time])
     .where('status','FINISH');
   await push(`主人，晚上好！`);
   await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
@@ -70,10 +70,9 @@ const day_push = async () => {
   await push(`各个服务器使用情况：\n${server_info}`);
   await push(`今天共产生 ${pay_info.count} 个订单，共筹得 ${pay_info.amount} 元`);
 }
-cron.minute(() => {
+cron.cron(() => {
   if (isTelegram) {
     day_push();
   }
-}, 5);
-
+}, '30 15 * * *');
 exports.push = push;
