@@ -74,5 +74,5 @@ cron.cron(() => {
   if (isTelegram) {
     day_push();
   }
-}, '30 15 * * *');
+}, '35 15 * * *');
 exports.push = push;
