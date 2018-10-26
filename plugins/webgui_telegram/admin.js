@@ -29,7 +29,6 @@ const flowNumber = (number) => {
 //每天消息推送
 const isTelegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
 const day_push = async () => {
-  push('主人，晚上好！');
   let begin_time = moment(new Date()).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
   let end_time = new Date().getTime();
   //当日登录用户数
@@ -41,16 +40,12 @@ const day_push = async () => {
   }).whereBetween('createTime', [begin_time, end_time]).then(success => success[0].count);
   push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
   //总账号数，使用订阅数
-  await knex('account_plugin').countDistinct('id as count').countDistinct('subscribe as sub_count').then(success => {
-    push(`截止目前，总共有 ${success[0].count} 个账号使用了我们的服务，其中订阅 ${success[0].sub_count} 个`);
-  });
+  const total_info = await knex('account_plugin').countDistinct('id as count').countDistinct('subscribe as sub_count').then(success => success[0]);
   //当日使用端口数
-  await knex('saveflow').countDistinct('id as count').whereBetween('time', [begin_time, end_time]).then(success => {
-    push(`今天，总共有 ${success[0].count} 个账号在使用中`);
-  });
+  const today_info = await knex('saveflow').countDistinct('id as count').whereBetween('time', [begin_time, end_time]).then(success => success[0]);
 
   //各个服务器使用情况
-  const server = await knex('saveflow')
+  const server_info = await knex('saveflow')
     .leftJoin('server', 'saveflow.id', 'server.id')
     .countDistinct('saveflow.accountId as count')
     .sum('saveflow.flow as flow')
@@ -58,11 +53,15 @@ const day_push = async () => {
     .groupBy('saveflow.id')
     .whereBetween('time', [begin_time, end_time])
     .then(success => {
-      let msg = success.map(item => {
+      return success.map(item => {
         return `${item.name} 使用账号数：${item.count} 使用流量：${flowNumber(item.flow)}`;
-      }).join('\r\n')
-      push(`各个服务器使用情况：\r\n${msg}`);
+      }).join('\n\n')
     });
+  await push(`主人，晚上好！`);
+  await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
+  await push(`截止目前，共有账号数 ${total_info.count} 个，其中有 ${total_info.sub_count} 个正在使用订阅`);
+  await push(`今天，共有 ${today_info.count} 个账号使用服务`);
+  await push(`各个服务器使用情况：${server_info}`);
 }
 cron.minute(() => {
   if (isTelegram) {
