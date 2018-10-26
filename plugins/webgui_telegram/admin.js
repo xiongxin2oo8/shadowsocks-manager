@@ -15,8 +15,9 @@ const getAdmin = async () => {
 };
 
 const push = async (message) => {
-  const telegramId = await getAdmin();
-  telegramId && telegram.emit('send', +telegramId, message);
+  console.log(message);
+  // const telegramId = await getAdmin();
+  // telegramId && telegram.emit('send', +telegramId, message);
 };
 
 const flowNumber = (number) => {
@@ -41,20 +42,20 @@ const day_push = async () => {
   //总账号数，使用订阅数
   const total_info = await knex('account_plugin').countDistinct('id as count').countDistinct('subscribe as sub_count').then(success => success[0]);
   //当日使用端口数
-  const today_info = await knex('saveflow').countDistinct('id as count').whereBetween('time', [begin_time, end_time]).then(success => success[0]);
+  const today_info = await knex('saveFlow').countDistinct('id as count').whereBetween('time', [begin_time, end_time]).then(success => success[0]);
 
   //各个服务器使用情况
-  const server_info = await knex('saveflow')
-    .leftJoin('server', 'saveflow.id', 'server.id')
-    .countDistinct('saveflow.accountId as count')
-    .sum('saveflow.flow as flow')
+  const server_info = await knex('saveFlow')
+    .leftJoin('server', 'saveFlow.id', 'server.id')
+    .countDistinct('saveFlow.accountId as count')
+    .sum('saveFlow.flow as flow')
     .select('server.name')
-    .groupBy('saveflow.id')
+    .groupBy('saveFlow.id')
     .whereBetween('time', [begin_time, end_time])
     .then(success => {
       return success.map(item => {
         return `${item.name} 使用账号数：${item.count} 使用流量：${flowNumber(item.flow)}`;
-      }).join('\n\n')
+      }).join('\n')
     });
   push(`主人，晚上好！`);
   push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
