@@ -44,8 +44,8 @@ const day_push = async () => {
   const today_info = await knex('saveFlow').countDistinct('accountId as count').whereBetween('time', [begin_time, end_time]).then(success => success[0]);
 
   //各个服务器使用情况
-  const server_info = await knex('server')
-    .leftJoin('saveFlow', 'saveFlow.id', 'server.id')
+  const server_info = await knex('saveFlow')
+    .leftJoin('server', 'saveFlow.id', 'server.id')
     .countDistinct('saveFlow.accountId as count')
     .sum('saveFlow.flow as flow')
     .select('server.name')
@@ -62,7 +62,9 @@ const day_push = async () => {
     .sum('amount')
     .count('id as count')
     .whereBetween('createTime', [begin_time, end_time])
-    .where('status','FINISH');
+    .where('status', 'FINISH')
+    .then(success => success[0]);
+
   await push(`主人，晚上好！`);
   await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
   await push(`截止目前，共有账号数 ${total_info.count} 个，其中有 ${total_info.sub_count} 个正在使用订阅`);
@@ -74,5 +76,5 @@ cron.cron(() => {
   if (isTelegram) {
     day_push();
   }
-}, '35 15 * * *');
+}, '50 15 * * *');
 exports.push = push;
