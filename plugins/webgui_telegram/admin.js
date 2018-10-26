@@ -48,20 +48,20 @@ const day_push = async () => {
     .leftJoin('server', 'saveFlow.id', 'server.id')
     .countDistinct('saveFlow.accountId as count')
     .sum('saveFlow.flow as flow')
-    .select('server.comment')
+    .select('server.name')
     .groupBy('saveFlow.id')
     .orderBy('server.comment')
     .whereBetween('time', [begin_time, end_time])
     .then(success => {
       return success.map(item => {
-        return `${item.comment} 使用账号数：${item.count} 使用流量：${flowNumber(item.flow)}`;
+        return `${item.name} 账号数：${item.count} 总流量：${flowNumber(item.flow)}`;
       }).join('\n')
     });
-  push(`主人，晚上好！`);
-  push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
-  push(`截止目前，共有账号数 ${total_info.count} 个，其中有 ${total_info.sub_count} 个正在使用订阅`);
-  push(`今天，共有 ${today_info.count} 个账号使用服务`);
-  push(`各个服务器使用情况：\n${server_info}`);
+  await push(`主人，晚上好！`);
+  await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
+  await push(`截止目前，共有账号数 ${total_info.count} 个，其中有 ${total_info.sub_count} 个正在使用订阅`);
+  await push(`今天，共有 ${today_info.count} 个账号使用服务`);
+  await push(`各个服务器使用情况：\n${server_info}`);
 }
 cron.minute(() => {
   if (isTelegram) {
