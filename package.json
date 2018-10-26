@@ -1,6 +1,6 @@
 {
   "name": "shadowsocks-manager",
-  "version": "0.27.1",
+  "version": "0.27.2",
   "description": "A shadowsocks manager tool for multi user and traffic control.",
   "main": "server.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "gulp-babel": "^8.0.0",
     "gulp-concat": "^2.6.1",
     "uglifyjs-webpack-plugin": "^2.0.1",
-    "webpack": "^4.20.2",
+    "webpack": "^4.23.0",
     "webpack-stream": "^5.1.1"
   },
   "dependencies": {
@@ -60,7 +60,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "socks": "^2.2.1",
-    "sqlite3": "^4.0.2",
+    "sqlite3": "^4.0.3",
     "uuid": "^3.3.2",
     "web-push": "^3.3.3",
     "ws": "^6.1.0"
