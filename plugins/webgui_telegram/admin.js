@@ -38,7 +38,6 @@ const day_push = async () => {
   const newuser = await knex('user').count('id as count').whereNot({
     type: 'admin'
   }).whereBetween('createTime', [begin_time, end_time]).then(success => success[0].count);
-  push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
   //总账号数，使用订阅数
   const total_info = await knex('account_plugin').countDistinct('id as count').countDistinct('subscribe as sub_count').then(success => success[0]);
   //当日使用端口数
@@ -57,11 +56,11 @@ const day_push = async () => {
         return `${item.name} 使用账号数：${item.count} 使用流量：${flowNumber(item.flow)}`;
       }).join('\n\n')
     });
-  await push(`主人，晚上好！`);
-  await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
-  await push(`截止目前，共有账号数 ${total_info.count} 个，其中有 ${total_info.sub_count} 个正在使用订阅`);
-  await push(`今天，共有 ${today_info.count} 个账号使用服务`);
-  await push(`各个服务器使用情况：${server_info}`);
+  push(`主人，晚上好！`);
+  push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
+  push(`截止目前，共有账号数 ${total_info.count} 个，其中有 ${total_info.sub_count} 个正在使用订阅`);
+  push(`今天，共有 ${today_info.count} 个账号使用服务`);
+  push(`各个服务器使用情况：${server_info}`);
 }
 cron.minute(() => {
   if (isTelegram) {
