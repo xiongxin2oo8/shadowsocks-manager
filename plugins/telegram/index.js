@@ -1,6 +1,6 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('telegram');
-
+const cron = appRequire('init/cron');
 const rp = require('request-promise');
 const knex = appRequire('init/knex').knex;
 const _ = require('lodash');
@@ -9,6 +9,8 @@ const config = appRequire('services/config').all();
 const token = config.plugins.telegram.token;
 
 const url = `https://api.telegram.org/bot${ token }/`;
+
+
 
 const setUpdateId = async (id) => {
   try {

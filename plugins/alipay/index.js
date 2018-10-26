@@ -143,11 +143,11 @@ cron.minute(async () => {
       });
       isTelegram && telegram.push(`订单[ ${order.orderId} ][ ${order.amount} ]支付成功`);
       return account.setAccountLimit(userId, accountId, order.orderType)
-        .then((accountId) => {
-          console.log('alipay_port', port);
+        .then((account_id) => {
+          logger.info(`订单支付成功,修改状态: [${order.orderId}][${order.amount}][account: ${account_id}]`);
           return knex('alipay').update({
             status: 'FINISH',
-            account: accountId || null
+            account: accountId || account_id
           }).where({
             orderId: order.orderId,
           });
@@ -325,7 +325,7 @@ const getCsvOrder = async (options = {}) => {
 
 const getUserFinishOrder = async userId => {
   let orders = await knex('alipay').select([
-    'orderId',
+    'alipay.orderId',
     'amount',
     'createTime',
     'account_plugin.port',
