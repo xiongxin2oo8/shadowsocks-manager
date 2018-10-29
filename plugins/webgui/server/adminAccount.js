@@ -222,11 +222,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
       let result = '';
       if (stype == 2) {
-        let default_server = subscribeAccount.server[0];
         let obj = {
           airport: baseSetting.title,
-          port: subscribeAccount.account.port + default_server.shift,
-          encryption: default_server.method,
+          port: 12580,
+          encryption: 'chacha20',
           password: subscribeAccount.account.password,
           traffic_used: ((flowInfo[0] || 10) / 1000000000).toFixed(2),
           traffic_total: accountInfo.type == 1 ? 10000 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
@@ -237,6 +236,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           return {
             id: s.id,
             server: s.host,
+            port: (subscribeAccount.account.port + s.shift),
+            encryption: s.method,
             ratio: s.scale,
             remarks: s.comment || '这里显示备注' + tag
           }
@@ -248,7 +249,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         result = subscribeAccount.server.map(s => {
           let tag = accountInfo.server.indexOf(s.id) >= 0 ? '' : '[当前套餐不可用]';
           if (stype == 0) {
-            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注') + tag;
+            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注') + tag;
           } else if (stype == 1) {
             return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64((s.comment || '这里显示备注') + tag) + '&group=' + urlsafeBase64(baseSetting.title));
           }
