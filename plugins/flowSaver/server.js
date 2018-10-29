@@ -12,8 +12,7 @@ const add = async options => {
     password,
     method,
     scale,
-    shift,
-    enable
+    shift
   });
   accountFlow.addServer(serverId);
   return [serverId];
@@ -55,8 +54,7 @@ const edit = async options => {
     password,
     method,
     scale,
-    shift,
-    enable
+    shift
   });
 };
 
@@ -70,7 +68,7 @@ const list = async (options = {}) => {
     'method',
     'scale',
     'comment',
-    'shift',
+    'shift'
   ]).orderBy('name');
   if (options.status) {
     const serverStatus = [];
@@ -80,7 +78,7 @@ const list = async (options = {}) => {
       }, {
           host: server.host,
           port: server.port,
-          password: server.password,
+          password: server.password
         }).then(success => {
           return { status: success.version, isGfw: success.isGfw, index };
         }).catch(error => {

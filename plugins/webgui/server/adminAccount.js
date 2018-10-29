@@ -148,7 +148,7 @@ const urlsafeBase64 = str => {
 
 exports.getSubscribeAccountForUser = async (req, res) => {
   try {
-    const ssr = req.query.ssr;
+    const stype = req.query.stype;
     const resolveIp = req.query.ip;
     const token = req.params.token;
     const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
@@ -198,10 +198,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
       const flowInfo = await flow.getServerPortFlowWithScale(0, accountInfo.id, [accountInfo.data.from, accountInfo.data.to], 1);
       console.log('flowInfo', flowInfo)
-
       //可以统一只设置ss,因为节点不用连接
       let tip = '';
-      if (ssr == 0) {
+      if (stype == 0) {
         let tip_time = '';
         if (accountInfo.type == 1) {
           tip_time = '不限时不限量';
@@ -210,7 +209,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           tip_time = accountInfo.data.expire <= new Date() ? '已过期' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss");
         }
         tip += 'ss://' + Buffer.from('aes-256-cfb:123456@115.115.115.115:50000').toString('base64') + '#过期时间：' + tip_time + '\r\n';
-      } else {
+      } else if (stype == 1) {
         let tip_time = '';
         if (accountInfo.type == 1) {
           tip_time = '不限时不限量';
@@ -221,14 +220,41 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         tip += 'ssr://' + urlsafeBase64('115.115.115.115:8080:origin:aes-256-cfb:plain:' + urlsafeBase64('123456') + '/?obfsparam=&remarks=' + urlsafeBase64('过期时间：' + tip_time) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
       }
 
-      let result = subscribeAccount.server.map(s => {
-        let tag = accountInfo.server.indexOf(s.id) >= 0 ? '' : '[当前套餐不可用]';
-        if (ssr === '1') {
-          return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64((s.comment || '这里显示备注') + tag) + '&group=' + urlsafeBase64(baseSetting.title));
-        }
-        return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注') + tag;
-      }).join('\r\n');
-      return res.send(Buffer.from(tip + result).toString('base64'));
+      let result = '';
+      if (stype == 2) {
+        let default_server = subscribeAccount.server[0];
+        let obj = {
+          airport: baseSetting.title,
+          port: subscribeAccount.account.port + default_server.shift,
+          encryption: default_server.method,
+          password: subscribeAccount.account.password,
+          traffic_used: ((flowInfo[0] || 10) / 1000000000).toFixed(2),
+          traffic_total: accountInfo.type == 1 ? 10000 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
+          expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
+        };
+        let servers = subscribeAccount.server.map(s => {
+          let tag = accountInfo.server.indexOf(s.id) >= 0 ? '' : '[当前套餐不可用]';
+          return {
+            id: s.id,
+            server: s.host,
+            ratio: s.scale,
+            remarks: s.comment || '这里显示备注' + tag
+          }
+        });
+        obj.servers = servers;
+        result = 'ssd://' + new Buffer(JSON.stringify(obj)).toString('base64');
+        return res.send(result);
+      } else {
+        result = subscribeAccount.server.map(s => {
+          let tag = accountInfo.server.indexOf(s.id) >= 0 ? '' : '[当前套餐不可用]';
+          if (stype == 0) {
+            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注') + tag;
+          } else if (stype == 1) {
+            return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64((s.comment || '这里显示备注') + tag) + '&group=' + urlsafeBase64(baseSetting.title));
+          }
+        }).join('\r\n');
+        return res.send(Buffer.from(tip + result).toString('base64'));
+      }
     }
   } catch (err) {
     console.log(err);

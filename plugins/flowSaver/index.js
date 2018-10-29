@@ -51,7 +51,7 @@ const saveFlow = async () => {
           clear: true,
         };
 
-        if (server.enable === 0) {
+        if (server.enable == 0) {
           console.log('saveFlow', '服务器未启用')
           return;
         }

@@ -200,7 +200,7 @@ const addPort = (server, account) => {
 
 const deleteExtraPorts = async serverInfo => {
   try {
-    if (!serverInfo.enable) {
+    if (serverInfo.enable == 0) {
       console.log('deleteExtraPorts 服务器未启用');
       return false;
     }
@@ -228,6 +228,9 @@ const checkAccount = async (serverId, accountId) => {
   try {
     //console.log('checkAccount')
     const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
+    if (serverInfo.enable == 0) {
+      return
+    }
     if (!serverInfo) {
       await knex('account_flow').delete().where({ serverId });
       return;
@@ -351,6 +354,7 @@ const checkAccount = async (serverId, accountId) => {
       if (accounts.length <= 120) {
         for (const account of accounts) {
           const start = Date.now();
+          //console.log('checkAccount', start);
           await checkAccount(account.serverId, account.accountId).catch();
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
@@ -358,6 +362,7 @@ const checkAccount = async (serverId, accountId) => {
       } else {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
+            //console.log('checkAccount', index);
             return checkAccount(account.serverId, account.accountId);
           });
         }));

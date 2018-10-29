@@ -67,8 +67,16 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
             server.host = servers[index].host;
             server.name = servers[index].name;
             server.port = servers[index].port;
-            server.status = servers[index].status;
-            server.isGfw = servers[index].isGfw;
+            let status = servers[index].status;
+            if (status != server.status) {
+              //消息推送
+            }
+            let isGfw = servers[index].isGfw;
+            if (isGfw != server.isGfw) {
+              //消息推送
+            }
+            server.status = status;
+            server.isGfw = isGfw;
             adminApi.getServerFlow(server.id).then(flow => {
               if (!server.flow) {
                 server.flow = {};
