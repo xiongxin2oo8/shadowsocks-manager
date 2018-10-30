@@ -41,7 +41,6 @@ const saveFlow = async () => {
   try {
     const servers = await knex('server').select(['id', 'name', 'host', 'port', 'password', 'shift', 'enable']);
     await updateAccountInfo();
-    // const promises = [];
     const saveServerFlow = async server => {
       const lastestFlow = await knex('saveFlow').select(['time']).where({
         id: server.id,
@@ -52,7 +51,7 @@ const saveFlow = async () => {
         };
 
         if (server.enable == 0) {
-          console.log('saveFlow', 'æœåŠ¡å™¨æœªå¯ç”¨')
+          console.log('saveFlow', '·þÎñÆ÷Î´ÆôÓÃ')
           return;
         }
         let flow = await manager.send({
@@ -88,12 +87,8 @@ const saveFlow = async () => {
         await Promise.all(insertPromises);
       }
     };
-    // servers.forEach(server => {
-    //   promises.push(saveServerFlow(server));
-    // });
-    // await Promise.all(promises);
     for (const server of servers) {
-      await saveServerFlow(server);
+      await saveServerFlow(server).catch();
     }
   } catch (err) {
     logger.error(err);
