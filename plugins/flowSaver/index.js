@@ -51,7 +51,7 @@ const saveFlow = async () => {
         };
 
         if (server.enable == 0) {
-          console.log('saveFlow', '·şÎñÆ÷Î´ÆôÓÃ')
+          console.log('saveFlow', 'æœåŠ¡å™¨æœªå¯ç”¨')
           return;
         }
         let flow = await manager.send({

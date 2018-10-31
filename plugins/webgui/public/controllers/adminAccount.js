@@ -5,6 +5,10 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
     $scope.setTitle('账号');
     $scope.setMenuRightButton('sort_by_alpha');
     $scope.setMenuSearchButton('search');
+    var currentPage = 1;
+    const getPageSize = 15;
+    $scope.isUserLoading = false;
+    $scope.isUserPageFinish = false;
     if (!$localStorage.admin.accountFilterSettings) {
       $localStorage.admin.accountFilterSettings = {
         sort: 'port_asc',
@@ -18,9 +22,29 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
     }
     $scope.accountMethod = $localStorage.admin.accountFilterSettings;
     $scope.accountInfo = {};
+    $scope.accountList = [];
     $scope.macAccountInfo = {};
+    //分页代码
+    const paging = () => {
+      console.log('开始分页');
+      let start = (currentPage - 1) * getPageSize;
+      let end = 0;
+      console.log(start, $scope.accountInfo.account.length);
+      if ((start + getPageSize) >= $scope.accountInfo.account.length) {
+        end = $scope.accountInfo.account.length;
+        $scope.isUserPageFinish = true;
+      } else {
+        end = start + getPageSize;
+        currentPage++;
+      }
+      $scope.accountList = $scope.accountList.concat($scope.accountInfo.account.slice(start, end))
+    }
     $scope.sortAndFilter = () => {
       accountSortTool($scope.accountInfo, $scope.accountMethod);
+      console.log('排序');
+      currentPage = 1;
+      $scope.accountList = [];
+      paging();
     };
     if (!$localStorage.admin.accountInfo) {
       $localStorage.admin.accountInfo = {
@@ -84,9 +108,6 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
     $scope.sortAndFilterDialog = () => {
       accountSortDialog.show($scope.accountMethod, $scope.accountInfo);
     };
-    $scope.$on('RightButtonClick', () => {
-      $scope.sortAndFilterDialog();
-    });
     const accountFilter = () => {
       accountSortTool($scope.accountInfo, $scope.accountMethod);
       $scope.accountInfo.account = $scope.accountInfo.account.filter(f => {
@@ -95,20 +116,46 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
       $scope.macAccountInfo.account = $scope.macAccountInfo.originalAccount.filter(f => {
         return (f.port + f.mac).indexOf($scope.menuSearch.text.replace(/-/g, '').replace(/:/g, '').toLowerCase()) >= 0;
       });
+      console.log('搜索数据');
     };
+    $scope.flowNumber = (number) => {
+      if (number < 1000) return number + ' B';
+      else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' KB';
+      else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' MB';
+      else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(2) + ' GB';
+    };
+    $scope.$on('RightButtonClick', () => {
+      $scope.sortAndFilterDialog();
+    });
     $scope.$on('cancelSearch', () => {
       accountSortTool($scope.accountInfo, $scope.accountMethod);
+      currentPage = 1;
+      $scope.accountList = [];
+      $scope.isUserPageFinish = false;
+      console.log('清除搜索');
+      paging();
     });
+    $scope.$watch("accountInfo", function () {
+      console.log('变化了');
+      currentPage = 1;
+      $scope.accountList = [];
+      paging();
+    }, true);
     $scope.$watch('menuSearch.text', () => {
       if (!$scope.menuSearch.input) {
         return;
       }
-      if (!$scope.menuSearch.text) {
-        accountSortTool($scope.accountInfo, $scope.accountMethod);
-        return;
-      }
+      // if (!$scope.menuSearch.text) {
+      //   accountSortTool($scope.accountInfo, $scope.accountMethod);
+      //   return;
+      // }
       accountFilter();
     });
+    $scope.view = (inview) => {
+      console.log('上拉加载');
+      if (!inview || $scope.isUserLoading || $scope.isUserPageFinish) { return; }
+      paging();
+    };
     $scope.accountColor = account => {
       if (account.type === 1) {
         return {

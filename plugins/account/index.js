@@ -90,72 +90,7 @@ const getAccount = async (options = {}) => {
   //account = await users.orderBy(sort.split('_')[0], sort.split('_')[1]).limit(pageSize).offset((page - 1) * pageSize);
   return account;
 };
-const getAccountPage = async (options = {}) => {
-  const search = options.search || '';
-  const page = options.page || 1;
-  const pageSize = options.pageSize || 100000;
-  const where = {};
-  if (options.id) {
-    where['account_plugin.id'] = options.id;
-  }
-  if (options.userId) {
-    where['user.id'] = options.userId;
-  }
-  if (options.port) {
-    where['account_plugin.port'] = options.port;
-  }
-  if (options.group >= 0) {
-    where['user.group'] = options.group;
-  }
 
-  let count = knex('account_plugin').select([
-    'account_plugin.id',
-    'account_plugin.userId',
-    'account_plugin.port',
-    'account_plugin.active',
-    'user.id as userId',
-    'user.email as user'
-  ])
-    .leftJoin('user', 'user.id', 'account_plugin.userId')
-    .where(where)
-    .orderByRaw('account_plugin.active,port desc');
-  let account = knex('account_plugin').select([
-    'account_plugin.id',
-    'account_plugin.type',
-    'account_plugin.orderId',
-    'account_plugin.userId',
-    'account_plugin.server',
-    'account_plugin.port',
-    'account_plugin.password',
-    'account_plugin.data',
-    'account_plugin.status',
-    'account_plugin.autoRemove',
-    'account_plugin.autoRemoveDelay',
-    'account_plugin.multiServerFlow',
-    'account_plugin.active',
-    'user.id as userId',
-    'user.email as user'
-  ])
-    .leftJoin('user', 'user.id', 'account_plugin.userId')
-    .where(where)
-    .orderByRaw('account_plugin.active,port desc');
-
-  if (search) {
-    count = count.where('port', 'like', `%${search}%`)
-    account = account.where('port', 'like', `%${search}%`)
-  }
-
-  let total = await count.count('account_plugin.id as count').then(success => success[0].count);
-  account = await account.limit(pageSize).offset((page - 1) * pageSize);
-  let maxPage = Math.ceil(total / pageSize);
-  return {
-    total,
-    page,
-    maxPage,
-    pageSize,
-    account
-  };
-};
 const delAccount = async id => {
   const accountInfo = await knex('account_plugin').where({ id }).then(s => s[0]);
   if (!accountInfo) {
@@ -817,7 +752,6 @@ const activeAccount = async accountId => {
 
 exports.addAccount = addAccount;
 exports.getAccount = getAccount;
-exports.getAccountPage = getAccountPage;
 exports.delAccount = delAccount;
 exports.editAccount = editAccount;
 exports.editAccountTime = editAccountTime;

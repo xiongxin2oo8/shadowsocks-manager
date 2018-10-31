@@ -49,39 +49,7 @@ exports.getAccount = async (req, res) => {
     res.status(403).end();
   }
 };
-exports.getAccountPage = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const page = +req.query.page || 1;
-    const pageSize = +req.query.pageSize || 10;
-    const search = req.query.search || '';
-    const result = await account.getAccountPage({ userId, page, pageSize, search });
-    for (let account of result.account) {
-      account.data = JSON.parse(account.data);
-      if (account.type >= 2 && account.type <= 5) {
-        const time = {
-          '2': 7 * 24 * 3600000,
-          '3': 30 * 24 * 3600000,
-          '4': 24 * 3600000,
-          '5': 3600000,
-        };
-        account.data.expire = account.data.create + account.data.limit * time[account.type];
-        account.data.from = account.data.create;
-        account.data.to = account.data.create + time[account.type];
-        while (account.data.to <= Date.now()) {
-          account.data.from = account.data.to;
-          account.data.to = account.data.from + time[account.type];
-        }
-        account.data.flowPack = await flowPack.getFlowPack(account.id, account.data.from, account.data.to);
-      }
-      account.server = account.server ? JSON.parse(account.server) : account.server;
-    }
-    res.send(result);
-  } catch (err) {
-    console.log(err);
-    res.status(403).end();
-  }
-};
+
 exports.getOneAccount = async (req, res) => {
   try {
     const userId = req.session.user;

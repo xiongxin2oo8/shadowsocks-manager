@@ -186,6 +186,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       const getPageSize = 6;
       $scope.isUserLoading = false;
       $scope.isUserPageFinish = false;
+      $scope.account = [];
       $scope.setFabButton($scope.config.multiAccount ? () => {
         $scope.createOrder();
       } : null);
@@ -203,9 +204,9 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           data: [],
         };
       }
-      //$scope.account = $localStorage.user.accountInfo.data;
-      $scope.account = [];
-      $scope.total = 0;
+      $scope.account = $localStorage.user.accountInfo.data;
+      $scope.accountResult = [];
+      $scope.accountList = [];
       if ($scope.account.length >= 2) {
         $scope.flexGtSm = 50;
       }
@@ -218,92 +219,94 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         });
       };
       setAccountServerList($scope.account, $scope.servers);
-
-      const getUserAccountInfo = (search) => {
-        $scope.isUserLoading = true;
-        userApi.getUserAccountPage({
-          page: $scope.currentPage,
-          pageSize: getPageSize,
-          search
-        }).then(success => {
-          $scope.total = success.account.total;
-          if (!search && $scope.menuSearch.text) { return; }
-          if (search && search !== $scope.menuSearch.text) { return; }
+      //分页代码
+      const paging = () => {
+        console.log('开始分页');
+        let start = ($scope.currentPage - 1) * getPageSize;
+        let end = 0;
+        console.log(start, $scope.account.length);
+        if ((start + getPageSize) >= $scope.account.length) {
+          end = $scope.account.length;
+          $scope.isUserPageFinish = true;
+        } else {
+          end = start + getPageSize;
+          $scope.currentPage++;
+        }
+        $scope.accountList = $scope.accountList.concat($scope.accountResult.slice(start, end))
+        $scope.isUserLoading = false;
+      }
+      const getUserAccountInfo = () => {
+        userApi.getUserAccount().then(success => {
           $scope.servers = success.servers;
-          // if (success.account.map(m => m.id).join('') === $scope.account.map(m => m.id).join('')) {
-          //   success.account.forEach((a, index) => {
-          //     $scope.account[index].data = a.data;
-          //     $scope.account[index].password = a.password;
-          //     $scope.account[index].port = a.port;
-          //     $scope.account[index].type = a.type;
-          //     $scope.account[index].active = a.active;
-          //   });
-          // } else {
-          //   $scope.account = success.account;
-          //   $scope.account.forEach(f => {
-          //     const serverId = $scope.servers.filter((server, index) => {
-          //       if (!f.server) { return index === 0; }
-          //       return f.server.indexOf(server.id) >= 0;
-          //     })[0].id;
-          //     $scope.getServerPortData(f, serverId);
-          //   });
-          // }
-          success.account.account.forEach(f => {
-            const serverId = $scope.servers.filter((server, index) => {
-              if (!f.server) { return index === 0; }
-              return f.server.indexOf(server.id) >= 0;
-            })[0].id;
-            $scope.getServerPortData(f, serverId);
-            if ($scope.account.map(m => m.id).indexOf(f.id) < 0) {
-              $scope.account.push(f);
-            }
-          });
-          console.log($scope.account);
-          //$scope.account = success.account;
+          if (success.account.map(m => m.id).join('') === $scope.account.map(m => m.id).join('')) {
+            success.account.forEach((a, index) => {
+              $scope.account[index].data = a.data;
+              $scope.account[index].password = a.password;
+              $scope.account[index].port = a.port;
+              $scope.account[index].type = a.type;
+              $scope.account[index].active = a.active;
+            });
+          } else {
+            $scope.account = success.account;
+            $scope.account.forEach(f => {
+              const serverId = $scope.servers.filter((server, index) => {
+                if (!f.server) { return index === 0; }
+                return f.server.indexOf(server.id) >= 0;
+              })[0].id;
+              $scope.getServerPortData(f, serverId);
+            });
+          }
           setAccountServerList($scope.account, $scope.servers);
           $localStorage.user.serverInfo.data = success.servers;
           $localStorage.user.serverInfo.time = Date.now();
-          //$localStorage.user.accountInfo.data = success.account;
+          $localStorage.user.accountInfo.data = success.account;
           $localStorage.user.accountInfo.time = Date.now();
           if ($scope.account.length >= 2) {
             $scope.flexGtSm = 50;
           }
-          if (success.account.maxPage > $scope.currentPage) {
-            $scope.currentPage++;
-          } else {
-            console.log(success.account.maxPage, $scope.currentPage);
-            $scope.isUserPageFinish = true;
-          }
-          $scope.isUserLoading = false;
+          $scope.accountResult = angular.copy($scope.account)
         });
       };
-      getUserAccountInfo($scope.menuSearch.text);
-
+      getUserAccountInfo();
+      const accountFilter = () => {
+        $scope.accountResult = $scope.account.filter(f => {
+          return (f.port + '').indexOf($scope.menuSearch.text) >= 0;
+        });
+        paging();
+        console.log('搜索数据');
+      };
       $scope.$on('cancelSearch', () => {
-        $scope.account = [];
+        $scope.accountList = [];
         $scope.currentPage = 1;
         $scope.isUserPageFinish = false;
-        getUserAccountInfo($scope.menuSearch.text);
+        $scope.accountResult = angular.copy($scope.account);
+        paging();
       });
-
+      // $scope.$watch("account", function () {
+      //   console.log('变化了',$scope.account);
+      //   $scope.currentPage = 1;
+      //   $scope.accountList = [];
+      //   paging();
+      // }, true);
       let timeoutPromise;
       $scope.$watch('menuSearch.text', () => {
+        console.log('进入搜索..');
         console.log($scope.menuSearch.text);
+        if (!$scope.menuSearch.text) { return; }
         $scope.isUserLoading = true;
         $scope.isUserPageFinish = false;
-        $scope.account = [];
+        $scope.accountList = [];
         $scope.currentPage = 1;
-        if (!$scope.menuSearch.text) { return; }
         timeoutPromise && $timeout.cancel(timeoutPromise);
         timeoutPromise = $timeout(() => {
           console.log('开始搜索...');
-          getUserAccountInfo($scope.menuSearch.text);
+          accountFilter();
         }, 500);
       });
       $scope.view = (inview) => {
         console.log('上拉加载', inview, $scope.isUserLoading, $scope.isUserPageFinish);
-        if (!inview || $scope.isUserLoading || $scope.isUserPageFinish ) { return; }
-        getUserAccountInfo($scope.menuSearch.text);
+        if (!inview || $scope.isUserLoading || $scope.isUserPageFinish) { return; }
+        paging();
       };
       const base64Encode = str => {
         return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
