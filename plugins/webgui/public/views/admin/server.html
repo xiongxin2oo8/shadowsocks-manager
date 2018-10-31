@@ -6,7 +6,6 @@
                     <div layout="column">
                         <span class="md-title">{{server.name}}
                             <span ng-show="server.status === -1" style="color: #a33;">&nbsp;离线</span>
-                            <span ng-show="server.enable === 0" style="color: #ddd;">&nbsp;[未启用]</span>
                             <span ng-show="server.status !== -1 && !server.isGfw" style="color: #3a3;">&nbsp;{{server.status}}</span>
                             <span ng-show="server.status !== -1 && server.isGfw" style="color: #a33;">&nbsp;{{server.status}}</span>
                         </span>

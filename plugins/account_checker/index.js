@@ -25,10 +25,6 @@ const modifyAccountFlow = async (serverId, accountId, time) => {
 };
 
 const isPortExists = async (server, account) => {
-  if (!server.enable) {
-    console.log('isPortExists 服务器未启用');
-    return false;
-  }
   const ports = (await manager.send({ command: 'list' }, {
     host: server.host,
     port: server.port,
@@ -193,17 +189,12 @@ const addPort = (server, account) => {
   }, {
       host: server.host,
       port: server.port,
-      password: server.password,
-      enable: server.enable
+      password: server.password
     }).catch();
 };
 
 const deleteExtraPorts = async serverInfo => {
   try {
-    if (serverInfo.enable == 0) {
-      console.log('deleteExtraPorts 服务器未启用');
-      return false;
-    }
     const currentPorts = await manager.send({ command: 'list' }, {
       host: serverInfo.host,
       port: serverInfo.port,
@@ -228,9 +219,6 @@ const checkAccount = async (serverId, accountId) => {
   try {
     //console.log('checkAccount')
     const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
-    if (serverInfo.enable == 0) {
-      return
-    }
     if (!serverInfo) {
       await knex('account_flow').delete().where({ serverId });
       return;

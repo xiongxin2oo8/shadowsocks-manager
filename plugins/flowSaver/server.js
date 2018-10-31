@@ -3,7 +3,7 @@ const manager = appRequire('services/manager');
 const accountFlow = appRequire('plugins/account/accountFlow');
 
 const add = async options => {
-  const { name, host, port, password, method, scale = 1, comment = '', shift = 0, enable = 1 } = options;
+  const { name, host, port, password, method, scale = 1, comment = '', shift = 0 } = options;
   const [serverId] = await knex('server').insert({
     name,
     comment,
@@ -28,7 +28,7 @@ const del = (id) => {
 };
 
 const edit = async options => {
-  const { id, name, host, port, password, method, scale = 1, comment = '', shift = 0, check, enable = 1 } = options;
+  const { id, name, host, port, password, method, scale = 1, comment = '', shift = 0, check } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
     const accounts = await knex('account_plugin').where({});

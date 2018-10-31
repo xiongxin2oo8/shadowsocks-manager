@@ -6,7 +6,6 @@
                     <span class="md-title">{{ server.name }}&nbsp;
                         <span style="color: #999">[{{ portNumber }}]</span>
                         <span ng-show="server.status === -1" style="color: #a33;">&nbsp;[离线]</span>
-                        <span ng-show="server.enable === 0" style="color: #ddd;">&nbsp;[未启用]</span>
                     </span>
                     <span class="md-subhead">{{server.host.split(':')[0]}}:{{server.port}}</span>
                 </md-card-header-text>
@@ -57,9 +56,10 @@
                     </div>
                     <div width="{{getChartSize().pie[0]}}">
                         <div layout="row" layout-align="center center">
-                            <div>
+                            <div style="position: relative;">
+                                <div style="position: absolute; bottom: 3px; color: #666;" ng-style="{ 'right': (getChartSize().pie[0] - getChartSize().pie[1])/2 + 'px' }">{{ pieChart.data.length }}</div>
                                 <canvas id="pie" class="chart chart-pie"
-                                    width="{{getChartSize().pie[0] + 200}}"
+                                    width="{{getChartSize().pie[0]}}"
                                     height="{{getChartSize().pie[1]}}"
                                     chart-data="pieChart.data"
                                     chart-labels="pieChart.labels"

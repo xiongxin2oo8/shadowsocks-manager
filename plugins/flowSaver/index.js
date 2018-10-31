@@ -39,7 +39,7 @@ const updateAccountFlow = async (serverId, accountId, flow) => {
 
 const saveFlow = async () => {
   try {
-    const servers = await knex('server').select(['id', 'name', 'host', 'port', 'password', 'shift', 'enable']);
+    const servers = await knex('server').select(['id', 'name', 'host', 'port', 'password', 'shift']);
     await updateAccountInfo();
     const saveServerFlow = async server => {
       const lastestFlow = await knex('saveFlow').select(['time']).where({
@@ -49,11 +49,6 @@ const saveFlow = async () => {
         const options = {
           clear: true,
         };
-
-        if (server.enable == 0) {
-          console.log('saveFlow', '服务器未启用')
-          return;
-        }
         let flow = await manager.send({
           command: 'flow',
           options,

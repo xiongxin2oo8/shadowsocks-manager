@@ -28,8 +28,7 @@ exports.getOneServer = (req, res) => {
       }, {
           host: success[0].host,
           port: success[0].port,
-          password: success[0].password,
-          enable: success[0].enable
+          password: success[0].password
         });
     }
     res.status(404).end();
@@ -50,22 +49,19 @@ exports.addServer = (req, res) => {
   req.checkBody('method', 'Invalid method').notEmpty();
   req.checkBody('scale', 'Invalid scale').notEmpty();
   req.checkBody('shift', 'Invalid shift').isInt();
-  req.checkBody('enable', 'Invalid enable').isInt();
   req.getValidationResult().then(result => {
     console.log('req.body',req.body);
     if (result.isEmpty()) {
       const address = req.body.address;
       const port = +req.body.port;
       const password = req.body.password;
-      const enable = +req.body.enable;
       return manager.send({
         command: 'flow',
         options: { clear: false, },
       }, {
           host: address,
           port,
-          password,
-          enable
+          password
         });
     }
     result.throw();
@@ -78,7 +74,6 @@ exports.addServer = (req, res) => {
     const method = req.body.method;
     const scale = req.body.scale;
     const shift = req.body.shift;
-    const enable = +req.body.enable;
     // return serverManager.add(name, address, port, password, method, scale, comment, shift);
     return serverManager.add({
       name,
@@ -88,8 +83,7 @@ exports.addServer = (req, res) => {
       method,
       scale,
       comment,
-      shift,
-      enable
+      shift
     });
   }).then(success => {
     res.send('success');
@@ -107,21 +101,18 @@ exports.editServer = (req, res) => {
   req.checkBody('method', 'Invalid method').notEmpty();
   req.checkBody('scale', 'Invalid scale').notEmpty();
   req.checkBody('shift', 'Invalid shift').isInt();
-  req.checkBody('enable', 'Invalid enable').isInt();
   req.getValidationResult().then(result => {
     if (result.isEmpty()) {
       const address = req.body.address;
       const port = +req.body.port;
       const password = req.body.password;
-      const enable = +req.body.enable;
       return manager.send({
         command: 'flow',
         options: { clear: false, },
       }, {
           host: address,
           port,
-          password,
-          enable
+          password
         });
     }
     result.throw();
@@ -136,7 +127,6 @@ exports.editServer = (req, res) => {
     const scale = req.body.scale;
     const shift = req.body.shift;
     const check = +req.body.check;
-    const enable = +req.body.enable;
     return serverManager.edit({
       id: serverId,
       name,
@@ -147,8 +137,7 @@ exports.editServer = (req, res) => {
       scale,
       comment,
       shift,
-      check,
-      enable
+      check
     });
   }).then(success => {
     res.send('success');

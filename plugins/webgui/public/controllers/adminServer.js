@@ -316,25 +316,25 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         $scope.getChartData();
       };
       $scope.getChartSize = () => {
-        if ($mdMedia('xs')) {
+        if($mdMedia('xs')) {
           return {
-            line: [320, 170],
-            pie: [170, 170],
+            line: [ 320, 170 ],
+            pie: [ 180, 170 ],
           };
-        } else if ($mdMedia('sm')) {
+        } else if($mdMedia('sm')) {
           return {
-            line: [360, 190],
-            pie: [190, 190],
+            line: [ 360, 190 ],
+            pie: [ 205, 190 ],
           };
-        } else if ($mdMedia('md')) {
+        } else if($mdMedia('md')) {
           return {
-            line: [360, 180],
-            pie: [180, 180],
+            line: [ 360, 180 ],
+            pie: [ 360, 180 ],
           };
-        } else if ($mdMedia('gt-md')) {
+        } else if($mdMedia('gt-md')) {
           return {
-            line: [540, 240],
-            pie: [240, 240],
+            line: [ 540, 240 ],
+            pie: [ 450, 240 ],
           };
         }
       };
@@ -399,8 +399,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           method: $scope.server.method,
           comment: $scope.server.comment,
           scale: $scope.server.scale,
-          shift: $scope.server.shift,
-          enable: 1
+          shift: $scope.server.shift
         }, {
             timeout: 15000,
           }).then(success => {
@@ -458,7 +457,6 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.method = success.data.method;
           $scope.server.scale = success.data.scale;
           $scope.server.shift = success.data.shift;
-          $scope.server.enable = success.data.enable;
         });
       $scope.confirm = () => {
         alertDialog.loading();
@@ -472,7 +470,6 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           scale: $scope.server.scale,
           shift: $scope.server.shift,
           check: $scope.server.check,
-          enable: $scope.server.enable,
         }).then(success => {
           alertDialog.show('修改服务器成功', '确定');
           $state.go('admin.serverPage', { serverId: $stateParams.serverId });
