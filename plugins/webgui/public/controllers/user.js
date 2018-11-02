@@ -265,6 +265,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
             $scope.flexGtSm = 50;
           }
           $scope.accountResult = angular.copy($scope.account)
+          paging();
         });
       };
       getUserAccountInfo();
@@ -353,12 +354,12 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       });
       $scope.setInterval($interval(() => {
         if (Date.now() - $localStorage.user.accountInfo.time <= 15 * 1000) { return; }
-        getUserAccountInfo();
+        //getUserAccountInfo();
         // userApi.updateAccount($scope.account)
         // .then(() => {
         //   setAccountServerList($scope.account, $scope.servers);
         // });
-        $scope.account.forEach(a => {
+        $scope.accountList.forEach(a => {
           const currentServerId = a.currentServerId;
           userApi.getServerPortData(a, a.currentServerId, a.port).then(success => {
             if (currentServerId !== a.currentServerId) { return; }
