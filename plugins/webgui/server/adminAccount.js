@@ -231,10 +231,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           traffic_total: accountInfo.type == 1 ? 10000 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
           expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
         };
-        let servers = subscribeAccount.server.map(s => {
+        let servers = subscribeAccount.server.map((s,index) => {
           let tag = accountInfo.server.indexOf(s.id) >= 0 ? '' : '[当前套餐不可用]';
           return {
-            id: s.id,
+            id: index,//这是客户端排序的顺序
             server: s.host,
             port: (subscribeAccount.account.port + s.shift),
             encryption: s.method,
