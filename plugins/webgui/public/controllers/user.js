@@ -265,6 +265,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
             $scope.flexGtSm = 50;
           }
           $scope.accountResult = angular.copy($scope.account)
+          $scope.accountList = [];
+          $scope.currentPage = 1;
           paging();
         });
       };
