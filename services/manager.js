@@ -72,8 +72,8 @@ const sendMessage = (data, options) => {
         } else if (message.code === 0) {
           resolve(message.data);
         } else {
-          logger.error(data);
-          logger.error(message);
+          logger.error('line-75',data);
+          logger.error('line-76',message);
           reject(new Error(`ssmgr[s] return an error code [${options.host || host}:${options.port || port}]`));
         }
         client.end();
