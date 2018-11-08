@@ -236,6 +236,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         $scope.isUserLoading = false;
       }
       const getUserAccountInfo = () => {
+        $scope.isUserLoading=true;
         userApi.getUserAccount().then(success => {
           $scope.servers = success.servers;
           if (success.account.map(m => m.id).join('') === $scope.account.map(m => m.id).join('')) {
@@ -268,6 +269,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           $scope.accountList = [];
           $scope.currentPage = 1;
           paging();
+          $scope.isUserLoading=false;
         });
       };
       getUserAccountInfo();
