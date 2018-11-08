@@ -283,11 +283,12 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
       getUserAccountInfo();
       const accountFilter = () => {
+        console.log('搜索数据');
         $scope.accountResult = $scope.account.filter(f => {
           return (f.port + '').indexOf($scope.menuSearch.text) >= 0;
         });
+        console.log('搜索到：',$scope.accountResult.length)
         paging();
-        console.log('搜索数据');
       };
       $scope.$on('cancelSearch', () => {
         $scope.accountList = [];
