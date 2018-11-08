@@ -232,7 +232,16 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           end = start + getPageSize;
           $scope.currentPage++;
         }
-        $scope.accountList = $scope.accountList.concat($scope.accountResult.slice(start, end))
+        let temp=$scope.accountResult.slice(start, end);
+        temp.forEach(f => {
+          const serverId = $scope.servers.filter((server, index) => {
+            if (!f.server) { return index === 0; }
+            return f.server.indexOf(server.id) >= 0;
+          })[0].id;
+          $scope.getServerPortData(f, serverId);
+        });
+        //$scope.accountList = $scope.accountList.concat($scope.accountResult.slice(start, end))
+        $scope.accountList = $scope.accountList.concat(temp)
         $scope.isUserLoading = false;
       }
       const getUserAccountInfo = () => {
@@ -249,13 +258,13 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
             });
           } else {
             $scope.account = success.account;
-            $scope.account.forEach(f => {
-              const serverId = $scope.servers.filter((server, index) => {
-                if (!f.server) { return index === 0; }
-                return f.server.indexOf(server.id) >= 0;
-              })[0].id;
-              $scope.getServerPortData(f, serverId);
-            });
+            // $scope.account.forEach(f => {
+            //   const serverId = $scope.servers.filter((server, index) => {
+            //     if (!f.server) { return index === 0; }
+            //     return f.server.indexOf(server.id) >= 0;
+            //   })[0].id;
+            //   $scope.getServerPortData(f, serverId);
+            // });
           }
           setAccountServerList($scope.account, $scope.servers);
           $localStorage.user.serverInfo.data = success.servers;
