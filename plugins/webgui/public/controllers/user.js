@@ -283,6 +283,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         $scope.currentPage = 1;
         $scope.isUserPageFinish = false;
         $scope.accountResult = angular.copy($scope.account);
+        console.log('清除搜索');
         paging();
       });
       // $scope.$watch("account", function () {
@@ -309,6 +310,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.view = (inview) => {
         console.log('上拉加载', inview, $scope.isUserLoading, $scope.isUserPageFinish);
         if (!inview || $scope.isUserLoading || $scope.isUserPageFinish) { return; }
+        console.log('上拉加载执行')
         paging();
       };
       const base64Encode = str => {
@@ -361,7 +363,9 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         // .then(() => {
         //   setAccountServerList($scope.account, $scope.servers);
         // });
+        console.log('定时刷新');
         $scope.accountList.forEach(a => {
+          console.log('定时',a);
           const currentServerId = a.currentServerId;
           userApi.getServerPortData(a, a.currentServerId, a.port).then(success => {
             if (currentServerId !== a.currentServerId) { return; }
