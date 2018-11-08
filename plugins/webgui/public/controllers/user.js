@@ -350,6 +350,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
 
       $scope.$on('visibilitychange', (event, status) => {
+        console.log('页面隐藏', status);
         if (status === 'visible') {
           if ($localStorage.user.accountInfo && Date.now() - $localStorage.user.accountInfo.time >= 10 * 1000) {
             // $q.all($scope.account.map(a => {
