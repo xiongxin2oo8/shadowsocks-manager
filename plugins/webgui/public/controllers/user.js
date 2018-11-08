@@ -225,14 +225,14 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         let start = ($scope.currentPage - 1) * getPageSize;
         let end = 0;
         console.log(start, $scope.account.length);
-        if ((start + getPageSize) >= $scope.account.length) {
-          end = $scope.account.length;
+        if ((start + getPageSize) >= $scope.accountResult.length) {
+          end = $scope.accountResult.length;
           $scope.isUserPageFinish = true;
         } else {
           end = start + getPageSize;
           $scope.currentPage++;
         }
-        let temp=$scope.accountResult.slice(start, end);
+        let temp = $scope.accountResult.slice(start, end);
         temp.forEach(f => {
           const serverId = $scope.servers.filter((server, index) => {
             if (!f.server) { return index === 0; }
@@ -245,7 +245,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         $scope.isUserLoading = false;
       }
       const getUserAccountInfo = () => {
-        $scope.isUserLoading=true;
+        $scope.isUserLoading = true;
         userApi.getUserAccount().then(success => {
           $scope.servers = success.servers;
           if (success.account.map(m => m.id).join('') === $scope.account.map(m => m.id).join('')) {
@@ -278,7 +278,6 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           $scope.accountList = [];
           $scope.currentPage = 1;
           paging();
-          $scope.isUserLoading=false;
         });
       };
       getUserAccountInfo();
@@ -287,7 +286,10 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         $scope.accountResult = $scope.account.filter(f => {
           return (f.port + '').indexOf($scope.menuSearch.text) >= 0;
         });
-        console.log('搜索到：',$scope.accountResult.length)
+        console.log('搜索到：', $scope.accountResult.length)
+        if (!$scope.accountResult.length) {
+          $scope.isUserPageFinish = true;
+        }
         paging();
       };
       $scope.$on('cancelSearch', () => {
