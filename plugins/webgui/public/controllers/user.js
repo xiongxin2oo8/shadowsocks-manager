@@ -312,10 +312,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.view = (inview) => {
         console.log('上拉加载', inview, $scope.isUserLoading, $scope.isUserPageFinish);
         if (!inview || $scope.isUserLoading || $scope.isUserPageFinish) {
-          console.log('上拉加载1', inview, $scope.isUserLoading, $scope.isUserPageFinish);
           return;
         }
-        console.log('上拉加载执行')
         paging();
       };
       const base64Encode = str => {
