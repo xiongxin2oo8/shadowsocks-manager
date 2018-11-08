@@ -15,7 +15,7 @@
     "ssmgr",
     "shadowsocks",
     "manager",
-    "gfw"
+    "gfw" 
   ],
   "devDependencies": {
     "@babel/cli": "^7.1.2",
