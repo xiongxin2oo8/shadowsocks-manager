@@ -191,7 +191,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           accountInfo.data.from = accountInfo.data.to;
           accountInfo.data.to = accountInfo.data.from + time[accountInfo.type];
         }
-        accountInfo.server = accountInfo.server ? JSON.parse(accountInfo.server) : accountInfo.server;
+        //accountInfo.server = accountInfo.server ? JSON.parse(accountInfo.server) : accountInfo.server;
         accountInfo.data.flowPack = await flowPack.getFlowPack(accountInfo.id, accountInfo.data.from, accountInfo.data.to);
       }
       console.log('accountInfo', accountInfo);
