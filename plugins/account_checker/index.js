@@ -289,6 +289,7 @@ const checkAccount = async (serverId, accountId) => {
       //       .on('account_flow.serverId', 'server.id')
       //       .on('account_flow.accountId', 'account_plugin.id');
       //   }).whereNull('account_flow.id');
+      console.log('开始：',new Date())
       const data_account_flow = await knex('account_flow').select();
       const data_aacount_plugin = await knex('account_plugin').select();
       var acc_ser = [];
@@ -315,6 +316,7 @@ const checkAccount = async (serverId, accountId) => {
         await sleep(sleepTime);
         await accountFlow.add(id);
       }
+      console.log('结束：',new Date())
       // for (let account of accounts) {
       //   await sleep(sleepTime);
       //   await accountFlow.add(account.id);
