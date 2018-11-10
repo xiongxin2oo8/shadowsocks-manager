@@ -289,22 +289,25 @@ const checkAccount = async (serverId, accountId) => {
       //       .on('account_flow.serverId', 'server.id')
       //       .on('account_flow.accountId', 'account_plugin.id');
       //   }).whereNull('account_flow.id');
-      console.log('开始：',new Date())
+      console.log('开始：', new Date())
       const data_account_flow = await knex('account_flow').select();
       const data_aacount_plugin = await knex('account_plugin').select();
+      console.log('数量1',data_account_flow.length, data_aacount_plugin.length);
       var acc_ser = [];
       for (let i = 0; i < data_aacount_plugin.length; i++) {
         let item = data_aacount_plugin[i];
-        let server =JSON.parse(item.server).map(s => {
+        let server = JSON.parse(item.server).map(s => {
           return `${item.id},${s}`;
         })
         acc_ser = acc_ser.concat(server)
       }
+      console.log('数量2',acc_ser.length);
       for (let i = 0; i < data_account_flow.length; i++) {
         let item = data_account_flow[i];
         let index = acc_ser.indexOf(`${item.accountId},${item.serverId}`)
         acc_ser.splice(index, 1)
       }
+      console.log('数量3',acc_ser.length);
       let ids = [];
       for (let i = 0; i < acc_ser.length; i++) {
         let id = acc_ser[i].split(',')[0]
@@ -312,11 +315,12 @@ const checkAccount = async (serverId, accountId) => {
           ids.push(id);
         }
       }
+      console.log('数量4',ids.length);
       for (let id of ids) {
         await sleep(sleepTime);
         await accountFlow.add(id);
       }
-      console.log('结束：',new Date())
+      console.log('结束：', new Date())
       // for (let account of accounts) {
       //   await sleep(sleepTime);
       //   await accountFlow.add(account.id);
