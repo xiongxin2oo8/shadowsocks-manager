@@ -281,18 +281,44 @@ const checkAccount = async (serverId, accountId) => {
         await deleteExtraPorts(server);
       }
       await sleep(sleepTime);
-      const accounts = await knex('account_plugin').select([
-        'account_plugin.id as id'
-      ]).crossJoin('server')
-        .leftJoin('account_flow', function () {
-          this
-            .on('account_flow.serverId', 'server.id')
-            .on('account_flow.accountId', 'account_plugin.id');
-        }).whereNull('account_flow.id');
-      for (let account of accounts) {
-        await sleep(sleepTime);
-        await accountFlow.add(account.id);
+      // const accounts = await knex('account_plugin').select([
+      //   'account_plugin.id as id'
+      // ]).crossJoin('server')
+      //   .leftJoin('account_flow', function () {
+      //     this
+      //       .on('account_flow.serverId', 'server.id')
+      //       .on('account_flow.accountId', 'account_plugin.id');
+      //   }).whereNull('account_flow.id');
+      const data_account_flow = await knex('account_flow').select();
+      const data_aacount_plugin = await knex('account_plugin').select();
+      var acc_ser = [];
+      for (let i = 0; i < data_aacount_plugin.length; i++) {
+        let item = data_aacount_plugin[i];
+        let server = item.server.map(s => {
+          return `${item.id},${s}`;
+        })
+        acc_ser = acc_ser.concat(server)
       }
+      for (let i = 0; i < data_account_flow.length; i++) {
+        let item = data_account_flow[i];
+        let index = acc_ser.indexOf(`${item.accountId},${item.serverId}`)
+        acc_ser.splice(index, 1)
+      }
+      let ids = [];
+      for (let i = 0; i < acc_ser.length; i++) {
+        let id = acc_ser[i].split(',')[0]
+        if (ids.indexOf(id) < 0) {
+          ids.push(id);
+        }
+      }
+      for (let id of ids) {
+        await sleep(sleepTime);
+        await accountFlow.add(id);
+      }
+      // for (let account of accounts) {
+      //   await sleep(sleepTime);
+      //   await accountFlow.add(account.id);
+      // }
       const end = Date.now();
       if (end - start <= 67 * 1000) {
         await sleep(67 * 1000 - (end - start));
