@@ -374,8 +374,8 @@ const checkAccount = async (serverId, accountId) => {
       if (accounts.length <= 120) {
         for (const account of accounts) {
           const start = Date.now();
-          //console.log('checkAccount1', account.serverId, account.accountId);
-          await checkAccount('378',account, account.accountId).catch();
+          console.log('checkAccount1', account, account.accountId);
+          await checkAccount(account.serverId, account.accountId).catch();
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
         }
