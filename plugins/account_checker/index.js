@@ -382,7 +382,8 @@ const checkAccount = async (serverId, accountId) => {
       } else {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
-            console.log('checkAccount2', account, account.accountId);
+            //console.log('checkAccount2', account, account.accountId);
+            //要验证服务器是否禁用；
             return checkAccount(account.serverId, account.accountId);
           });
         }));
