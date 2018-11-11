@@ -25,13 +25,13 @@ const modifyAccountFlow = async (serverId, accountId, time) => {
 };
 
 const isPortExists = async (server, account) => {
-  console.log('---',server, account)
+  console.log('---',server.name, account)
   const ports = (await manager.send({ command: 'list' }, {
     host: server.host,
     port: server.port,
     password: server.password,
   })).map(m => m.port);
-  console.log('++++',server, account)
+  console.log('++++',server.name, account)
   if (ports.indexOf(server.shift + account.port) >= 0) {
     return true;
   } else {
@@ -268,7 +268,7 @@ const checkAccount = async (serverId, accountId) => {
 
     !exists && addPort(serverInfo, accountInfo);
   } catch (err) {
-    console.log(err);
+    console.log('line-271',err);
   }
 };
 
