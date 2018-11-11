@@ -83,7 +83,6 @@ const sendMessage = (data, options) => {
       });
     });
     client.on('close', () => {
-      console.log('data', data, options)
       reject(new Error(`ssmgr[s] connection close [${options.host || host}:${options.port || port}]`));
     });
     client.on('error', err => {
