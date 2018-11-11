@@ -266,7 +266,7 @@ const checkAccount = async (serverId, accountId) => {
 
     !exists && addPort(serverInfo, accountInfo);
   } catch (err) {
-    console.log('line-271', err);
+    console.log('line-271', serverId, accountId,err);
   }
 };
 
