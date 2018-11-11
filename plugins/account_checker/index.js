@@ -296,9 +296,12 @@ const checkAccount = async (serverId, accountId) => {
       var acc_ser = [];
       for (let i = 0; i < data_aacount_plugin.length; i++) {
         let item = data_aacount_plugin[i];
-        let server = JSON.parse(item.server).map(s => {
-          return `${item.id},${s}`;
-        })
+        let server=[];
+        if(item.server){
+          server = JSON.parse(item.server).map(s => {
+            return `${item.id},${s}`;
+          })
+        }        
         acc_ser = acc_ser.concat(server)
       }
       console.log('数量2', acc_ser.length);
