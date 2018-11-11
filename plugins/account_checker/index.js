@@ -25,13 +25,13 @@ const modifyAccountFlow = async (serverId, accountId, time) => {
 };
 
 const isPortExists = async (server, account) => {
-  console.log('---',server.name, account)
+  console.log('---', server.name, account.port)
   const ports = (await manager.send({ command: 'list' }, {
     host: server.host,
     port: server.port,
     password: server.password,
   })).map(m => m.port);
-  console.log('++++',server.name, account)
+  console.log('++++', server.name, account.port)
   if (ports.indexOf(server.shift + account.port) >= 0) {
     return true;
   } else {
@@ -268,7 +268,7 @@ const checkAccount = async (serverId, accountId) => {
 
     !exists && addPort(serverInfo, accountInfo);
   } catch (err) {
-    console.log('line-271',err);
+    console.log('line-271', err);
   }
 };
 
@@ -294,7 +294,7 @@ const checkAccount = async (serverId, accountId) => {
       console.log('开始：', new Date())
       const data_account_flow = await knex('account_flow').select();
       const data_aacount_plugin = await knex('account_plugin').select();
-      console.log('数量1',data_account_flow.length, data_aacount_plugin.length);
+      console.log('数量1', data_account_flow.length, data_aacount_plugin.length);
       var acc_ser = [];
       for (let i = 0; i < data_aacount_plugin.length; i++) {
         let item = data_aacount_plugin[i];
@@ -303,13 +303,13 @@ const checkAccount = async (serverId, accountId) => {
         })
         acc_ser = acc_ser.concat(server)
       }
-      console.log('数量2',acc_ser.length);
+      console.log('数量2', acc_ser.length);
       for (let i = 0; i < data_account_flow.length; i++) {
         let item = data_account_flow[i];
         let index = acc_ser.indexOf(`${item.accountId},${item.serverId}`)
         acc_ser.splice(index, 1)
       }
-      console.log('数量3',acc_ser.length);
+      console.log('数量3', acc_ser.length);
       let ids = [];
       for (let i = 0; i < acc_ser.length; i++) {
         let id = acc_ser[i].split(',')[0]
@@ -317,7 +317,7 @@ const checkAccount = async (serverId, accountId) => {
           ids.push(id);
         }
       }
-      console.log('数量4',ids.length);
+      console.log('数量4', ids.length);
       for (let id of ids) {
         await sleep(sleepTime);
         await accountFlow.add(id);
