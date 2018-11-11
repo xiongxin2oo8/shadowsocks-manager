@@ -25,13 +25,11 @@ const modifyAccountFlow = async (serverId, accountId, time) => {
 };
 
 const isPortExists = async (server, account) => {
-  console.log('---', server.name, account.port)
   const ports = (await manager.send({ command: 'list' }, {
     host: server.host,
     port: server.port,
     password: server.password,
   })).map(m => m.port);
-  console.log('++++', server.name, account.port)
   if (ports.indexOf(server.shift + account.port) >= 0) {
     return true;
   } else {
@@ -376,7 +374,7 @@ const checkAccount = async (serverId, accountId) => {
       if (accounts.length <= 120) {
         for (const account of accounts) {
           const start = Date.now();
-          //console.log('checkAccount', start);
+          console.log('checkAccount', account.serverId, account.accountId);
           await checkAccount(account.serverId, account.accountId).catch();
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
@@ -384,7 +382,7 @@ const checkAccount = async (serverId, accountId) => {
       } else {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
-            //console.log('checkAccount', index);
+            console.log('checkAccount', account.serverId, account.accountId);
             return checkAccount(account.serverId, account.accountId);
           });
         }));
