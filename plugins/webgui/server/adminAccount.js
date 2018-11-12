@@ -205,19 +205,19 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (accountInfo.type == 1) {
           tip_time = '不限时不限量';
         } else {
-          tip += 'ss://' + Buffer.from('aes-256-cfb:123456@114.114.114.114:50000').toString('base64') + '#使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack) + '\r\n';
+          tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.1:80').toString('base64') + '#使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack) + '\r\n';
           tip_time = accountInfo.data.expire <= new Date() ? '已过期' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss");
         }
-        tip += 'ss://' + Buffer.from('aes-256-cfb:123456@115.115.115.115:50000').toString('base64') + '#过期时间：' + tip_time + '\r\n';
+        tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.01:80').toString('base64') + '#过期时间：' + tip_time + '\r\n';
       } else if (stype == 1) {
         let tip_time = '';
         if (accountInfo.type == 1) {
           tip_time = '不限时不限量';
         } else {
-          tip += 'ssr://' + urlsafeBase64('114.114.114.114:8080:origin:aes-256-cfb:plain:' + urlsafeBase64('123456') + '/?obfsparam=&remarks=' + urlsafeBase64('使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
+          tip += 'ssr://' + urlsafeBase64('127.0.0.1:80:origin:aes-256-cfb:plain:' + urlsafeBase64('123456') + '/?obfsparam=&remarks=' + urlsafeBase64('使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
           tip_time = accountInfo.data.expire <= new Date() ? '已过期' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss");
         }
-        tip += 'ssr://' + urlsafeBase64('115.115.115.115:8080:origin:aes-256-cfb:plain:' + urlsafeBase64('123456') + '/?obfsparam=&remarks=' + urlsafeBase64('过期时间：' + tip_time) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
+        tip += 'ssr://' + urlsafeBase64('127.0.0.01:80:origin:aes-256-cfb:plain:' + urlsafeBase64('123456') + '/?obfsparam=&remarks=' + urlsafeBase64('过期时间：' + tip_time) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
       }
 
       let result = '';

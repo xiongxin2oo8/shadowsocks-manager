@@ -156,9 +156,9 @@ const isOverFlow = async (server, account) => {
     }, { flow: data.flow }).flow;
 
     let nextCheckTime = (flowWithFlowPacks - sumFlow) / 200000000 * 60 * 1000 / server.scale;
-    if (nextCheckTime >= account.expireTime - Date.now() && account.expireTime - Date.now() > 0) { nextCheckTime = account.expireTime - Date.now() }
-    if (nextCheckTime <= 0) { nextCheckTime = 600 * 1000; }
-    if (nextCheckTime >= 3 * 60 * 60 * 1000) { nextCheckTime = 3 * 60 * 60 * 1000; }
+    if(nextCheckTime >= account.expireTime - Date.now() && account.expireTime - Date.now() > 0) { nextCheckTime = account.expireTime - Date.now(); }
+    if(nextCheckTime <= 0) { nextCheckTime = 600 * 1000; }
+    if(nextCheckTime >= 3 * 60 * 60 * 1000) { nextCheckTime = 3 * 60 * 60 * 1000; }
     await writeFlow(server.id, account.id, realFlow, nextCheckTime);
 
     return sumFlow >= flowWithFlowPacks;
@@ -207,8 +207,8 @@ const deleteExtraPorts = async serverInfo => {
     accounts.forEach(account => {
       accountObj[account.port] = account;
     });
-    for (let p of currentPorts) {
-      if (accountObj[p.port - serverInfo.shift]) { continue; }
+    for(const p of currentPorts) {
+      if(accountObj[p.port - serverInfo.shift]) { continue; }
       await sleep(sleepTime);
       deletePort(serverInfo, { port: p.port - serverInfo.shift });
     }
@@ -275,7 +275,8 @@ const checkAccount = async (serverId, accountId) => {
 };
 
 (async () => {
-  while (true) {
+  let time = 67;
+  while(true) {
     const start = Date.now();
     try {
       await sleep(sleepTime);
@@ -333,14 +334,15 @@ const checkAccount = async (serverId, accountId) => {
       //   await accountFlow.add(account.id);
       // }
       const end = Date.now();
-      if (end - start <= 67 * 1000) {
-        await sleep(67 * 1000 - (end - start));
+      if(end - start <= time * 1000) {
+        await sleep(time * 1000 - (end - start));
       }
-    } catch (err) {
+      if(time <= 300) { time += 10; }
+    } catch(err) {
       console.log(err);
       const end = Date.now();
-      if (end - start <= 67 * 1000) {
-        await sleep(67 * 1000 - (end - start));
+      if(end - start <= time * 1000) {
+        await sleep(time * 1000 - (end - start));
       }
     }
   }
