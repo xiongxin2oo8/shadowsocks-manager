@@ -1,6 +1,6 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('system');
-
+//appRequire('init/checkip');
 const dns = require('dns');
 const net = require('net');
 const path = require('path');
@@ -72,8 +72,8 @@ const sendMessage = (data, options) => {
         } else if (message.code === 0) {
           resolve(message.data);
         } else {
-          logger.error('line-75',data);
-          logger.error('line-76',message);
+          logger.error('line-75', data);
+          logger.error('line-76', message);
           reject(new Error(`ssmgr[s] return an error code [${options.host || host}:${options.port || port}]`));
         }
         client.end();
@@ -126,7 +126,9 @@ const send = async (data, options) => {
   if (ips.length === 0) {
     return Promise.reject('invalid ip');
   } else if (ips.length === 1) {
-    return sendMessage(data, options);
+    return sendMessage(data, options).catch(err => {
+      return null;
+    });
   } else {
     const results = await Promise.all(ips.map(ip => {
       return sendMessage(data, {
@@ -134,7 +136,7 @@ const send = async (data, options) => {
         port: options.port,
         password: options.password
       }).catch(err => {
-        return null;
+        return {};
       });
     }));
     if (data.command === 'version') {

@@ -351,7 +351,7 @@ const checkAccount = async (serverId, accountId) => {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
             //console.log('checkAccount', index);
-            return checkAccount(account.serverId, account.accountId);
+            return checkAccount(account.serverId, account.accountId).catch();
           });
         }));
       }
@@ -364,6 +364,7 @@ const checkAccount = async (serverId, accountId) => {
         await sleep(30 * 1000);
       }
     } catch (err) {
+      console.log('出错了，哈哈');
       const end = Date.now();
       if (end - start <= 60 * 1000) {
         await sleep(60 * 1000 - (end - start));
