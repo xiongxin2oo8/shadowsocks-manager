@@ -125,11 +125,13 @@ app.controller('AdminUserController', ['$scope', '$state', '$stateParams', 'admi
         $scope.refOrders = success.refOrders;
         $scope.refUsers = success.refUsers;
         $scope.refCodes = success.refCodes;
-        $scope.user.account.forEach(f => {
-          adminApi.getUserPortLastConnect(f.id).then(success => {
-            f.lastConnect = success.lastConnect;
+        if($scope.user.account.length<10){
+          $scope.user.account.forEach(f => {
+            adminApi.getUserPortLastConnect(f.id).then(success => {
+              f.lastConnect = success.lastConnect;
+            });
           });
-        });
+        }
         $scope.user.macAccount = success.macAccount;
       }).catch(err => {
         $state.go('admin.user');

@@ -60,7 +60,7 @@ const sendMessage = (data, options) => {
     }, () => {
       client.write(pack(data, (options ? options.password : null) || password));
     });
-    client.setTimeout(10 * 1000);
+    client.setTimeout(3 * 1000);
     const receive = {
       data: Buffer.from(''),
       socket: client,
@@ -72,9 +72,9 @@ const sendMessage = (data, options) => {
         } else if (message.code === 0) {
           resolve(message.data);
         } else {
+          reject(new Error(`ssmgr[s] return an error code [${options.host || host}:${options.port || port}]`));
           logger.error('line-75', data);
           logger.error('line-76', message);
-          reject(new Error(`ssmgr[s] return an error code [${options.host || host}:${options.port || port}]`));
         }
         client.end();
       }).catch(err => {
@@ -87,10 +87,12 @@ const sendMessage = (data, options) => {
     });
     client.on('error', err => {
       logger.error(err);
+      console.log('data', data, options)
       reject(new Error(`connect to ssmgr[s] fail [${options.host || host}:${options.port || port}]`));
     });
     client.on('timeout', () => {
       logger.error('timeout');
+      console.log('data', data, options)
       reject(new Error(`connect to ssmgr[s] timeout [${options.host || host}:${options.port || port}]`));
       client.end();
     });

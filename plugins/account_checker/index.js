@@ -6,6 +6,8 @@ const manager = appRequire('services/manager');
 const config = appRequire('services/config').all();
 const sleepTime = 100;
 const accountFlow = appRequire('plugins/account/accountFlow');
+//记录错误次数
+var error_count = [];
 
 const sleep = time => {
   return new Promise((resolve, reject) => {
@@ -266,7 +268,9 @@ const checkAccount = async (serverId, accountId) => {
 
     !exists && addPort(serverInfo, accountInfo);
   } catch (err) {
-    console.log(err);
+    let count = error_count[serverId] || 0;
+    error_count[serverId] = count + 1;
+    console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
   }
 };
 
@@ -281,18 +285,53 @@ const checkAccount = async (serverId, accountId) => {
         await deleteExtraPorts(server);
       }
       await sleep(sleepTime);
-      const accounts = await knex('account_plugin').select([
-        'account_plugin.id as id'
-      ]).crossJoin('server')
-        .leftJoin('account_flow', function () {
-          this
-            .on('account_flow.serverId', 'server.id')
-            .on('account_flow.accountId', 'account_plugin.id');
-        }).whereNull('account_flow.id');
-      for (let account of accounts) {
-        await sleep(sleepTime);
-        await accountFlow.add(account.id);
+      // const accounts = await knex('account_plugin').select([
+      //   'account_plugin.id as id'
+      // ]).crossJoin('server')
+      //   .leftJoin('account_flow', function () {
+      //     this
+      //       .on('account_flow.serverId', 'server.id')
+      //       .on('account_flow.accountId', 'account_plugin.id');
+      //   }).whereNull('account_flow.id');
+      console.log('开始：', new Date())
+      const data_account_flow = await knex('account_flow').select();
+      const data_aacount_plugin = await knex('account_plugin').select();
+      console.log('数量1', data_account_flow.length, data_aacount_plugin.length);
+      var acc_ser = [];
+      for (let i = 0; i < data_aacount_plugin.length; i++) {
+        let item = data_aacount_plugin[i];
+        let server = [];
+        if (item.server) {
+          server = JSON.parse(item.server).map(s => {
+            return `${item.id},${s}`;
+          })
+        }
+        acc_ser = acc_ser.concat(server)
       }
+      console.log('数量2', acc_ser.length);
+      for (let i = 0; i < data_account_flow.length; i++) {
+        let item = data_account_flow[i];
+        let index = acc_ser.indexOf(`${item.accountId},${item.serverId}`)
+        acc_ser.splice(index, 1)
+      }
+      console.log('数量3', acc_ser.length);
+      let ids = [];
+      for (let i = 0; i < acc_ser.length; i++) {
+        let id = acc_ser[i].split(',')[0]
+        if (ids.indexOf(id) < 0) {
+          ids.push(id);
+        }
+      }
+      console.log('数量4', ids.length);
+      for (let id of ids) {
+        await sleep(sleepTime);
+        await accountFlow.add(id);
+      }
+      console.log('结束：', new Date())
+      // for (let account of accounts) {
+      //   await sleep(sleepTime);
+      //   await accountFlow.add(account.id);
+      // }
       const end = Date.now();
       if (end - start <= 67 * 1000) {
         await sleep(67 * 1000 - (end - start));
@@ -342,16 +381,27 @@ const checkAccount = async (serverId, accountId) => {
       if (accounts.length <= 120) {
         for (const account of accounts) {
           const start = Date.now();
-          //console.log('checkAccount', start);
-          await checkAccount(account.serverId, account.accountId).catch();
+          //console.log('checkAccount1',accounts.length, error_count[account.serverId])
+          error_count[account.serverId] = error_count[account.serverId] || 0;
+          if (error_count[account.serverId] < 3)
+            await checkAccount(account.serverId, account.accountId);
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
+          if (accounts.indexOf(account) == accounts.length - 1) {
+            error_count = [];
+          }
         }
       } else {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
-            //console.log('checkAccount', index);
-            return checkAccount(account.serverId, account.accountId).catch();
+            //如果请求同一个服务器三次出错，则本次不再请求这个服务器，虽然不是同步的
+            error_count[account.serverId] = error_count[account.serverId] || 0;
+            //console.log('checkAccount2', accounts.length, error_count[account.serverId], `server-${account.serverId}`)
+            if (error_count[account.serverId] < 3)
+              return checkAccount(account.serverId, account.accountId);
+            if (index == accounts.length - 1) {
+              error_count = [];
+            }
           });
         }));
       }
@@ -364,7 +414,7 @@ const checkAccount = async (serverId, accountId) => {
         await sleep(30 * 1000);
       }
     } catch (err) {
-      console.log('出错了，哈哈');
+      console.log('出错了，哈哈', err);
       const end = Date.now();
       if (end - start <= 60 * 1000) {
         await sleep(60 * 1000 - (end - start));

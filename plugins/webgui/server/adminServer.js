@@ -36,7 +36,7 @@ exports.getOneServer = (req, res) => {
     if (success) { result.ports = success; }
     res.send(result);
   }).catch(err => {
-    console.log(err);
+    console.log('line-39',err);
     res.status(500).end();
   });
 };
