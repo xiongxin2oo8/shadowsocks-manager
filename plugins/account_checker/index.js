@@ -156,9 +156,9 @@ const isOverFlow = async (server, account) => {
     }, { flow: data.flow }).flow;
 
     let nextCheckTime = (flowWithFlowPacks - sumFlow) / 200000000 * 60 * 1000 / server.scale;
-    if(nextCheckTime >= account.expireTime - Date.now() && account.expireTime - Date.now() > 0) { nextCheckTime = account.expireTime - Date.now(); }
-    if(nextCheckTime <= 0) { nextCheckTime = 600 * 1000; }
-    if(nextCheckTime >= 3 * 60 * 60 * 1000) { nextCheckTime = 3 * 60 * 60 * 1000; }
+    if (nextCheckTime >= account.expireTime - Date.now() && account.expireTime - Date.now() > 0) { nextCheckTime = account.expireTime - Date.now(); }
+    if (nextCheckTime <= 0) { nextCheckTime = 600 * 1000; }
+    if (nextCheckTime >= 3 * 60 * 60 * 1000) { nextCheckTime = 3 * 60 * 60 * 1000; }
     await writeFlow(server.id, account.id, realFlow, nextCheckTime);
 
     return sumFlow >= flowWithFlowPacks;
@@ -207,8 +207,8 @@ const deleteExtraPorts = async serverInfo => {
     accounts.forEach(account => {
       accountObj[account.port] = account;
     });
-    for(const p of currentPorts) {
-      if(accountObj[p.port - serverInfo.shift]) { continue; }
+    for (const p of currentPorts) {
+      if (accountObj[p.port - serverInfo.shift]) { continue; }
       await sleep(sleepTime);
       deletePort(serverInfo, { port: p.port - serverInfo.shift });
     }
@@ -276,7 +276,7 @@ const checkAccount = async (serverId, accountId) => {
 
 (async () => {
   let time = 67;
-  while(true) {
+  while (true) {
     const start = Date.now();
     try {
       await sleep(sleepTime);
@@ -334,14 +334,14 @@ const checkAccount = async (serverId, accountId) => {
       //   await accountFlow.add(account.id);
       // }
       const end = Date.now();
-      if(end - start <= time * 1000) {
+      if (end - start <= time * 1000) {
         await sleep(time * 1000 - (end - start));
       }
-      if(time <= 300) { time += 10; }
-    } catch(err) {
+      if (time <= 300) { time += 10; }
+    } catch (err) {
       console.log(err);
       const end = Date.now();
-      if(end - start <= time * 1000) {
+      if (end - start <= time * 1000) {
         await sleep(time * 1000 - (end - start));
       }
     }
@@ -350,12 +350,14 @@ const checkAccount = async (serverId, accountId) => {
 
 (async () => {
   while (true) {
+    logger.info('check account');
     const start = Date.now();
     let accounts = [];
     try {
       const datas = await knex('account_flow').select()
         .where('nextCheckTime', '<', Date.now())
         .orderBy('nextCheckTime', 'asc').limit(600);
+      console.log(`服务器端口数: ${datas.length}`);
       accounts = [...accounts, ...datas];
       if (datas.length < 30) {
         accounts = [...accounts, ...(await knex('account_flow').select()
@@ -380,6 +382,7 @@ const checkAccount = async (serverId, accountId) => {
     } catch (err) { }
 
     try {
+      console.log(`开始检查，数量：${accounts.length}`);
       if (accounts.length <= 120) {
         for (const account of accounts) {
           const start = Date.now();
@@ -399,8 +402,9 @@ const checkAccount = async (serverId, accountId) => {
             //如果请求同一个服务器三次出错，则本次不再请求这个服务器，虽然不是同步的
             error_count[account.serverId] = error_count[account.serverId] || 0;
             //console.log('checkAccount2', accounts.length, error_count[account.serverId], `server-${account.serverId}`)
-            if (error_count[account.serverId] < 3)
+            if (error_count[account.serverId] < 3) {
               return checkAccount(account.serverId, account.accountId);
+            }
             if (index == accounts.length - 1) {
               error_count = [];
             }
@@ -408,7 +412,7 @@ const checkAccount = async (serverId, accountId) => {
         }));
       }
       if (accounts.length) {
-        logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms`);
+        logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
         if (accounts.length < 30) {
           await sleep((30 - accounts.length) * 1000);
         }
