@@ -230,8 +230,6 @@ const checkAccount = async (serverId, accountId) => {
       await knex('account_flow').delete().where({ serverId, accountId });
       return;
     }
-    let start = Date.now();
-    console.log(`检查账号：${accountInfo.id},端口号：${accountInfo.port},开始时间：${Date.now()}`)
 
     // 检查当前端口是否存在
     const exists = await isPortExists(serverInfo, accountInfo);
@@ -268,7 +266,6 @@ const checkAccount = async (serverId, accountId) => {
     }
 
     !exists && addPort(serverInfo, accountInfo);
-    console.log(`检查账号：${accountInfo.id},端口号：${accountInfo.port},结束时间：${Date.now()},用时：${Date.now() - start}`)
   } catch (err) {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
@@ -355,9 +352,17 @@ const checkAccount = async (serverId, accountId) => {
     logger.info('check account');
     const start = Date.now();
     let accounts = [];
+    
+    try {
+      //优先检查新账号
+      const datas = await knex('account_flow').select()
+        .where('nextCheckTime', '<', Date.now()).whereNull('checkTime')
+        .orderBy('nextCheckTime', 'asc').limit(600);
+      accounts = [...accounts, ...datas];
+    } catch (err) { console.log(err); }
     try {
       const datas = await knex('account_flow').select()
-        .where('nextCheckTime', '<', Date.now())
+        .where('nextCheckTime', '<', Date.now()).whereNotNull('checkTime')
         .orderBy('nextCheckTime', 'asc').limit(600);
       console.log(`服务器端口数: ${datas.length}`);
       accounts = [...accounts, ...datas];
@@ -418,6 +423,7 @@ const checkAccount = async (serverId, accountId) => {
         if (accounts.length < 30) {
           await sleep((30 - accounts.length) * 1000);
         }
+        await sleep(3 * 60 * 1000);
       } else {
         await sleep(30 * 1000);
       }
