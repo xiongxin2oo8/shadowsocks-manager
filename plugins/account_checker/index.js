@@ -382,7 +382,7 @@ const checkAccount = async (serverId, accountId) => {
     } catch (err) { }
 
     try {
-      console.log(`开始检查，数量：${accounts.length}`);
+      console.log(`开始检查，数量：${accounts.length},时间：${start}`);
       if (accounts.length <= 120) {
         for (const account of accounts) {
           const start = Date.now();
