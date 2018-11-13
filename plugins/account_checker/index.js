@@ -416,7 +416,7 @@ const checkAccount = async (serverId, accountId) => {
         if (accounts.length < 30) {
           await sleep((30 - accounts.length) * 1000);
         }
-        await sleep(2 * 60 * 1000);
+        //await sleep(2 * 60 * 1000);
       } else {
         await sleep(30 * 1000);
       }
