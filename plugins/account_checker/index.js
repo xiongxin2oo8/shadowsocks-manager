@@ -352,10 +352,14 @@ const checkAccount = async (serverId, accountId) => {
     logger.info('check account');
     const start = Date.now();
     let accounts = [];
-    
+    let server_not = error_count.map((value, index) => {
+      if (value > 2) { return index }
+    })
+
     try {
       const datas = await knex('account_flow').select()
         .where('nextCheckTime', '<', Date.now())
+        .whereNotIn('serverId', server_not)
         .orderBy('nextCheckTime', 'asc').limit(600);
       console.log(`服务器端口数: ${datas.length}`);
       accounts = [...accounts, ...datas];
