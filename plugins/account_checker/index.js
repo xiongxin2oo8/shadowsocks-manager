@@ -356,7 +356,7 @@ const checkAccount = async (serverId, accountId) => {
     try {
       const datas = await knex('account_flow').select()
         .where('nextCheckTime', '<', Date.now())
-        .orderBy('nextCheckTime', 'asc').limit(300);
+        .orderBy('nextCheckTime', 'asc').limit(600);
       console.log(`服务器端口数: ${datas.length}`);
       accounts = [...accounts, ...datas];
       if (datas.length < 30) {
