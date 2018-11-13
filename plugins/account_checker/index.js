@@ -61,7 +61,7 @@ const isExpired = (server, account) => {
     const expireTime = data.create + data.limit * timePeriod;
     account.expireTime = expireTime;
     if (expireTime <= Date.now() || data.create >= Date.now()) {
-      const nextCheckTime = 10 * 60 * 1000 + randomInt(30000);
+      const nextCheckTime = 20 * 60 * 1000 + randomInt(30000);
       if (account.active && account.autoRemove && expireTime + account.autoRemoveDelay < Date.now()) {
         modifyAccountFlow(server.id, account.id, nextCheckTime > account.autoRemoveDelay ? account.autoRemoveDelay : nextCheckTime);
         knex('account_plugin').delete().where({ id: account.id }).then();
@@ -242,7 +242,7 @@ const checkAccount = async (serverId, accountId) => {
 
     // 检查账号是否包含该服务器
     if (!hasServer(serverInfo, accountInfo)) {
-      await modifyAccountFlow(serverInfo.id, accountInfo.id, 30 * 60 * 1000 + randomInt(30000));
+      await modifyAccountFlow(serverInfo.id, accountInfo.id, 30 * 60 * 1000 + randomInt(300000));
       exists && deletePort(serverInfo, accountInfo);
       return;
     }
