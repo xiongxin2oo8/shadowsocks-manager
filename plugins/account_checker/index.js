@@ -354,15 +354,8 @@ const checkAccount = async (serverId, accountId) => {
     let accounts = [];
     
     try {
-      //优先检查新账号
       const datas = await knex('account_flow').select()
-        .where('nextCheckTime', '<', Date.now()).whereNull('checkTime')
-        .orderBy('nextCheckTime', 'asc').limit(600);
-      accounts = [...accounts, ...datas];
-    } catch (err) { console.log(err); }
-    try {
-      const datas = await knex('account_flow').select()
-        .where('nextCheckTime', '<', Date.now()).whereNotNull('checkTime')
+        .where('nextCheckTime', '<', Date.now())
         .orderBy('nextCheckTime', 'asc').limit(600);
       console.log(`服务器端口数: ${datas.length}`);
       accounts = [...accounts, ...datas];
@@ -423,7 +416,7 @@ const checkAccount = async (serverId, accountId) => {
         if (accounts.length < 30) {
           await sleep((30 - accounts.length) * 1000);
         }
-        await sleep(3 * 60 * 1000);
+        //await sleep(3 * 60 * 1000);
       } else {
         await sleep(30 * 1000);
       }
