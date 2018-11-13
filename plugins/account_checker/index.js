@@ -219,18 +219,19 @@ const deleteExtraPorts = async serverInfo => {
 
 const checkAccount = async (serverId, accountId) => {
   try {
-    //console.log('checkAccount')
+
     const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
     if (!serverInfo) {
       await knex('account_flow').delete().where({ serverId });
       return;
     }
-
     const accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
     if (!accountInfo) {
       await knex('account_flow').delete().where({ serverId, accountId });
       return;
     }
+    let start = Date.now();
+    console.log(`检查账号：${accountInfo.id},端口号：${accountInfo.port},开始时间：${Date.now()}`)
 
     // 检查当前端口是否存在
     const exists = await isPortExists(serverInfo, accountInfo);
@@ -267,6 +268,7 @@ const checkAccount = async (serverId, accountId) => {
     }
 
     !exists && addPort(serverInfo, accountInfo);
+    console.log(`检查账号：${accountInfo.id},端口号：${accountInfo.port},结束时间：${Date.now()},用时：${Date.now() - start}`)
   } catch (err) {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
