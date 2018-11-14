@@ -61,7 +61,8 @@ const receiveCommand = async (data, code) => {
     } else if (message.command === 'batch_options') {
       var list = message.list;
       list.map((v, i) => {
-        console.log('shadowsocks.listAccount()',await shadowsocks.listAccount().then(res => res));
+        let acounts = await shadowsocks.listAccount();
+        console.log('shadowsocks.listAccount()', acounts);
         if (v.command === 'add') {
           const port = +v.port;
           const password = v.password;
