@@ -60,18 +60,17 @@ const receiveCommand = async (data, code) => {
       return shadowsocks.getClientIp(message.port);
     } else if (message.command === 'batch_options') {
       var list = message.list;
-      let acounts = await shadowsocks.listAccount();
+      let ports = (await shadowsocks.listAccount()).map(a => a.port);
       list.map((v, i) => {
-        console.log('shadowsocks.listAccount()', acounts);
         if (v.command === 'add') {
           const port = +v.port;
           const password = v.password;
-          if (!shadowsocks.listAccount().indexOf(v.port) >= 0) {
+          if (!ports.indexOf(v.port) >= 0) {
             shadowsocks.addAccount(port, password);
           }
         } else if (v.command === 'del') {
           const port = +v.port;
-          if (shadowsocks.listAccount().indexOf(v.port) >= 0) {
+          if (ports.indexOf(v.port) >= 0) {
             shadowsocks.removeAccount(port);
           }
         }
