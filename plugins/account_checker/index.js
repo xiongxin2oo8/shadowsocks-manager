@@ -265,40 +265,40 @@ const checkAccount = async (servers, serverId, accountId) => {
     }
 
     // 检查当前端口是否存在
-    //const exists = await isPortExists(serverInfo, accountInfo);
+    const exists = await isPortExists(serverInfo, accountInfo);
 
     // 检查账号是否激活
     if (!isAccountActive(serverInfo, accountInfo)) {
-      true && delPortList(serverInfo, accountInfo);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否包含该服务器
     if (!hasServer(serverInfo, accountInfo)) {
       await modifyAccountFlow(serverInfo.id, accountInfo.id, 30 * 60 * 1000 + randomInt(300000));
-      true && delPortList(serverInfo, accountInfo);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否过期
     if (isExpired(serverInfo, accountInfo)) {
-      true && delPortList(serverInfo, accountInfo);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否被ban
     if (await isBaned(serverInfo, accountInfo)) {
-      true && delPortList(serverInfo, accountInfo);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否超流量
     if (await isOverFlow(serverInfo, accountInfo)) {
-      true && delPortList(serverInfo, accountInfo);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
-    !false && addPortList(serverInfo, accountInfo);
+    !false && addPort(serverInfo, accountInfo);
   } catch (err) {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
@@ -386,9 +386,7 @@ cron.minute(() => {
 }, 15);
 
 (async () => {
-
   while (true) {
-
     var servers = [];
     await knex('server').then(res => {
       res.map(s => {
@@ -451,7 +449,7 @@ cron.minute(() => {
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
         }
-        await sendOptions();
+        //await sendOptions();
       } else {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
@@ -463,7 +461,7 @@ cron.minute(() => {
             }
           });
         }));
-        await sendOptions();
+        //await sendOptions();
       }
       if (accounts.length) {
         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);

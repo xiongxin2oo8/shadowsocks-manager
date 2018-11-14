@@ -66,11 +66,13 @@ const receiveCommand = async (data, code) => {
           const port = +v.port;
           const password = v.password;
           if (!ports.indexOf(v.port) >= 0) {
+            console.log('添加端口');
             shadowsocks.addAccount(port, password);
           }
         } else if (v.command === 'del') {
           const port = +v.port;
           if (ports.indexOf(v.port) >= 0) {
+            console.log('删除端口');
             shadowsocks.removeAccount(port);
           }
         }
