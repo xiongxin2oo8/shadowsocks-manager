@@ -362,6 +362,7 @@ cron.minute(() => {
     })
 
     try {
+      console.log(server_not);
       const datas = await knex('account_flow').select()
         .where('nextCheckTime', '<', Date.now())
         .whereNotIn('serverId', server_not)
@@ -373,7 +374,7 @@ cron.minute(() => {
           .where('nextCheckTime', '>', Date.now())
           .orderBy('nextCheckTime', 'asc').limit(30 - datas.length))];
       }
-    } catch (err) { console.log(err); }
+    } catch (err) { console.log('line-376',err); }
     try {
       const datas = await knex('account_flow').select()
         .orderBy('updateTime', 'desc').where('checkTime', '<', Date.now() - 60000).limit(15);
