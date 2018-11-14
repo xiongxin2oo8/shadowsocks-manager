@@ -217,11 +217,12 @@ const addPortList = (server, account) => {
 };
 //批量发送数据
 const sendOptions = async () => {
+  console.log('开始批量发送数据');
   option_list.map((v, i) => {
     if (v) {
       manager.send({
         command: 'batch_options',
-        data: v
+        list: v
       }, ser_list[i]).catch();
     }
   })
@@ -248,7 +249,7 @@ const deleteExtraPorts = async serverInfo => {
   }
 };
 
-const checkAccount = async (servers,serverId, accountId) => {
+const checkAccount = async (servers, serverId, accountId) => {
   try {
 
     //const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
@@ -264,40 +265,40 @@ const checkAccount = async (servers,serverId, accountId) => {
     }
 
     // 检查当前端口是否存在
-    const exists = await isPortExists(serverInfo, accountInfo);
+    //const exists = await isPortExists(serverInfo, accountInfo);
 
     // 检查账号是否激活
     if (!isAccountActive(serverInfo, accountInfo)) {
-      exists && delPortList(serverInfo, accountInfo);
+      true && delPortList(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否包含该服务器
     if (!hasServer(serverInfo, accountInfo)) {
       await modifyAccountFlow(serverInfo.id, accountInfo.id, 30 * 60 * 1000 + randomInt(300000));
-      exists && delPortList(serverInfo, accountInfo);
+      true && delPortList(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否过期
     if (isExpired(serverInfo, accountInfo)) {
-      exists && delPortList(serverInfo, accountInfo);
+      true && delPortList(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否被ban
     if (await isBaned(serverInfo, accountInfo)) {
-      exists && delPortList(serverInfo, accountInfo);
+      true && delPortList(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否超流量
     if (await isOverFlow(serverInfo, accountInfo)) {
-      exists && delPortList(serverInfo, accountInfo);
+      true && delPortList(serverInfo, accountInfo);
       return;
     }
 
-    !exists && addPortList(serverInfo, accountInfo);
+    !false && addPortList(serverInfo, accountInfo);
   } catch (err) {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
@@ -446,7 +447,7 @@ cron.minute(() => {
           //console.log('checkAccount1',accounts.length, error_count[account.serverId])
           error_count[account.serverId] = error_count[account.serverId] || 0;
           if (error_count[account.serverId] < 3)
-            await checkAccount(servers,account.serverId, account.accountId);
+            await checkAccount(servers, account.serverId, account.accountId);
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
         }
@@ -458,7 +459,7 @@ cron.minute(() => {
             error_count[account.serverId] = error_count[account.serverId] || 0;
             //console.log('checkAccount2', accounts.length, error_count[account.serverId], `server-${account.serverId}`)
             if (error_count[account.serverId] < 3) {
-              return checkAccount(servers,account.serverId, account.accountId);
+              return checkAccount(servers, account.serverId, account.accountId);
             }
           });
         }));

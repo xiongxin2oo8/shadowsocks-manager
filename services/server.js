@@ -64,10 +64,14 @@ const receiveCommand = async (data, code) => {
         if (v.command === 'add') {
           const port = +message.port;
           const password = message.password;
-          shadowsocks.addAccount(port, password);
+          if (!shadowsocks.listAccount().indexOf(server.shift + account.port) >= 0) {
+            hadowsocks.addAccount(port, password);
+          }        
         } else if (v.command === 'del') {
           const port = +message.port;
-          shadowsocks.removeAccount(port);
+          if (shadowsocks.listAccount().indexOf(server.shift + account.port) >= 0) {
+            shadowsocks.removeAccount(port);
+          }           
         }
       })
     } else {
