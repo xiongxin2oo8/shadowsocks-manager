@@ -357,9 +357,10 @@ cron.minute(() => {
     logger.info('check account');
     const start = Date.now();
     let accounts = [];
-    let server_not = error_count.map((value, index) => {
-      if (value > 2) { return index }
-    })
+    let server_not = []; 
+    for (let i = 0; i < error_count.length; i++) {
+      if (value > 2) { accounts.push(error_count[i]) }
+    }
 
     try {
       console.log(server_not);
@@ -374,7 +375,7 @@ cron.minute(() => {
           .where('nextCheckTime', '>', Date.now())
           .orderBy('nextCheckTime', 'asc').limit(30 - datas.length))];
       }
-    } catch (err) { console.log('line-376',err); }
+    } catch (err) { console.log('line-376', err); }
     try {
       const datas = await knex('account_flow').select()
         .orderBy('updateTime', 'desc').where('checkTime', '<', Date.now() - 60000).limit(15);
