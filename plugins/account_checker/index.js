@@ -359,7 +359,7 @@ cron.minute(() => {
     let accounts = [];
     let server_not = []; 
     for (let i = 0; i < error_count.length; i++) {
-      if (value > 2) { accounts.push(error_count[i]) }
+      if (error_count[i] > 2) { accounts.push(error_count[i]) }
     }
 
     try {
