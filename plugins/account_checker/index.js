@@ -6,6 +6,7 @@ const manager = appRequire('services/manager');
 const config = appRequire('services/config').all();
 const sleepTime = 100;
 const accountFlow = appRequire('plugins/account/accountFlow');
+const cron = appRequire('init/cron');
 //记录错误次数
 var error_count = [];
 
@@ -272,7 +273,6 @@ const checkAccount = async (serverId, accountId) => {
     console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
   }
 };
-
 (async () => {
   let time = 67;
   while (true) {
@@ -347,6 +347,11 @@ const checkAccount = async (serverId, accountId) => {
   }
 })();
 
+cron.minute(() => {
+  logger.info('重置错误次数');
+  error_count = [];
+}, 6);
+
 (async () => {
   while (true) {
     logger.info('check account');
@@ -396,9 +401,6 @@ const checkAccount = async (serverId, accountId) => {
             await checkAccount(account.serverId, account.accountId);
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
-          if (accounts.indexOf(account) == accounts.length - 1) {
-            error_count = [];
-          }
         }
       } else {
         await Promise.all(accounts.map((account, index) => {
@@ -408,9 +410,6 @@ const checkAccount = async (serverId, accountId) => {
             //console.log('checkAccount2', accounts.length, error_count[account.serverId], `server-${account.serverId}`)
             if (error_count[account.serverId] < 3) {
               return checkAccount(account.serverId, account.accountId);
-            }
-            if (index == accounts.length - 1) {
-              error_count = [];
             }
           });
         }));
