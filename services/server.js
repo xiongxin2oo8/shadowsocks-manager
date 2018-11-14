@@ -60,8 +60,8 @@ const receiveCommand = async (data, code) => {
       return shadowsocks.getClientIp(message.port);
     } else if (message.command === 'batch_options') {
       var list = message.list;
+      let acounts = await shadowsocks.listAccount();
       list.map((v, i) => {
-        let acounts = await shadowsocks.listAccount();
         console.log('shadowsocks.listAccount()', acounts);
         if (v.command === 'add') {
           const port = +v.port;
