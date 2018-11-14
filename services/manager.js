@@ -118,7 +118,7 @@ const getIps = async address => {
 };
 
 const send = async (data, options) => {
-  console.log('发送数据',data, options);
+  //console.log('发送数据',data, options);
   if (options && options.host) {
     options.host = options.host.split(':')[0];
   }
