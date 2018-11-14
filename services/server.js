@@ -62,14 +62,14 @@ const receiveCommand = async (data, code) => {
       var list = message.list;
       list.map((v, i) => {
         if (v.command === 'add') {
-          const port = +message.port;
-          const password = message.password;
-          if (!shadowsocks.listAccount().indexOf(server.shift + account.port) >= 0) {
+          const port = +v.port;
+          const password = v.password;
+          if (!shadowsocks.listAccount().indexOf(v.port) >= 0) {
             hadowsocks.addAccount(port, password);
           }        
         } else if (v.command === 'del') {
-          const port = +message.port;
-          if (shadowsocks.listAccount().indexOf(server.shift + account.port) >= 0) {
+          const port = +v.port;
+          if (shadowsocks.listAccount().indexOf(v.port) >= 0) {
             shadowsocks.removeAccount(port);
           }           
         }
@@ -105,6 +105,7 @@ const checkData = (receive) => {
     code = buffer.slice(length - 2);
     // receive.data = buffer.slice(length + 2, buffer.length);
     if (!checkCode(data, password, code)) {
+      console.log('数据校验失败');
       receive.socket.end();
       // receive.socket.close();
       return;
