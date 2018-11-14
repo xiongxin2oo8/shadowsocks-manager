@@ -20,7 +20,7 @@ const receiveData = (receive, data) => {
 
 const checkCode = (data, password, code) => {
   const time = Number.parseInt(data.slice(0, 6).toString('hex'), 16);
-  if(Math.abs(Date.now() - time) > 10 * 60 * 1000) {
+  if (Math.abs(Date.now() - time) > 10 * 60 * 1000) {
     return false;
   }
   const command = data.slice(6).toString();
@@ -38,7 +38,7 @@ const receiveCommand = async (data, code) => {
     });
     const message = JSON.parse(data.slice(6).toString());
     logger.info(message);
-    if(message.command === 'add') {
+    if (message.command === 'add') {
       const port = +message.port;
       const password = message.password;
       return shadowsocks.addAccount(port, password);
@@ -58,10 +58,22 @@ const receiveCommand = async (data, code) => {
       return shadowsocks.getVersion();
     } else if (message.command === 'ip') {
       return shadowsocks.getClientIp(message.port);
+    } else if (message.command === 'batch_options') {
+      var list = message.list;
+      list.map((v, i) => {
+        if (v.command === 'add') {
+          const port = +message.port;
+          const password = message.password;
+          shadowsocks.addAccount(port, password);
+        } else if (v.command === 'del') {
+          const port = +message.port;
+          shadowsocks.removeAccount(port);
+        }
+      })
     } else {
       return Promise.reject();
     }
-  } catch(err) {
+  } catch (err) {
     throw err;
   }
 };
@@ -88,20 +100,20 @@ const checkData = (receive) => {
     data = buffer.slice(2, length - 2);
     code = buffer.slice(length - 2);
     // receive.data = buffer.slice(length + 2, buffer.length);
-    if(!checkCode(data, password, code)) {
+    if (!checkCode(data, password, code)) {
       receive.socket.end();
       // receive.socket.close();
       return;
     }
     receiveCommand(data, code).then(s => {
-      receive.socket.end(pack({code: 0, data: s}));
+      receive.socket.end(pack({ code: 0, data: s }));
       // receive.socket.close();
     }, e => {
       logger.error(e);
-      receive.socket.end(pack({code: 1}));
+      receive.socket.end(pack({ code: 1 }));
       // receive.socket.close();
     });
-    if(buffer.length > length + 2) {
+    if (buffer.length > length + 2) {
       checkData(receive);
     }
   }
@@ -129,5 +141,5 @@ server.listen({
   port,
   host,
 }, () => {
-  logger.info(`server listen on ${ host }:${ port }`);
+  logger.info(`server listen on ${host}:${port}`);
 });

@@ -87,7 +87,6 @@ const saveFlow = async () => {
     }
   } catch (err) {
     logger.error(err);
-    return;
   }
 };
 

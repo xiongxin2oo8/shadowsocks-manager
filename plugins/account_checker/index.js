@@ -170,7 +170,6 @@ const isOverFlow = async (server, account) => {
 };
 
 const deletePort = (server, account) => {
-  // console.log(`del ${ server.name } ${ account.port }`);
   const portNumber = server.shift + account.port;
   manager.send({
     command: 'del',
@@ -181,9 +180,7 @@ const deletePort = (server, account) => {
       password: server.password,
     }).catch();
 };
-
 const addPort = (server, account) => {
-  // console.log(`add ${ server.name } ${ account.port }`);
   const portNumber = server.shift + account.port;
   manager.send({
     command: 'add',
@@ -195,7 +192,40 @@ const addPort = (server, account) => {
       password: server.password
     }).catch();
 };
-
+var option_list = [];
+var ser_list = [];
+//批量删除
+const delPortList = (server, account) => {
+  const portNumber = server.shift + account.port;
+  var data = {
+    command: 'del',
+    userport: portNumber
+  };
+  option_list[server.id] = option_list[server.id] || [];
+  option_list[server.id].push(data);
+};
+//批量添加
+const addPortList = (server, account) => {
+  const portNumber = server.shift + account.port;
+  var data = {
+    command: 'add',
+    userport: portNumber,
+    userpwd: account.password,
+  };
+  option_list[server.id] = option_list[server.id] || [];
+  option_list[server.id].push(data);
+};
+//批量发送数据
+const sendOptions = async () => {
+  option_list.map((v, i) => {
+    if (v) {
+      manager.send({
+        command: 'batch_options',
+        data: v
+      }, ser_list[i]).catch();
+    }
+  })
+}
 const deleteExtraPorts = async serverInfo => {
   try {
     const currentPorts = await manager.send({ command: 'list' }, {
@@ -218,10 +248,11 @@ const deleteExtraPorts = async serverInfo => {
   }
 };
 
-const checkAccount = async (serverId, accountId) => {
+const checkAccount = async (servers,serverId, accountId) => {
   try {
 
-    const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
+    //const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
+    const serverInfo = servers[serverId];
     if (!serverInfo) {
       await knex('account_flow').delete().where({ serverId });
       return;
@@ -237,42 +268,43 @@ const checkAccount = async (serverId, accountId) => {
 
     // 检查账号是否激活
     if (!isAccountActive(serverInfo, accountInfo)) {
-      exists && deletePort(serverInfo, accountInfo);
+      exists && delPortList(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否包含该服务器
     if (!hasServer(serverInfo, accountInfo)) {
       await modifyAccountFlow(serverInfo.id, accountInfo.id, 30 * 60 * 1000 + randomInt(300000));
-      exists && deletePort(serverInfo, accountInfo);
+      exists && delPortList(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否过期
     if (isExpired(serverInfo, accountInfo)) {
-      exists && deletePort(serverInfo, accountInfo);
+      exists && delPortList(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否被ban
     if (await isBaned(serverInfo, accountInfo)) {
-      exists && deletePort(serverInfo, accountInfo);
+      exists && delPortList(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否超流量
     if (await isOverFlow(serverInfo, accountInfo)) {
-      exists && deletePort(serverInfo, accountInfo);
+      exists && delPortList(serverInfo, accountInfo);
       return;
     }
 
-    !exists && addPort(serverInfo, accountInfo);
+    !exists && addPortList(serverInfo, accountInfo);
   } catch (err) {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
     console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
   }
 };
+
 (async () => {
   let time = 67;
   while (true) {
@@ -350,20 +382,34 @@ const checkAccount = async (serverId, accountId) => {
 cron.minute(() => {
   logger.info('重置错误次数');
   error_count = [];
-}, 6);
+}, 15);
 
 (async () => {
+
   while (true) {
+
+    var servers = [];
+    await knex('server').then(res => {
+      res.map(s => {
+        servers[s.id] = s;
+        ser_list[s.id] = {
+          host: s.host,
+          port: s.port,
+          password: s.password
+        };
+      })
+    });
+
     logger.info('check account');
     const start = Date.now();
     let accounts = [];
-    let server_not = []; 
-    error_count.map((v,i)=>{
-      if(v>2) server_not.push(i);
+    let server_not = [];
+    error_count.map((v, i) => {
+      if (v > 2) server_not.push(i);
     })
 
     try {
-      console.log('不检查服务器：',server_not);
+      console.log('不检查服务器：', server_not);
       const datas = await knex('account_flow').select()
         .where('nextCheckTime', '<', Date.now())
         .whereNotIn('serverId', server_not)
@@ -400,21 +446,23 @@ cron.minute(() => {
           //console.log('checkAccount1',accounts.length, error_count[account.serverId])
           error_count[account.serverId] = error_count[account.serverId] || 0;
           if (error_count[account.serverId] < 3)
-            await checkAccount(account.serverId, account.accountId);
+            await checkAccount(servers,account.serverId, account.accountId);
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
         }
+        await sendOptions();
       } else {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
-            //如果请求同一个服务器三次出错，6分钟内不再请求这个服务器，虽然不是同步的
+            //如果请求同一个服务器三次出错，15分钟内不再请求这个服务器，虽然不是同步的
             error_count[account.serverId] = error_count[account.serverId] || 0;
             //console.log('checkAccount2', accounts.length, error_count[account.serverId], `server-${account.serverId}`)
             if (error_count[account.serverId] < 3) {
-              return checkAccount(account.serverId, account.accountId);
+              return checkAccount(servers,account.serverId, account.accountId);
             }
           });
         }));
+        await sendOptions();
       }
       if (accounts.length) {
         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
