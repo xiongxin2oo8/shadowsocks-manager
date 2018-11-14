@@ -61,18 +61,18 @@ const receiveCommand = async (data, code) => {
     } else if (message.command === 'batch_options') {
       var list = message.list;
       list.map((v, i) => {
-        console.log('shadowsocks.listAccount()',shadowsocks.listAccount());
+        console.log('shadowsocks.listAccount()', shadowsocks.listAccount().then(res => res));
         if (v.command === 'add') {
           const port = +v.port;
           const password = v.password;
           if (!shadowsocks.listAccount().indexOf(v.port) >= 0) {
             shadowsocks.addAccount(port, password);
-          }        
+          }
         } else if (v.command === 'del') {
           const port = +v.port;
           if (shadowsocks.listAccount().indexOf(v.port) >= 0) {
             shadowsocks.removeAccount(port);
-          }           
+          }
         }
       })
     } else {
