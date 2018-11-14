@@ -358,12 +358,12 @@ cron.minute(() => {
     const start = Date.now();
     let accounts = [];
     let server_not = []; 
-    for (let i = 0; i < error_count.length; i++) {
-      if (error_count[i] > 2) { accounts.push(error_count[i]) }
-    }
+    error_count.map((v,i)=>{
+      if(v>2) server_not.push(i);
+    })
 
     try {
-      console.log(server_not);
+      console.log('不检查服务器：',server_not);
       const datas = await knex('account_flow').select()
         .where('nextCheckTime', '<', Date.now())
         .whereNotIn('serverId', server_not)
@@ -407,7 +407,7 @@ cron.minute(() => {
       } else {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
-            //如果请求同一个服务器三次出错，则本次不再请求这个服务器，虽然不是同步的
+            //如果请求同一个服务器三次出错，6分钟内不再请求这个服务器，虽然不是同步的
             error_count[account.serverId] = error_count[account.serverId] || 0;
             //console.log('checkAccount2', accounts.length, error_count[account.serverId], `server-${account.serverId}`)
             if (error_count[account.serverId] < 3) {
