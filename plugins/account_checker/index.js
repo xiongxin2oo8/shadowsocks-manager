@@ -9,6 +9,11 @@ const accountFlow = appRequire('plugins/account/accountFlow');
 const cron = appRequire('init/cron');
 //记录错误次数
 var error_count = [];
+const isTelegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
+let telegram;
+if (isTelegram) {
+  telegram = appRequire('plugins/webgui_telegram/admin');
+}
 
 const sleep = time => {
   return new Promise((resolve, reject) => {
@@ -253,8 +258,8 @@ const deleteExtraPorts = async serverInfo => {
 };
 
 const checkAccount = async (servers, serverId, accountId) => {
-  try {
 
+  try {
     //const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
     const serverInfo = servers[serverId];
     if (!serverInfo) {
@@ -305,6 +310,10 @@ const checkAccount = async (servers, serverId, accountId) => {
   } catch (err) {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
+    if (error_count[serverId] == 3) {
+      let ser = servers[serverId];
+      isTelegram && telegram.push(`节点[${ser.name}]似乎掉线了，快来看看吧！`);
+    }
     console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
   }
 };
