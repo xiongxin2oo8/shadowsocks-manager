@@ -66,6 +66,7 @@ const sendMessage = (data, options) => {
       socket: client,
     };
     client.on('data', data => {
+      logger.info('数据结果：'+options+'A++++++A'+data.toString());
       receiveData(receive, data).then(message => {
         if (!message) {
           // reject(new Error(`empty message from ssmgr[s] [${ options.host || host }:${ options.port || port }]`));
@@ -92,6 +93,7 @@ const sendMessage = (data, options) => {
     });
     client.on('timeout', () => {
       logger.error('timeout');
+      logger.info('数据结果：'+options+'B++++++B');
       console.log('data', data, options)
       reject(new Error(`connect to ssmgr[s] timeout [${options.host || host}:${options.port || port}]`));
       client.end();
