@@ -218,15 +218,17 @@ const addPortList = (server, account) => {
 //批量发送数据
 const sendOptions = async () => {
   console.log('开始批量发送数据');
-  option_list.map((v, i) => {
-    if (v) {
+  for (let i = 0; i < option_list.length; i++) {
+    let option = option_list[i];
+    if (option) {
       await sleep(200);
       manager.send({
         command: 'batch_options',
-        list: v
+        list: option
       }, ser_list[i]).catch();
     }
-  })
+  }
+
 }
 const deleteExtraPorts = async serverInfo => {
   try {

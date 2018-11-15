@@ -60,7 +60,7 @@ const sendMessage = (data, options) => {
     }, () => {
       client.write(pack(data, (options ? options.password : null) || password));
     });
-    client.setTimeout(15 * 1000);
+    client.setTimeout(3 * 1000);
     const receive = {
       data: Buffer.from(''),
       socket: client,
