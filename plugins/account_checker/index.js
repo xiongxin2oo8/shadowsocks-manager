@@ -310,6 +310,7 @@ const checkAccount = async (servers, serverId, accountId) => {
   } catch (err) {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
+    //掉线提醒
     if (error_count[serverId] == 3) {
       let ser = servers[serverId];
       isTelegram && telegram.push(`节点[${ser.name}]似乎掉线了，快来看看吧！`);
