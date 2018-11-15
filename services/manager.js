@@ -73,8 +73,7 @@ const sendMessage = (data, options) => {
           resolve(message.data);
         } else {
           reject(new Error(`ssmgr[s] return an error code [${options.host || host}:${options.port || port}]`));
-          logger.error('line-75', data);
-          logger.error('line-76', message);
+          logger.error('line-75', data, message);
         }
         client.end();
       }).catch(err => {
