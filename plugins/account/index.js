@@ -448,14 +448,14 @@ const setAccountLimit = async (userId, accountId, orderId) => {
   }
 
   const compareType = (current, order) => {
-    if(current === order) { return false; }
-    else if(current === 3) { return true; }
-    else if(current === 2 && order !== 3) { return true; }
-    else if(current === 4 && order === 5) { return true; }
+    if (current === order) { return false; }
+    else if (current === 3) { return true; }
+    else if (current === 2 && order !== 3) { return true; }
+    else if (current === 4 && order === 5) { return true; }
     else { return false; }
   };
   const onlyIncreaseTime = compareType(account.type, orderType);
-  if(onlyIncreaseTime) {
+  if (onlyIncreaseTime) {
     const accountData = JSON.parse(account.data);
     const timePeriod = {
       '2': 7 * 86400 * 1000,
@@ -464,7 +464,7 @@ const setAccountLimit = async (userId, accountId, orderId) => {
       '5': 3600 * 1000,
     };
     let expireTime = accountData.create + accountData.limit * timePeriod[account.type];
-    if(expireTime <= Date.now()) {
+    if (expireTime <= Date.now()) {
       expireTime = timePeriod[orderType] * limit + Date.now();
     } else {
       expireTime += timePeriod[orderType] * limit;
@@ -472,7 +472,7 @@ const setAccountLimit = async (userId, accountId, orderId) => {
     let countTime = timePeriod[account.type];
     accountData.create = expireTime - countTime;
     accountData.limit = 1;
-    while(accountData.create >= Date.now()) {
+    while (accountData.create >= Date.now()) {
       accountData.limit += 1;
       accountData.create -= countTime;
     }
@@ -742,12 +742,12 @@ const getAccountForSubscribe = async (token, ip) => {
   } else {
     account.data = {};
   }
-  if(account.server) {
+  if (account.server) {
     account.server = JSON.parse(account.server);
   }
   const servers = await serverManager.list({ status: false });
   const validServers = servers.filter(server => {
-    if(!account.server) { return true; }
+    if (!account.server) { return true; }
     return account.server.indexOf(server.id) >= 0;
   });
   return { server: validServers, account };

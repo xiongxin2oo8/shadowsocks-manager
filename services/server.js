@@ -127,7 +127,7 @@ const checkData = (receive) => {
   }
 };
 
-const server = net.createServer(socket => {
+const server = net.createServer({ allowHalfOpen: true }, socket => {
   const receive = {
     data: Buffer.from(''),
     socket: socket,
@@ -136,13 +136,22 @@ const server = net.createServer(socket => {
     receiveData(receive, data);
   });
   socket.on('end', () => {
-    // console.log('end');
+    console.log('客户端连接被关闭');
+    socket.end();
+    //客户端连接全部关闭的时候退出引用程序
+    server.unref();
   });
-  socket.on('close', () => {
-    // console.log('close');
+  socket.on('close', (has_error) => {
+    if (has_error) {
+      console.log('由于一个错误导致socket连接被关闭', has_error);
+      server.unref();
+    } else {
+      console.log('socket连接正常关闭');
+    }
   });
 }).on('error', (err) => {
   logger.error(`socket error: `, err);
+  socket.destroy();
 });
 
 server.listen({

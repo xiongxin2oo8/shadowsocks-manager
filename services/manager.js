@@ -60,7 +60,7 @@ const sendMessage = (data, options) => {
     }, () => {
       client.write(pack(data, (options ? options.password : null) || password));
     });
-    client.setTimeout(3 * 1000);
+    client.setTimeout(15 * 1000);
     const receive = {
       data: Buffer.from(''),
       socket: client,
@@ -118,7 +118,7 @@ const getIps = async address => {
 };
 
 const send = async (data, options) => {
-  //console.log('发送数据',data, options);
+  console.log('发送数据',data, options);
   if (options && options.host) {
     options.host = options.host.split(':')[0];
   }
