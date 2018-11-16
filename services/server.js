@@ -59,6 +59,7 @@ const receiveCommand = async (data, code) => {
     } else if (message.command === 'ip') {
       return shadowsocks.getClientIp(message.port);
     } else if (message.command === 'batch_options') {
+      
       const start = new Date();
       var list = message.list || [];
       let ports = (await shadowsocks.listAccount()).map(a => a.port);
