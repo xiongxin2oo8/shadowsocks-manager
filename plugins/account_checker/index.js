@@ -223,7 +223,7 @@ const addPortList = (server, account, list) => {
 };
 //批量发送数据
 const sendOptions = async (list) => {
-  console.log('开始批量发送数据');
+  console.log('开始批量发送数据,' + list.length);
   for (let i = 0; i < list.length; i++) {
     let option = list[i];
     if (option) {
@@ -258,16 +258,14 @@ const deleteExtraPorts = async serverInfo => {
   }
 };
 
-const checkAccount = async (serverInfo, accountInfo) => {
-
+const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
   try {
     if (!serverInfo) {
-      await knex('account_flow').delete().where({ serverId: serverInfo.id });
+      await knex('account_flow').delete().where({ serverId });
       return;
     }
-
     if (!accountInfo) {
-      await knex('account_flow').delete().where({ serverId: serverInfo.id, accountId: accountInfo.id });
+      await knex('account_flow').delete().where({ serverId: serverInfo.id, accountId });
       return;
     }
 
@@ -303,15 +301,16 @@ const checkAccount = async (serverInfo, accountInfo) => {
     }
 
     !false && addPortList(serverInfo, accountInfo, option_list);
+    
   } catch (err) {
-    let count = error_count[serverId] || 0;
-    error_count[serverId] = count + 1;
+    let count = error_count[serverInfo.id] || 0;
+    error_count[serverInfo.id] = count + 1;
     //掉线提醒
-    if (error_count[serverId] == 3) {
-      let ser = servers[serverId];
+    if (error_count[serverInfo.id] == 3) {
+      let ser = servers[serverInfo.id];
       isTelegram && telegram.push(`[${ser.name}]似乎掉线了，快来看看吧！`);
     }
-    console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
+    console.log('line-271', `count-${error_count[serverInfo.id]}`, serverInfo.id, accountInfo.id, err);
   }
 };
 
@@ -462,7 +461,7 @@ cron.minute(() => {
       for (const account of accounts) {
         error_count[account.serverId] = error_count[account.serverId] || 0;
         if (error_count[account.serverId] < 3)
-          await checkAccount(servers[account.serverId], account_plugin[account.accountId]);
+          await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
       }
       await sendOptions(option_list);
       if (accounts.length) {
