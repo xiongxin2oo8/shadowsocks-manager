@@ -220,6 +220,7 @@ const addAccount = async (port, password) => {
     await sendMessage(`add: {"server_port": ${port}, "password": "${password}"}`);
     return { port, password };
   } catch (err) {
+    console.log('出错了啊：', err);
     return Promise.reject('error');
   }
 };
@@ -238,7 +239,6 @@ const removeAccount = async (port) => {
     await sendMessage(`remove: {"server_port": ${port}}`);
     return { port };
   } catch (err) {
-    console.log('出错了啊：', err);
     return Promise.reject('error');
   }
 };
