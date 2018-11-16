@@ -67,7 +67,7 @@ const receiveCommand = async (data, code) => {
           const port = +item.port;
           const password = item.password;
           if (!ports.indexOf(item.port) >= 0) {
-            //shadowsocks.addAccount(port, password);
+            shadowsocks.addAccount(port, password);
           }
         } else if (item.command === 'del') {
           const port = +item.port;
