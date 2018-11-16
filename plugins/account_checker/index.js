@@ -251,7 +251,7 @@ const deleteExtraPorts = async serverInfo => {
     for (const p of currentPorts) {
       if (accountObj[p.port - serverInfo.shift]) { continue; }
       await sleep(sleepTime);
-      delPortList(serverInfo, { port: p.port - serverInfo.shift }, del_list);
+      deletePort(serverInfo, { port: p.port - serverInfo.shift });
     }
   } catch (err) {
     console.log(err);
@@ -268,49 +268,51 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
       await knex('account_flow').delete().where({ serverId: serverInfo.id, accountId });
       return;
     }
+    // 检查当前端口是否存在
+    const exists = await isPortExists(serverInfo, accountInfo);
 
     // 检查账号是否激活
     if (!isAccountActive(serverInfo, accountInfo)) {
-      true && delPortList(serverInfo, accountInfo, option_list);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否包含该服务器
     if (!hasServer(serverInfo, accountInfo)) {
       await modifyAccountFlow(serverInfo.id, accountInfo.id, 30 * 60 * 1000 + randomInt(300000));
-      true && delPortList(serverInfo, accountInfo, option_list);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否过期
     if (isExpired(serverInfo, accountInfo)) {
-      true && delPortList(serverInfo, accountInfo, option_list);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否被ban
     if (await isBaned(serverInfo, accountInfo)) {
-      true && delPortList(serverInfo, accountInfo, option_list);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否超流量
     if (await isOverFlow(serverInfo, accountInfo)) {
-      true && delPortList(serverInfo, accountInfo, option_list);
+      exists && deletePort(serverInfo, accountInfo);
       return;
     }
 
-    !false && addPortList(serverInfo, accountInfo, option_list);
+    !exists && addPort(serverInfo, accountInfo);
 
   } catch (err) {
-    let count = error_count[serverInfo.id] || 0;
-    error_count[serverInfo.id] = count + 1;
+    let count = error_count[serverId] || 0;
+    error_count[serverId] = count + 1;
     //掉线提醒
-    if (error_count[serverInfo.id] == 3) {
-      let ser = servers[serverInfo.id];
+    if (error_count[serverId] == 5) {
+      let ser = servers[serverId];
       isTelegram && telegram.push(`[${ser.name}]似乎掉线了，快来看看吧！`);
     }
-    console.log('line-271', `count-${error_count[serverInfo.id]}`, serverInfo.id, accountInfo.id, err);
+    console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
   }
 };
 
@@ -325,7 +327,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
         await sleep(500);
         await deleteExtraPorts(server);
       }
-      await sendOptions(del_list);
+      //await sendOptions(del_list);
       await sleep(sleepTime);
       // const accounts = await knex('account_plugin').select([
       //   'account_plugin.id as id'
@@ -397,18 +399,18 @@ cron.minute(() => {
 (async () => {
   while (true) {
     var servers = [];
-    var account_plugin = [];
-    option_list = [];
     await knex('server').then(res => {
-      res.forEach((item, index) => {
-        servers[item.id] = item;
-        ser_list[item.id] = {
-          host: item.host,
-          port: item.port,
-          password: item.password
+      res.map(s => {
+        servers[s.id] = s;
+        ser_list[s.id] = {
+          host: s.host,
+          port: s.port,
+          password: s.password
         };
       })
     });
+
+    var account_plugin = [];
     await knex('account_plugin').then(res => {
       res.forEach((item, index) => {
         account_plugin[item.id] = item;
@@ -417,13 +419,10 @@ cron.minute(() => {
 
     logger.info('check account');
     const start = Date.now();
-    //要检查的账号集合
     let accounts = [];
-    //请求超时的服务器集合
     let server_not = [];
-    error_count.forEach((v, i) => {
-      //i=serverId
-      if (v > 2) server_not.push(i);
+    error_count.map((v, i) => {
+      if (v > 4) server_not.push(i);
     })
 
     try {
@@ -458,16 +457,34 @@ cron.minute(() => {
 
     try {
       console.log(`开始检查，数量：${accounts.length},时间：${start}`);
-      for (const account of accounts) {
-        error_count[account.serverId] = error_count[account.serverId] || 0;
-        if (error_count[account.serverId] < 3)
-          await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
+      if (accounts.length <= 120) {
+        for (const account of accounts) {
+          const start = Date.now();
+          error_count[account.serverId] = error_count[account.serverId] || 0;
+          if (error_count[account.serverId] < 5)
+            await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
+          const time = 60 * 1000 / accounts.length - (Date.now() - start);
+          await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
+        }
+      } else {
+        await Promise.all(accounts.map((account, index) => {
+          return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
+            //如果请求同一个服务器5次出错，15分钟内不再请求这个服务器，虽然不是同步的
+            error_count[account.serverId] = error_count[account.serverId] || 0;
+            if (error_count[account.serverId] < 5) {
+              return checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
+            }
+          });
+        }));
       }
-      await sendOptions(option_list);
+      //await sendOptions();
       if (accounts.length) {
         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
-        let timespan = accounts.length > 600 ? accounts.length / 100 * 1000 * 10 : 60 * 1000;
-        await sleep(timespan > 60 * 1000 ? timespan : 60 * 1000);
+        if (accounts.length < 30) {
+          await sleep((30 - accounts.length) * 1000);
+        }
+      } else {
+        await sleep(30 * 1000);
       }
     } catch (err) {
       console.log('出错了，哈哈', err);
@@ -502,7 +519,9 @@ cron.minute(() => {
 
 //     logger.info('check account');
 //     const start = Date.now();
+//     //要检查的账号集合
 //     let accounts = [];
+//     //请求超时的服务器集合
 //     let server_not = [];
 //     error_count.forEach((v, i) => {
 //       //i=serverId
@@ -541,36 +560,16 @@ cron.minute(() => {
 
 //     try {
 //       console.log(`开始检查，数量：${accounts.length},时间：${start}`);
-//       if (accounts.length <= 120) {
-//         for (const account of accounts) {
-//           const start = Date.now();
-//           //console.log('checkAccount1',accounts.length, error_count[account.serverId])
-//           error_count[account.serverId] = error_count[account.serverId] || 0;
-//           if (error_count[account.serverId] < 3)
-//             await checkAccount(servers, account.serverId, account.accountId);
-//           const time = 60 * 1000 / accounts.length - (Date.now() - start);
-//           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
-//         }
-//       } else {
-//         await Promise.all(accounts.map((account, index) => {
-//           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
-//             //如果请求同一个服务器三次出错，15分钟内不再请求这个服务器，虽然不是同步的
-//             error_count[account.serverId] = error_count[account.serverId] || 0;
-//             //console.log('checkAccount2', accounts.length, error_count[account.serverId], `server-${account.serverId}`)
-//             if (error_count[account.serverId] < 3) {
-//               return checkAccount(servers, account.serverId, account.accountId);
-//             }
-//           });
-//         }));
+//       for (const account of accounts) {
+//         error_count[account.serverId] = error_count[account.serverId] || 0;
+//         if (error_count[account.serverId] < 3)
+//           await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
 //       }
-//       await sendOptions();
+//       await sendOptions(option_list);
 //       if (accounts.length) {
 //         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
-//         if (accounts.length < 30) {
-//           await sleep((30 - accounts.length) * 1000);
-//         }
-//       } else {
-//         await sleep(30 * 1000);
+//         let timespan = accounts.length > 600 ? accounts.length / 100 * 1000 * 10 : 60 * 1000;
+//         await sleep(timespan > 60 * 1000 ? timespan : 60 * 1000);
 //       }
 //     } catch (err) {
 //       console.log('出错了，哈哈', err);
@@ -581,3 +580,4 @@ cron.minute(() => {
 //     }
 //   }
 // })();
+
