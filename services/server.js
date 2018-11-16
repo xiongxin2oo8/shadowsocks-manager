@@ -62,20 +62,20 @@ const receiveCommand = async (data, code) => {
       const start = new Date();
       var list = message.list || [];
       let ports = (await shadowsocks.listAccount()).map(a => a.port);
-      // list.forEach((item, index) => {
-      //   if (item.command === 'add') {
-      //     const port = +item.port;
-      //     const password = item.password;
-      //     if (!ports.indexOf(item.port) >= 0) {
-      //       shadowsocks.addAccount(port, password);
-      //     }
-      //   } else if (item.command === 'del') {
-      //     const port = +item.port;
-      //     if (ports.indexOf(item.port) >= 0) {
-      //       shadowsocks.removeAccount(port);
-      //     }
-      //   }
-      // })
+      list.forEach((item, index) => {
+        if (item.command === 'add') {
+          const port = +item.port;
+          const password = item.password;
+          if (!ports.indexOf(item.port) >= 0) {
+            //shadowsocks.addAccount(port, password);
+          }
+        } else if (item.command === 'del') {
+          const port = +item.port;
+          if (ports.indexOf(item.port) >= 0) {
+            //shadowsocks.removeAccount(port);
+          }
+        }
+      })
       let count = list.length;
       let result = { count }
       console.log(`请求结束，用时：${new Date() - start}ms，结果：${result.toString()}`);
