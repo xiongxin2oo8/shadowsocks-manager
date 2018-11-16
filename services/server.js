@@ -74,6 +74,8 @@ const receiveCommand = async (data, code) => {
             shadowsocks.removeAccount(port);
           }
         }
+        let count = list.length;
+        return { state: true, count }
       })
     } else {
       return Promise.reject();
