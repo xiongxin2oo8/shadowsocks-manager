@@ -1,6 +1,6 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('system');
-//appRequire('init/checkip');
+appRequire('init/checkip');
 const dns = require('dns');
 const net = require('net');
 const path = require('path');

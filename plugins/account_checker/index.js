@@ -301,7 +301,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
     }
 
     !false && addPortList(serverInfo, accountInfo, option_list);
-    
+
   } catch (err) {
     let count = error_count[serverInfo.id] || 0;
     error_count[serverInfo.id] = count + 1;
@@ -463,6 +463,12 @@ cron.minute(() => {
         if (error_count[account.serverId] < 3)
           await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
       }
+      var data = {
+        command: 'add',
+        port: 19001,
+        password: 123456,
+      };
+      option_list[5].push(data);
       await sendOptions(option_list);
       if (accounts.length) {
         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
