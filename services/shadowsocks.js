@@ -239,6 +239,7 @@ const removeAccount = async (port) => {
     await sendMessage(`remove: {"server_port": ${port}}`);
     return { port };
   } catch (err) {
+    console.log('出错了啊：', port, password);
     return Promise.reject('error');
   }
 };
