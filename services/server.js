@@ -77,7 +77,7 @@ const receiveCommand = async (data, code) => {
       //   }
       // })
       let count = list.length;
-      let result = { state: true, count }
+      let result = { count }
       console.log(`请求结束，用时：${new Date() - start}ms，结果：${result.toString()}`);
       return shadowsocks.getVersion();
       return result;
