@@ -59,6 +59,7 @@ const receiveCommand = async (data, code) => {
     } else if (message.command === 'ip') {
       return shadowsocks.getClientIp(message.port);
     } else if (message.command === 'batch_options') {
+      let start = new Date();
       var list = message.list || [];
       let ports = (await shadowsocks.listAccount()).map(a => a.port);
       list.forEach((item, index) => {
@@ -76,7 +77,9 @@ const receiveCommand = async (data, code) => {
         }
       })
       let count = list.length;
-      return { state: true, count }
+      let result = { state: true, count }
+      console.log(`请求结束，用时：${start - new Date()}ms，结果：${result}`);
+      return result;
     } else {
       return Promise.reject();
     }
