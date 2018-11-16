@@ -63,11 +63,12 @@ const receiveCommand = async (data, code) => {
       const start = new Date();
       var list = message.list || [];
       let ports = (await shadowsocks.listAccount()).map(a => a.port);
+      console.log('端口信息,', ports);
       list.forEach((item, index) => {
         if (item.command === 'add') {
           const port = +item.port;
           const password = item.password;
-          if (!ports.indexOf(item.port) >= 0) {
+          if (ports.indexOf(item.port) == -1) {
             shadowsocks.addAccount(port, password);
           }
         } else if (item.command === 'del') {
