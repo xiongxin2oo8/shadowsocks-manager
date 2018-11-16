@@ -213,6 +213,7 @@ const addAccount = async (port, password) => {
     if (!checkPortRange(port)) {
       return Promise.reject('error');
     }
+    console.log(port, password);
     const insertAccount = await knex('account').insert({
       port,
       password,
@@ -220,7 +221,7 @@ const addAccount = async (port, password) => {
     await sendMessage(`add: {"server_port": ${port}, "password": "${password}"}`);
     return { port, password };
   } catch (err) {
-    console.log('出错了啊：', err);
+    console.log('出错了啊：', port, password);
     return Promise.reject('error');
   }
 };
