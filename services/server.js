@@ -59,18 +59,18 @@ const receiveCommand = async (data, code) => {
     } else if (message.command === 'ip') {
       return shadowsocks.getClientIp(message.port);
     } else if (message.command === 'batch_options') {
-      var list = message.list;
+      var list = message.list || [];
       let ports = (await shadowsocks.listAccount()).map(a => a.port);
-      list.map((v, i) => {
-        if (v.command === 'add') {
-          const port = +v.port;
-          const password = v.password;
-          if (!ports.indexOf(v.port) >= 0) {
+      list.forEach((item, index) => {
+        if (item.command === 'add') {
+          const port = +item.port;
+          const password = item.password;
+          if (!ports.indexOf(item.port) >= 0) {
             shadowsocks.addAccount(port, password);
           }
-        } else if (v.command === 'del') {
-          const port = +v.port;
-          if (ports.indexOf(v.port) >= 0) {
+        } else if (item.command === 'del') {
+          const port = +item.port;
+          if (ports.indexOf(item.port) >= 0) {
             shadowsocks.removeAccount(port);
           }
         }
