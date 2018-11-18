@@ -309,8 +309,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
     error_count[serverId] = count + 1;
     //掉线提醒
     if (error_count[serverId] == 5) {
-      let ser = servers[serverId];
-      isTelegram && telegram.push(`[${ser.name}]似乎掉线了，快来看看吧！`);
+      isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
     }
     console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
   }
