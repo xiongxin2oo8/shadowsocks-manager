@@ -424,6 +424,7 @@ cron.minute(() => {
       if (v > 4) server_not.push(i);
     })
 
+    console.log('不检查服务器：', server_not);
     try {
       //优先检查新账号数
       const datas = await knex('account_flow').select()
@@ -433,7 +434,6 @@ cron.minute(() => {
       accounts = [...accounts, ...datas];
     } catch (err) { console.log('line-434', err); }
     try {
-      console.log('不检查服务器：', server_not);
       const datas = await knex('account_flow').select()
         .whereNotNull('checkTime')
         .where('nextCheckTime', '<', Date.now())
