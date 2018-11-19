@@ -425,8 +425,17 @@ cron.minute(() => {
     })
 
     try {
+      //优先检查新账号数
+      const datas = await knex('account_flow').select()
+        .whereNull('checkTime')
+        .whereNotIn('serverId', server_not)
+      console.log(`新账号数: ${datas.length}`);
+      accounts = [...accounts, ...datas];
+    } catch (err) { console.log('line-434', err); }
+    try {
       console.log('不检查服务器：', server_not);
       const datas = await knex('account_flow').select()
+        .whereNotNull('checkTime')
         .where('nextCheckTime', '<', Date.now())
         .whereNotIn('serverId', server_not)
         .orderBy('nextCheckTime', 'asc').limit(600);
@@ -437,7 +446,7 @@ cron.minute(() => {
           .where('nextCheckTime', '>', Date.now())
           .orderBy('nextCheckTime', 'asc').limit(30 - datas.length))];
       }
-    } catch (err) { console.log('line-376', err); }
+    } catch (err) { console.log('line-448', err); }
     try {
       const datas = await knex('account_flow').select()
         .orderBy('updateTime', 'desc').where('checkTime', '<', Date.now() - 60000).limit(15);
