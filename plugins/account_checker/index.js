@@ -470,7 +470,7 @@ cron.minute(() => {
           const start = Date.now();
           error_count[account.serverId] = error_count[account.serverId] || 0;
           if (error_count[account.serverId] < 5)
-            await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
+            await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
         }
@@ -480,7 +480,7 @@ cron.minute(() => {
             //如果请求同一个服务器5次出错，15分钟内不再请求这个服务器，虽然不是同步的
             error_count[account.serverId] = error_count[account.serverId] || 0;
             if (error_count[account.serverId] < 5) {
-              return checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
+              return checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
             }
           });
         }));
