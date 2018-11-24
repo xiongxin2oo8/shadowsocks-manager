@@ -531,7 +531,7 @@ const remind = async () => {
     const users = await knex('user').select()
       .where({ 'tyoe': 'normal' });
     let count = 0;
-    users.forEach(user => {
+    for (const user of users) {
       let account = await knex('account_plugin').select()
         .where({ 'userId': user.id });
       //不提醒多账号的用户
@@ -549,7 +549,7 @@ const remind = async () => {
       }).then(s => s[0]).then(s => JSON.parse(s.value));
       await emailPlugin.sendMail(user.email, '账号过期提醒', `您的账号即将于 ${moment(expireTime).format("YYYY-MM-DD HH:mm:ss")} 过期，请及时续费，以免影响使用。(${baseSetting.title})`);
       count++;
-    });
+    }
     logger.info(`账号邮件到期提醒 ${count} 人`)
   } catch (err) {
     logger.info('邮件提醒出错', err)

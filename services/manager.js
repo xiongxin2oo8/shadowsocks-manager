@@ -128,9 +128,7 @@ const send = async (data, options) => {
   if (ips.length === 0) {
     return Promise.reject('invalid ip');
   } else if (ips.length === 1) {
-    return sendMessage(data, options).catch(err => {
-      return null;
-    });
+    return sendMessage(data, options);
   } else {
     const results = await Promise.all(ips.map(ip => {
       return sendMessage(data, {
@@ -138,7 +136,7 @@ const send = async (data, options) => {
         port: options.port,
         password: options.password
       }).catch(err => {
-        return {};
+        return null;
       });
     }));
     if (data.command === 'version') {
