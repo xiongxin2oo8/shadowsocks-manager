@@ -308,13 +308,15 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
     !exists && addPort(serverInfo, accountInfo);
 
   } catch (err) {
-    let count = error_count[serverId] || 0;
-    error_count[serverId] = count + 1;
-    //掉线提醒
-    if (error_count[serverId] == 5) {
-      isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
+    if (err.toString().toLowerCase().indexOf('timeout') > -1) {
+      let count = error_count[serverId] || 0;
+      error_count[serverId] = count + 1;
+      //掉线提醒
+      if (error_count[serverId] == 5) {
+        isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
+      }
+      console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
     }
-    console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
   }
 };
 
@@ -331,14 +333,6 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
       }
       //await sendOptions(del_list);
       await sleep(sleepTime);
-      // const accounts = await knex('account_plugin').select([
-      //   'account_plugin.id as id'
-      // ]).crossJoin('server')
-      //   .leftJoin('account_flow', function () {
-      //     this
-      //       .on('account_flow.serverId', 'server.id')
-      //       .on('account_flow.accountId', 'account_plugin.id');
-      //   }).whereNull('account_flow.id');
       console.log('开始：', new Date())
       const data_account_flow = await knex('account_flow').select();
       const data_account_plugin = await knex('account_plugin').select();
@@ -481,7 +475,7 @@ cron.minute(() => {
       } else {
         await Promise.all(accounts.map((account, index) => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
-            //如果请求同一个服务器5次出错，15分钟内不再请求这个服务器，虽然不是同步的
+            //如果请求同一个服务器5次出错，5分钟内不再请求这个服务器，虽然不是同步的
             error_count[account.serverId] = error_count[account.serverId] || 0;
             if (error_count[account.serverId] < 5) {
               return checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
@@ -489,7 +483,6 @@ cron.minute(() => {
           });
         }));
       }
-      //await sendOptions();
       if (accounts.length) {
         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
         if (accounts.length < 30) {
