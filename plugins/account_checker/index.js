@@ -341,11 +341,11 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
       //   }).whereNull('account_flow.id');
       console.log('开始：', new Date())
       const data_account_flow = await knex('account_flow').select();
-      const data_aacount_plugin = await knex('account_plugin').select();
-      console.log('数量1', data_account_flow.length, data_aacount_plugin.length);
+      const data_account_plugin = await knex('account_plugin').select();
+      console.log('数量1', data_account_flow.length, data_account_plugin.length);
       var acc_ser = [];
-      for (let i = 0; i < data_aacount_plugin.length; i++) {
-        let item = data_aacount_plugin[i];
+      for (let i = 0; i < data_account_plugin.length; i++) {
+        let item = data_account_plugin[i];
         let server = [];
         if (item.server) {
           server = JSON.parse(item.server).map(s => {
@@ -358,7 +358,8 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
       for (let i = 0; i < data_account_flow.length; i++) {
         let item = data_account_flow[i];
         let index = acc_ser.indexOf(`${item.accountId},${item.serverId}`)
-        acc_ser.splice(index, 1)
+        if (index != -1)
+          acc_ser.splice(index, 1)
       }
       console.log('数量3', acc_ser.length);
       let ids = [];
