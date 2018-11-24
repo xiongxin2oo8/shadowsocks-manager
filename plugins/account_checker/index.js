@@ -7,6 +7,9 @@ const config = appRequire('services/config').all();
 const sleepTime = 150;
 const accountFlow = appRequire('plugins/account/accountFlow');
 const cron = appRequire('init/cron');
+const emailPlugin = appRequire('plugins/email/index');
+const moment = require('moment');
+
 //记录错误次数
 var error_count = [];
 const isTelegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
@@ -504,88 +507,54 @@ cron.minute(() => {
   }
 })();
 
-// (async () => {
-//   while (true) {
-//     var servers = [];
-//     var account_plugin = [];
-//     option_list = [];
-//     await knex('server').then(res => {
-//       res.forEach((item, index) => {
-//         servers[item.id] = item;
-//         ser_list[item.id] = {
-//           host: item.host,
-//           port: item.port,
-//           password: item.password
-//         };
-//       })
-//     });
-//     await knex('account_plugin').then(res => {
-//       res.forEach((item, index) => {
-//         account_plugin[item.id] = item;
-//       })
-//     });
+const expireDate = (account) => {
+  if (account.type >= 2 && account.type <= 5) {
+    let timePeriod = 0;
+    if (account.type === 2) { timePeriod = 7 * 86400 * 1000; }
+    if (account.type === 3) { timePeriod = 30 * 86400 * 1000; }
+    if (account.type === 4) { timePeriod = 1 * 86400 * 1000; }
+    if (account.type === 5) { timePeriod = 3600 * 1000; }
+    const data = JSON.parse(account.data);
+    const expireTime = data.create + data.limit * timePeriod;
+    const begin = Date.now() + 24 * 60 * 60 * 1000;//后一天
+    const end = Date.now() + 2 * 24 * 60 * 60 * 1000;//后两天
+    if (expireTime > begin && expireDate <= end) {
+      return expireTime;
+    }
+  }
+  return -1;
+}
 
-//     logger.info('check account');
-//     const start = Date.now();
-//     //要检查的账号集合
-//     let accounts = [];
-//     //请求超时的服务器集合
-//     let server_not = [];
-//     error_count.forEach((v, i) => {
-//       //i=serverId
-//       if (v > 2) server_not.push(i);
-//     })
-
-//     try {
-//       console.log('不检查服务器：', server_not);
-//       const datas = await knex('account_flow').select()
-//         .where('nextCheckTime', '<', Date.now())
-//         .whereNotIn('serverId', server_not)
-//         .orderBy('nextCheckTime', 'asc').limit(600);
-//       console.log(`服务器端口数: ${datas.length}`);
-//       accounts = [...accounts, ...datas];
-//       if (datas.length < 30) {
-//         accounts = [...accounts, ...(await knex('account_flow').select()
-//           .where('nextCheckTime', '>', Date.now())
-//           .orderBy('nextCheckTime', 'asc').limit(30 - datas.length))];
-//       }
-//     } catch (err) { console.log('line-376', err); }
-//     try {
-//       const datas = await knex('account_flow').select()
-//         .orderBy('updateTime', 'desc').where('checkTime', '<', Date.now() - 60000).limit(15);
-//       accounts = [...accounts, ...datas];
-//     } catch (err) { console.log(err); }
-//     try {
-//       datas = await knex('account_flow').select()
-//         .orderByRaw('rand()').limit(5);
-//       accounts = [...accounts, ...datas];
-//     } catch (err) { }
-//     try {
-//       datas = await knex('account_flow').select()
-//         .orderByRaw('random()').limit(5);
-//       accounts = [...accounts, ...datas];
-//     } catch (err) { }
-
-//     try {
-//       console.log(`开始检查，数量：${accounts.length},时间：${start}`);
-//       for (const account of accounts) {
-//         error_count[account.serverId] = error_count[account.serverId] || 0;
-//         if (error_count[account.serverId] < 3)
-//           await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId);
-//       }
-//       await sendOptions(option_list);
-//       if (accounts.length) {
-//         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
-//         let timespan = accounts.length > 600 ? accounts.length / 100 * 1000 * 10 : 60 * 1000;
-//         await sleep(timespan > 60 * 1000 ? timespan : 60 * 1000);
-//       }
-//     } catch (err) {
-//       console.log('出错了，哈哈', err);
-//       const end = Date.now();
-//       if (end - start <= 60 * 1000) {
-//         await sleep(60 * 1000 - (end - start));
-//       }
-//     }
-//   }
-// })();
-
+//账号过期邮件提醒
+const remind = async () => {
+  try {
+    const users = await knex('user').select()
+      .where({ 'tyoe': 'normal' });
+    let count = 0;
+    users.forEach(user => {
+      let account = await knex('account_plugin').select()
+        .where({ 'userId': user.id });
+      //不提醒多账号的用户
+      if (account.length != 1) {
+        return;
+      } else {
+        account = account[0];
+      }
+      //检查过期时间 提前一天提醒
+      let expireTime = expireDate(account);
+      if (expireTime < 0) return;
+      //取得网站信息
+      const baseSetting = await knex('webguiSetting').where({
+        key: 'base'
+      }).then(s => s[0]).then(s => JSON.parse(s.value));
+      await emailPlugin.sendMail(user.email, '账号过期提醒', `您的账号即将于 ${moment(expireTime).format("YYYY-MM-DD HH:mm:ss")} 过期，请及时续费，以免影响使用。(${baseSetting.title})`);
+      count++;
+    });
+    logger.info(`账号邮件到期提醒 ${count} 人`)
+  } catch (err) {
+    logger.info('邮件提醒出错', err)
+  }
+}
+cron.cron(() => {
+  remind();
+}, '2 10 * * *');
