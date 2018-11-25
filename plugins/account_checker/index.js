@@ -392,7 +392,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
 cron.minute(() => {
   logger.info('重置错误次数');
   error_count = [];
-}, 15);
+}, 10);
 
 (async () => {
   while (true) {
@@ -468,8 +468,8 @@ cron.minute(() => {
         for (const account of accounts) {
           const start = Date.now();
           error_count[account.serverId] = error_count[account.serverId] || 0;
-          //if (error_count[account.serverId] < 5)
-          await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
+          if (error_count[account.serverId] < 5)
+            await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
         }
@@ -478,9 +478,9 @@ cron.minute(() => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
             //如果请求同一个服务器5次出错，5分钟内不再请求这个服务器，虽然不是同步的
             error_count[account.serverId] = error_count[account.serverId] || 0;
-            //if (error_count[account.serverId] < 5) {
-            return checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
-            //}
+            if (error_count[account.serverId] < 5) {
+              return checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
+            }
           });
         }));
       }
