@@ -369,7 +369,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
       //   await sleep(sleepTime);
       //   await accountFlow.add(id);
       // }
-      await accountFlow.add(id);
+      await accountFlow.add(5);
       console.log('结束：', new Date())
       // for (let account of accounts) {
       //   await sleep(sleepTime);
