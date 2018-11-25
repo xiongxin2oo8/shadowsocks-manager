@@ -5,9 +5,6 @@ const add = async accountId => {
   const servers = await knex('server').select();
   const accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
   const addAccountFlow = async (server, accountId) => {
-    if (accountId == 5) {
-      console.log('添加', accountId, server.id);
-    }
     const accountFlowInfo = await knex('account_flow').where({ serverId: server.id, accountId }).then(s => s[0]);
     if (accountFlowInfo) { return; }
     await knex('account_flow').insert({
@@ -16,9 +13,6 @@ const add = async accountId => {
       port: accountInfo.port + server.shift,
       nextCheckTime: Date.now(),
     });
-    if (accountId == 5) {
-      console.log('添加1', accountId, server.id);
-    }
   };
   await Promise.all(servers.map(server => {
     return addAccountFlow(server, accountId);
