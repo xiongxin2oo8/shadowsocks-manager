@@ -308,15 +308,15 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
     !exists && addPort(serverInfo, accountInfo);
 
   } catch (err) {
-    if (err.toString().toLowerCase().indexOf('timeout') > -1) {
-      let count = error_count[serverId] || 0;
-      error_count[serverId] = count + 1;
-      //掉线提醒
-      if (error_count[serverId] == 5) {
-        isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
-      }
-      console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
+    //if (err.toString().toLowerCase().indexOf('timeout') > -1) {
+    let count = error_count[serverId] || 0;
+    error_count[serverId] = count + 1;
+    //掉线提醒
+    if (error_count[serverId] == 5) {
+      isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
     }
+    console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
+    //}
   }
 };
 
@@ -328,7 +328,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
       await sleep(sleepTime);
       const servers = await knex('server').where({});
       for (const server of servers) {
-        await sleep(500);
+        await sleep(1000);
         await deleteExtraPorts(server);
       }
       //await sendOptions(del_list);
@@ -363,7 +363,8 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
           ids.push(id);
         }
       }
-      console.log('数量4', ids.length);
+      
+      console.log('数量4', ids.length,ids[0],ids[1],ids[2],ids[3],ids[4],ids[5],ids[6]);
       for (let id of ids) {
         await sleep(sleepTime);
         await accountFlow.add(id);
@@ -523,7 +524,7 @@ const expireDate = (account) => {
 const remind = async () => {
   try {
     const users = await knex('user').select()
-      .where({ 'tyoe': 'normal' });
+      .where({ 'type': 'normal' });
     let count = 0;
     for (const user of users) {
       let account = await knex('account_plugin').select()
