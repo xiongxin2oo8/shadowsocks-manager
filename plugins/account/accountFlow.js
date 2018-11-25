@@ -5,19 +5,19 @@ const add = async accountId => {
   const servers = await knex('server').select();
   const accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
   const addAccountFlow = async (server, accountId) => {
-    const accountFlowInfo = await knex('account_flow').where({ serverId: server.id, accountId }).then(s => s[0]);
-    if(accountFlowInfo) { return; }
-    if(accountId==5){
-      console.log('添加',accountId,server.id);
+    if (accountId == 5) {
+      console.log('添加', accountId, server.id);
     }
+    const accountFlowInfo = await knex('account_flow').where({ serverId: server.id, accountId }).then(s => s[0]);
+    if (accountFlowInfo) { return; }
     await knex('account_flow').insert({
       serverId: server.id,
       accountId,
       port: accountInfo.port + server.shift,
       nextCheckTime: Date.now(),
     });
-    if(accountId==5){
-      console.log('添加1',accountId,server.id);
+    if (accountId == 5) {
+      console.log('添加1', accountId, server.id);
     }
   };
   await Promise.all(servers.map(server => {
@@ -35,7 +35,7 @@ const pwd = async (accountId, password) => {
   const servers = await knex('server').select();
   let accountServers = servers;
   const accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
-  if(accountInfo.server) {
+  if (accountInfo.server) {
     accountServers = servers.filter(f => {
       return JSON.parse(accountInfo.server).indexOf(f.id) >= 0;
     });
@@ -46,10 +46,10 @@ const pwd = async (accountId, password) => {
       port: accountInfo.port + server.shift,
       password,
     }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    });
+        host: server.host,
+        port: server.port,
+        password: server.password,
+      });
   });
 };
 
@@ -71,12 +71,12 @@ const edit = async accountId => {
 const server = async serverId => {
   const server = await knex('server').where({ id: serverId }).then(s => s[0]);
   const accounts = await knex('account_plugin').where({});
-  for(const account of accounts) {
+  for (const account of accounts) {
     const exists = await knex('account_flow').where({
       serverId,
       accountId: account.id
     }).then(s => s[0]);
-    if(!exists) {
+    if (!exists) {
       await knex('account_flow').insert({
         serverId: server.id,
         accountId: account.id,
