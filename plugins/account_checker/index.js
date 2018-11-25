@@ -364,7 +364,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
         }
       }
       
-      console.log('数量4', ids.length);
+      console.log('数量4', ids.length,ids[0],ids[1],ids[2],ids[3],ids[4],ids[5],ids[6]);
       for (let id of ids) {
         await sleep(sleepTime);
         await accountFlow.add(id);
