@@ -7,12 +7,18 @@ const add = async accountId => {
   const addAccountFlow = async (server, accountId) => {
     const accountFlowInfo = await knex('account_flow').where({ serverId: server.id, accountId }).then(s => s[0]);
     if(accountFlowInfo) { return; }
+    if(accountId==5){
+      console.log('添加',accountId,server.id);
+    }
     await knex('account_flow').insert({
       serverId: server.id,
       accountId,
       port: accountInfo.port + server.shift,
       nextCheckTime: Date.now(),
     });
+    if(accountId==5){
+      console.log('添加1',accountId,server.id);
+    }
   };
   await Promise.all(servers.map(server => {
     return addAccountFlow(server, accountId);

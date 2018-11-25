@@ -315,7 +315,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
     if (error_count[serverId] == 5) {
       isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
     }
-    console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId, err);
+    console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId);
     //}
   }
 };
