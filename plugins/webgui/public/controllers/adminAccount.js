@@ -6,7 +6,12 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
     $scope.setMenuRightButton('sort_by_alpha');
     $scope.setMenuSearchButton('search');
     var currentPage = 1;
-    const getPageSize = 15;
+    const getPageSize = () => {
+      if($mdMedia('xs')) { return 30; }
+      if($mdMedia('sm')) { return 30; }
+      if($mdMedia('md')) { return 60; }
+      if($mdMedia('gt-md')) { return 80; }
+    };
     $scope.isUserLoading = false;
     $scope.isUserPageFinish = false;
     if (!$localStorage.admin.accountFilterSettings) {
