@@ -348,9 +348,9 @@ const getUserFinishOrder = async userId => {
 
 const refund = async (orderId, amount) => {
   const order = await knex('alipay').where({ orderId }).then(s => s[0]);
-  if(!order) { return Promise.reject('order not found'); }
+  if (!order) { return Promise.reject('order not found'); }
   let refundAmount = order.amount;
-  if(amount) { refundAmount = amount; }
+  if (amount) { refundAmount = amount; }
   const result = await alipay_f2f.refund(order.orderId, {
     refundNo: moment().format('YYYYMMDDHHmmss') + Math.random().toString().substr(2, 6),
     refundAmount,
