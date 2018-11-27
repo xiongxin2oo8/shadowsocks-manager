@@ -522,6 +522,7 @@ const expireDate = (account) => {
 
 //账号过期邮件提醒
 const remind = async () => {
+  logger.info('开始检查账号过期');
   try {
     const users = await knex('user').select()
       .where({ 'type': 'normal' });
@@ -552,4 +553,4 @@ const remind = async () => {
 }
 cron.cron(() => {
   remind();
-}, '2 10 * * *');
+}, '30 11 * * *');

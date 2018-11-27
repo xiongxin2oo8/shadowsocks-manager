@@ -232,7 +232,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
         };
         let servers = subscribeAccount.server.map((s, index) => {
-          let tag = (accountInfo.type = 5 || (accountInfo.server || []).indexOf(s.id) >= 0) ? '' : '[当前套餐不可用]';
+          let tag = (accountInfo.type > 1 && (accountInfo.server || []).indexOf(s.id) < 0) ? '[当前套餐不可用]' : '';
           return {
             id: index,//这是客户端排序的顺序
             server: s.host,
@@ -247,7 +247,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         return res.send(result);
       } else {
         result = subscribeAccount.server.map(s => {
-          let tag = (accountInfo.type = 5 || (accountInfo.server || []).indexOf(s.id) >= 0) ? '' : '[当前套餐不可用]';
+          let tag = (accountInfo.type > 1 && (accountInfo.server || []).indexOf(s.id) < 0) ? '[当前套餐不可用]' : '';
           if (stype == 0) {
             return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注') + tag;
           } else if (stype == 1) {
