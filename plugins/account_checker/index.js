@@ -538,7 +538,7 @@ const remind = async () => {
       }
       //检查过期时间 提前一天提醒
       let expireTime = expireDate(account);
-      if (expireTime < 0) return;
+      if (expireTime < 0) continue;
       //取得网站信息
       const baseSetting = await knex('webguiSetting').where({
         key: 'base'
@@ -554,4 +554,4 @@ const remind = async () => {
 cron.cron(() => {
   logger.info('每天10点执行');
   remind();
-}, '50 11 * * *');
+}, '30 12 * * *');
