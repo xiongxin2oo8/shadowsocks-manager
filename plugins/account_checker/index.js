@@ -532,7 +532,7 @@ const remind = async () => {
         .where({ 'userId': user.id });
       //不提醒多账号的用户
       if (account.length != 1) {
-        return;
+        continue;
       } else {
         account = account[0];
       }
