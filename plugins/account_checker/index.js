@@ -546,7 +546,9 @@ const remind = async () => {
       await emailPlugin.sendMail(user.email, '账号过期提醒', `您的账号即将于 ${moment(expireTime).format("YYYY-MM-DD HH:mm:ss")} 过期，请及时续费，以免影响使用。(${baseSetting.title})`);
       count++;
     }
-    logger.info(`账号邮件到期提醒 ${count} 人`)
+    
+    isTelegram && telegram.push(`已通过邮件提醒 ${count} 人账号即将到期`);
+    logger.info(`账号到期邮件提醒 ${count} 人`)
   } catch (err) {
     logger.info('邮件提醒出错', err)
   }
