@@ -554,4 +554,4 @@ const remind = async () => {
 cron.cron(() => {
   logger.info('每天10点执行');
   remind();
-}, '35 11 * * *');
+}, '50 11 * * *');
