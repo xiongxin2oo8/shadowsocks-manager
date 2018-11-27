@@ -503,7 +503,7 @@ cron.minute(() => {
 })();
 
 const expireDate = (account) => {
-  if (account.type >= 2 && account.type <= 5) {
+  if (account.type > 1 && account.type < 6) {
     let timePeriod = 0;
     if (account.type === 2) { timePeriod = 7 * 86400 * 1000; }
     if (account.type === 3) { timePeriod = 30 * 86400 * 1000; }
@@ -513,7 +513,7 @@ const expireDate = (account) => {
     const expireTime = data.create + data.limit * timePeriod;
     const begin = Date.now() + 24 * 60 * 60 * 1000;//后一天
     const end = Date.now() + 2 * 24 * 60 * 60 * 1000;//后两天
-    if (expireTime > begin && expireDate <= end) {
+    if (expireTime > begin && expireTime <= end) {
       return expireTime;
     }
   }
@@ -554,4 +554,4 @@ const remind = async () => {
 cron.cron(() => {
   logger.info('每天10点执行');
   remind();
-}, '30 12 * * *');
+}, '2 10 * * *');
