@@ -7,10 +7,10 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
     $scope.setMenuSearchButton('search');
     var currentPage = 1;
     const getPageSize = () => {
-      if($mdMedia('xs')) { return 30; }
-      if($mdMedia('sm')) { return 30; }
-      if($mdMedia('md')) { return 60; }
-      if($mdMedia('gt-md')) { return 80; }
+      if ($mdMedia('xs')) { return 30; }
+      if ($mdMedia('sm')) { return 30; }
+      if ($mdMedia('md')) { return 60; }
+      if ($mdMedia('gt-md')) { return 80; }
     };
     $scope.isUserLoading = false;
     $scope.isUserPageFinish = false;
@@ -199,6 +199,15 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
           }
           return server;
         });
+        if ($scope.account.server) {
+          $scope.servers.sort((a, b) => {
+            if ($scope.account.server.indexOf(a.id) >= 0 && $scope.account.server.indexOf(b.id) < 0) {
+              return -1;
+            } else {
+              return 0;
+            }
+          });
+        }
         $scope.getServerPortData($scope.servers[0], $scope.accountId);
         $scope.isMultiServerFlow = !!$scope.account.multiServerFlow;
       }).catch(err => {
