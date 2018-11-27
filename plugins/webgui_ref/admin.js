@@ -39,7 +39,7 @@ const getRefCodeAndPaging = async (opt) => {
   .groupBy('webgui_ref_code.id');
   
   count = await count.count('id as count').then(success => success[0].count);
-  code = await code.orderBy('webgui_ref_code.time', 'DESC').limit(pageSize).offset((page - 1) * pageSize);
+  code = await code.orderBy('webgui_ref_code.visit', 'DESC').limit(pageSize).offset((page - 1) * pageSize);
   const maxPage = Math.ceil(count / pageSize);
   return {
     total: count,
