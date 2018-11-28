@@ -1,6 +1,6 @@
 const app = angular.module('app');
 
-app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$http', 'accountSortDialog', '$interval', 'adminApi', '$localStorage', 'accountSortTool',
+app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$http', 'accountSortDialog', '$interval', 'adminApi', '$mdMedia', '$localStorage', 'accountSortTool',
   ($scope, $state, $stateParams, $http, accountSortDialog, $interval, adminApi, $localStorage, accountSortTool) => {
     $scope.setTitle('账号');
     $scope.setMenuRightButton('sort_by_alpha');
