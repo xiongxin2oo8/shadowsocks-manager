@@ -1,16 +1,16 @@
 const app = angular.module('app');
 
 app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$http', 'accountSortDialog', '$interval', 'adminApi', '$mdMedia', '$localStorage', 'accountSortTool',
-  ($scope, $state, $stateParams, $http, accountSortDialog, $interval, adminApi, $localStorage, accountSortTool) => {
+  ($scope, $state, $stateParams, $http, accountSortDialog, $interval, adminApi, $mdMedia, $localStorage, accountSortTool) => {
     $scope.setTitle('账号');
     $scope.setMenuRightButton('sort_by_alpha');
     $scope.setMenuSearchButton('search');
     var currentPage = 1;
     const getPageSize = () => {
-      if ($mdMedia('xs')) { return 30; }
+      if ($mdMedia('xs')) { return 15; }
       if ($mdMedia('sm')) { return 30; }
-      if ($mdMedia('md')) { return 60; }
-      if ($mdMedia('gt-md')) { return 80; }
+      if ($mdMedia('md')) { return 45; }
+      if ($mdMedia('gt-md')) { return 60; }
     };
     $scope.isUserLoading = false;
     $scope.isUserPageFinish = false;
