@@ -32,14 +32,14 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
     //分页代码
     const paging = () => {
       console.log('开始分页');
-      let start = (currentPage - 1) * getPageSize;
+      let start = (currentPage - 1) * getPageSize();
       let end = 0;
       console.log(start, $scope.accountInfo.account.length);
-      if ((start + getPageSize) >= $scope.accountInfo.account.length) {
+      if ((start + getPageSize()) >= $scope.accountInfo.account.length) {
         end = $scope.accountInfo.account.length;
         $scope.isUserPageFinish = true;
       } else {
-        end = start + getPageSize;
+        end = start + getPageSize();
         currentPage++;
       }
       $scope.accountList = $scope.accountList.concat($scope.accountInfo.account.slice(start, end))
@@ -199,15 +199,15 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
           }
           return server;
         });
-        // if ($scope.account.server) {
-        //   $scope.servers.sort((a, b) => {
-        //     if ($scope.account.server.indexOf(a.id) >= 0 && $scope.account.server.indexOf(b.id) < 0) {
-        //       return -1;
-        //     } else {
-        //       return 0;
-        //     }
-        //   });
-        // }
+        if ($scope.account.server) {
+          $scope.servers.sort((a, b) => {
+            if ($scope.account.server.indexOf(a.id) >= 0 && $scope.account.server.indexOf(b.id) < 0) {
+              return -1;
+            } else {
+              return 0;
+            }
+          });
+        }
         $scope.getServerPortData($scope.servers[0], $scope.accountId);
         $scope.isMultiServerFlow = !!$scope.account.multiServerFlow;
       }).catch(err => {
