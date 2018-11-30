@@ -60,7 +60,11 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       };
     }
     $scope.servers = $localStorage.admin.serverInfo.data;
+    $scope.online = {};
     const updateServerInfo = () => {
+      $http.get('/api/admin/account/online').then(success => {
+        $scope.online = success.data;
+      });
       adminApi.getServer(true).then(servers => {
         if (servers.map(s => s.id).join('') === $scope.servers.map(s => s.id).join('')) {
           $scope.servers.forEach((server, index) => {
@@ -76,11 +80,6 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
               server.flow.today = flow.today;
               server.flow.week = flow.week;
               server.flow.month = flow.month;
-            });
-            $http.get('/api/admin/account/online', {
-              params: { serverId }
-            }).then(success => {
-              server.onlineAccount = success.data;
             });
             if ($scope.serverChart.showChart) {
               $timeout(() => {
