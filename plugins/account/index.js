@@ -91,6 +91,32 @@ const getAccount = async (options = {}) => {
   return account;
 };
 
+const getOnlineAccount = async serverId => {
+  if(!serverId) {
+    const onlines = await knex('saveFlow').select([
+      'saveFlow.id as serverId',
+    ]).countDistinct('saveFlow.accountId as online')
+    .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
+    .groupBy('saveFlow.id');
+    const result = {};
+    for(const online of onlines) {
+      result[online.serverId] = online.online;
+    };
+    return result;
+  }
+  const account = await knex('account_plugin').select([
+    'account_plugin.id',
+    'account_plugin.port',
+  ])
+  .whereExists(
+    knex('saveFlow')
+    .where({ 'saveFlow.id': serverId })
+    .whereRaw('saveFlow.accountId = account_plugin.id')
+    .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
+  );
+  return account.map(m => m.id);
+};
+
 const delAccount = async id => {
   const accountInfo = await knex('account_plugin').where({ id }).then(s => s[0]);
   if (!accountInfo) {
@@ -808,3 +834,4 @@ exports.getAccountForSubscribe = getAccountForSubscribe;
 exports.editMultiAccounts = editMultiAccounts;
 
 exports.activeAccount = activeAccount;
+exports.getOnlineAccount = getOnlineAccount;
