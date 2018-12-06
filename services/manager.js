@@ -3,7 +3,6 @@ const logger = log4js.getLogger('system');
 //appRequire('init/checkip');
 const dns = require('dns');
 const net = require('net');
-const path = require('path');
 const crypto = require('crypto');
 const config = appRequire('services/config').all();
 const host = config.manager.address.split(':')[0];
@@ -202,7 +201,7 @@ const send = async (data, options) => {
 
 /*
 {
-  command: 'add/del/list/pwd/flow/version',
+  command: 'add/del/list/pwd/flow/version/ip',
   port: 1234,
   password: '123456',
   options: {

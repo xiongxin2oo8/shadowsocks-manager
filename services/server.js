@@ -89,7 +89,7 @@ const receiveCommand = async (data, code) => {
       //return shadowsocks.getVersion();
       return result;
     } else {
-      return Promise.reject();
+      return Promise.reject('invalid command');
     }
   } catch (err) {
     throw err;
@@ -110,26 +110,26 @@ const checkData = (receive) => {
   let length = 0;
   let data;
   let code;
-  if (buffer.length < 2) {
-    return;
-  }
+  if(buffer.length < 2) { return; }
   length = buffer[0] * 256 + buffer[1];
-  if (buffer.length >= length + 2) {
+  if(buffer.length >= length + 2) {
     data = buffer.slice(2, length - 2);
     code = buffer.slice(length - 2);
     // receive.data = buffer.slice(length + 2, buffer.length);
     if (!checkCode(data, password, code)) {
       console.log('数据校验失败');
-      receive.socket.end();
+      receive.socket.end(pack({ code: 2 }));
       // receive.socket.close();
       return;
     }
     receiveCommand(data, code).then(s => {
       receive.socket.end(pack({ code: 0, data: s }));
       // receive.socket.close();
-    }, e => {
-      logger.error(e);
-      receive.socket.end(pack({ code: 1 }));
+    }).catch(err => {
+      logger.error(err);
+      let code = -1;
+      if(err === 'invalid command') { code = 1; }
+      receive.socket.end(pack({ code }));
       // receive.socket.close();
     });
     if (buffer.length > length + 2) {
@@ -141,7 +141,7 @@ const checkData = (receive) => {
 const server = net.createServer(socket => {
   const receive = {
     data: Buffer.from(''),
-    socket: socket,
+    socket,
   };
   socket.on('data', data => {
     receiveData(receive, data);
@@ -158,7 +158,7 @@ const server = net.createServer(socket => {
     }
   });
 }).on('error', (err) => {
-  logger.error(`socket error: `, err);
+  logger.error('socket error: ', err);
   socket.destroy();
 });
 
