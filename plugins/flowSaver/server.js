@@ -100,7 +100,7 @@ const list = async (options = {}) => {
       const now = moment().valueOf();
       //上次重置时间
       let last = moment().subtract(1, 'months').valueOf();
-      const lastday = moment().subtract(1, 'months').endOf('month')
+      let lastday = moment().subtract(1, 'months').endOf('month')
       //重置日期在当前日期后面 取上个月的
       if (server.resetday > nowday) {
         lastday = moment().subtract(1, 'months').endOf('month').format('D');
