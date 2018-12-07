@@ -70,7 +70,7 @@ const isExpired = (server, account) => {
     const expireTime = data.create + data.limit * timePeriod;
     account.expireTime = expireTime;
     if (expireTime <= Date.now() || data.create >= Date.now()) {
-      const nextCheckTime = 20 * 60 * 1000 + randomInt(30000);
+      const nextCheckTime = 20 * 60 * 1000 + randomInt(300000);
       if (account.active && account.autoRemove && expireTime + account.autoRemoveDelay < Date.now()) {
         modifyAccountFlow(server.id, account.id, nextCheckTime > account.autoRemoveDelay ? account.autoRemoveDelay : nextCheckTime);
         knex('account_plugin').delete().where({ id: account.id }).then();
