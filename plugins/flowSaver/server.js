@@ -1,9 +1,10 @@
 const knex = appRequire('init/knex').knex;
 const manager = appRequire('services/manager');
 const accountFlow = appRequire('plugins/account/accountFlow');
+const moment = require('moment');
 
 const add = async options => {
-  const { name, host, port, password, method, scale = 1, comment = '', shift = 0 } = options;
+  const { name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0 } = options;
   const [serverId] = await knex('server').insert({
     name,
     comment,
@@ -12,7 +13,9 @@ const add = async options => {
     password,
     method,
     scale,
-    shift
+    shift,
+    monthflow,
+    resetday,
   });
   accountFlow.addServer(serverId);
   return [serverId];
@@ -28,7 +31,7 @@ const del = (id) => {
 };
 
 const edit = async options => {
-  const { id, name, host, port, password, method, scale = 1, comment = '', shift = 0, check } = options;
+  const { id, name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0 } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
     const accounts = await knex('account_plugin').where({});
@@ -54,7 +57,9 @@ const edit = async options => {
     password,
     method,
     scale,
-    shift
+    shift,
+    monthflow,
+    resetday,
   });
 };
 
@@ -68,7 +73,9 @@ const list = async (options = {}) => {
     'method',
     'scale',
     'comment',
-    'shift'
+    'shift',
+    'monthflow',
+    'resetday',
   ]).orderBy('name');
   if (options.status) {
     const serverStatus = [];
@@ -85,9 +92,35 @@ const list = async (options = {}) => {
           return { status: -1, index };
         });
     };
-    serverList.forEach((server, index) => {
-      serverStatus.push(getServerStatus(server, index));
-    });
+    for (let i = 0; i < serverList.length; i++) {
+      let server = serverList[i];
+      serverStatus.push(getServerStatus(server, i));
+      //开始日期
+      const nowday = moment().format('D');
+      const now = moment().valueOf();
+      //上次重置时间
+      let last = moment().subtract(1, 'months').valueOf();
+      const lastday = moment().subtract(1, 'months').endOf('month')
+      //重置日期在当前日期后面 取上个月的
+      if (server.resetday > nowday) {
+        lastday = moment().subtract(1, 'months').endOf('month').format('D');
+        //上个月最后一天小于重置天
+        if (lastday < server.resetday) {
+          last = moment().subtract(1, 'months').endOf('month').startOf('day').valueOf();
+        } else {
+          last = moment(moment().subtract(1, 'months').format('YYYY-MM') + '-' + (server.resetday < 10 ? '0' + server.resetday : server.resetday)).startOf('day').valueOf();
+        }
+      } else {
+        last = moment(moment().format('YYYY-MM') + '-' + (server.resetday < 10 ? '0' + server.resetday : server.resetday)).startOf('day').valueOf();
+      }
+      server['useflow'] = await knex('saveFlowHour')
+        .sum(`flow as sumFlow`)
+        .where({ id: server.id })
+        .whereBetween(`time`, [last, now]).then(res => res[0].sumFlow || 0);
+    }
+    // serverList.forEach((server, index) => {
+    //   serverStatus.push(getServerStatus(server, index));
+    // });
     const status = await Promise.all(serverStatus);
     status.forEach(f => {
       serverList[f.index].status = f.status;

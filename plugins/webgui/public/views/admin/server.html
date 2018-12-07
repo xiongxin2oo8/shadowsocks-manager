@@ -43,6 +43,10 @@
                     <div translate>本月流量：</div>
                     <div>{{server.flow.month | flow}}</div>
                 </div>
+                <div layout="row" layout-align="space-between center">
+                    <div translate>当期流量</div>
+                    <div>{{server.useFlowStr+"/"+server.monthFlowStr+'(每月'+server.resetday+'重置)'}}</div>
+                </div>
             </md-card-content>
         </md-card>
     </div>

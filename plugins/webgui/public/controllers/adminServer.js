@@ -1,7 +1,7 @@
 const app = angular.module('app');
 
-app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', '$localStorage', 'adminApi', '$timeout', '$interval', 'serverChartDialog',
-  ($scope, $http, $state, moment, $localStorage, adminApi, $timeout, $interval, serverChartDialog) => {
+app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', '$localStorage', 'adminApi', '$timeout', '$interval', 'serverChartDialog', '$filter',
+  ($scope, $http, $state, moment, $localStorage, adminApi, $timeout, $interval, serverChartDialog, $filter) => {
     $scope.setTitle('服务器');
     $scope.setMenuRightButton('timeline');
     if (!$localStorage.admin.serverChart) {
@@ -73,6 +73,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
             server.port = servers[index].port;
             server.status = servers[index].status;
             server.isGfw = servers[index].isGfw;
+            server.useFlowStr = $filter('flowNum2Str')(servers[index].useflow);
+            server.monthFlowStr = $filter('flowNum2Str')(servers[index].monthflow);
             adminApi.getServerFlow(server.id).then(flow => {
               if (!server.flow) {
                 server.flow = {};
@@ -107,6 +109,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.servers.forEach((server, index) => {
             adminApi.getServerFlow(server.id).then(flow => {
               server.flow = flow;
+              server.useFlowStr = $filter('flowNum2Str')(server.useflow);
+              server.monthFlowStr = $filter('flowNum2Str')(server.monthflow);
             });
             if ($scope.serverChart.showChart) {
               $timeout(() => {
@@ -361,14 +365,14 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       $scope.matchPort = (account, searchStr) => {
         let filter = true;
         let search = true;
-        if($scope.accountFilter === 'all') {
+        if ($scope.accountFilter === 'all') {
           filter = true;
-        } else if($scope.accountFilter === 'red') {
+        } else if ($scope.accountFilter === 'red') {
           filter = !account.exists;
         } else {
           filter = $scope.onlineAccount.includes(account.id);
         }
-        if(!searchStr) {
+        if (!searchStr) {
           search = true;
         } else {
           search = (account.port.toString().includes(searchStr) || account.password.toString().includes(searchStr));
@@ -378,7 +382,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       $scope.accountColor = account => {
         if (account.exists === false) {
           return { background: 'red-50' };
-        } else if($scope.onlineAccount.includes(account.id)) {
+        } else if ($scope.onlineAccount.includes(account.id)) {
           return { background: 'blue-50' };
         }
         return {};
@@ -396,8 +400,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       // });
     }
   ])
-  .controller('AdminAddServerController', ['$scope', '$state', '$stateParams', '$http', 'alertDialog',
-    ($scope, $state, $stateParams, $http, alertDialog) => {
+  .controller('AdminAddServerController', ['$scope', '$state', '$stateParams', '$http', 'alertDialog', '$filter',
+    ($scope, $state, $stateParams, $http, alertDialog, $filter) => {
       $scope.setTitle('新增服务器');
       $scope.setMenuButton('arrow_back', 'admin.server');
       $scope.methods = [
@@ -423,6 +427,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         scale: 1,
         shift: 0
       };
+      $scope.server.monthflow = $filter('flowStr2Num')($scope.server.monthflowStr);
       $scope.confirm = () => {
         alertDialog.loading();
         $http.post('/api/admin/server', {
@@ -433,7 +438,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           method: $scope.server.method,
           comment: $scope.server.comment,
           scale: $scope.server.scale,
-          shift: $scope.server.shift
+          shift: $scope.server.shift,
+          monthflow: $scope.server.monthflow,
+          resetday: $scope.server.resetday
         }, {
             timeout: 15000,
           }).then(success => {
@@ -448,8 +455,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       };
     }
   ])
-  .controller('AdminEditServerController', ['$scope', '$state', '$stateParams', '$http', 'confirmDialog', 'alertDialog',
-    ($scope, $state, $stateParams, $http, confirmDialog, alertDialog) => {
+  .controller('AdminEditServerController', ['$scope', '$state', '$stateParams', '$http', 'confirmDialog', 'alertDialog', '$filter',
+    ($scope, $state, $stateParams, $http, confirmDialog, alertDialog, $filter) => {
       $scope.setTitle('编辑服务器');
       const serverId = $stateParams.serverId;
       $scope.setMenuButton('arrow_back', function () {
@@ -491,9 +498,13 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.method = success.data.method;
           $scope.server.scale = success.data.scale;
           $scope.server.shift = success.data.shift;
+          $scope.server.monthflow = success.data.monthflow;
+          $scope.server.monthflowStr = $filter('flowNum2Str')(success.data.monthflow);
+          $scope.server.resetday = success.data.resetday;
         });
       $scope.confirm = () => {
         alertDialog.loading();
+        $scope.server.monthflow = $filter('flowStr2Num')($scope.server.monthflowStr);
         $http.put('/api/admin/server/' + $stateParams.serverId, {
           name: $scope.server.name,
           comment: $scope.server.comment,
@@ -504,6 +515,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           scale: $scope.server.scale,
           shift: $scope.server.shift,
           check: $scope.server.check,
+          monthflow: $scope.server.monthflow,
+          resetday: $scope.server.resetday
         }).then(success => {
           alertDialog.show('修改服务器成功', '确定');
           $state.go('admin.serverPage', { serverId: $stateParams.serverId });

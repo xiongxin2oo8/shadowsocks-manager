@@ -17,9 +17,25 @@ const createTable = async () => {
       table.float('scale').defaultTo(1);
       table.string('method').defaultTo('aes-256-cfb');
       table.string('comment').defaultTo('');
-      table.integer('shift').defaultTo(0);
+      table.integer('shift').defaultTo(0);      
+      table.bigInteger('monthflow').defaultTo(0);
+      table.integer('resetday').defaultTo(1);
     });
   }
+  
+  const monthflow = await knex.schema.hasColumn(tableName, 'monthflow');
+  if(!monthflow) {
+    await knex.schema.table(tableName, function(table) {
+      table.bigInteger('monthflow').defaultTo(0);
+    });
+  }
+  const resetday = await knex.schema.hasColumn(tableName, 'resetday');
+  if(!resetday) {
+    await knex.schema.table(tableName, function(table) {
+      table.integer('resetday').defaultTo(1);
+    });
+  }
+
   const list = await knex('server').select(['name', 'host', 'port', 'password']);
   if(list.length === 0) {
     const host = config.manager.address.split(':')[0];

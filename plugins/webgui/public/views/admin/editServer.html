@@ -67,6 +67,20 @@
                         <div ng-message="required">端口偏移量不能为空</div>
                     </div>
                 </md-input-container>
+                <md-input-container class="md-block">
+                    <label>月流量(单向)</label>
+                    <input type="text" required name="monthflowStr" placeholder="eg:1T" ng-model="server.monthflowStr">
+                    <div ng-messages="serverForm.monthflowStr.$error">
+                        <div ng-message="required">月流量不能为空</div>
+                    </div>
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label>流量重置日期(每月)</label>
+                    <input type="text" required name="resetday" placeholder="eg:15" ng-model="server.resetday">
+                    <div ng-messages="serverForm.resetday.$error">
+                        <div ng-message="required">流量重置日期不能为空</div>
+                    </div>
+                </md-input-container>
                 <div style="width: 100%;" layout="row" layout-align="space-between center">
                     <div flex="75">立即同步所有端口</div>
                     <div flex layout="row" layout-align="end center">
