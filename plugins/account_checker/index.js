@@ -282,7 +282,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
 
     // 检查账号是否包含该服务器
     if (!hasServer(serverInfo, accountInfo)) {
-      await modifyAccountFlow(serverInfo.id, accountInfo.id, 30 * 60 * 1000 + randomInt(300000));
+      await modifyAccountFlow(serverInfo.id, accountInfo.id, 60 * 60 * 1000 + randomInt(30 * 60 * 1000));
       exists && deletePort(serverInfo, accountInfo);
       return;
     }
