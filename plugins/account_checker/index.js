@@ -165,10 +165,10 @@ const isOverFlow = async (server, account) => {
     }, { flow: data.flow }).flow;
 
     let nextCheckTime = (flowWithFlowPacks - sumFlow) / 200000000 * 60 * 1000 / server.scale;
-    console.log('nextCheckTime',nextCheckTime);
     if (nextCheckTime >= account.expireTime - Date.now() && account.expireTime - Date.now() > 0) { nextCheckTime = account.expireTime - Date.now(); }
     if (nextCheckTime <= 0) { nextCheckTime = 600 * 1000; }
     if (nextCheckTime >= 3 * 60 * 60 * 1000) { nextCheckTime = 3 * 60 * 60 * 1000; }
+    console.log('nextCheckTime',server.id, account.id, realFlow, nextCheckTime);
     await writeFlow(server.id, account.id, realFlow, nextCheckTime);
 
     return sumFlow >= flowWithFlowPacks;
