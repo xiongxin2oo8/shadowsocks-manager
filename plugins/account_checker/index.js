@@ -167,8 +167,7 @@ const isOverFlow = async (server, account) => {
     let nextCheckTime = (flowWithFlowPacks - sumFlow) / 200000000 * 60 * 1000 / server.scale;
     if (nextCheckTime >= account.expireTime - Date.now() && account.expireTime - Date.now() > 0) { nextCheckTime = account.expireTime - Date.now(); }
     if (nextCheckTime <= 0) { nextCheckTime = 600 * 1000; }
-    if (nextCheckTime >= 3 * 60 * 60 * 1000) { nextCheckTime = 3 * 60 * 60 * 1000; }
-    console.log('nextCheckTime',server.id, account.id, realFlow, nextCheckTime);
+    if (nextCheckTime >= 3 * 60 * 60 * 1000) { nextCheckTime = 3 * 60 * 60 * 1000 + randomInt(30 * 60 * 1000); }
     await writeFlow(server.id, account.id, realFlow, nextCheckTime);
 
     return sumFlow >= flowWithFlowPacks;
@@ -547,7 +546,7 @@ const remind = async () => {
       await emailPlugin.sendMail(user.email, '账号过期提醒', `您的账号即将于 ${moment(expireTime).format("YYYY-MM-DD HH:mm:ss")} 过期，请及时续费，以免影响使用。(${baseSetting.title})`);
       count++;
     }
-    
+
     isTelegram && telegram.push(`已通过邮件提醒 ${count} 人账号即将到期`);
     logger.info(`账号到期邮件提醒 ${count} 人`)
   } catch (err) {
