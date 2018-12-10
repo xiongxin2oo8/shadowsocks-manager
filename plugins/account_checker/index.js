@@ -70,7 +70,7 @@ const isExpired = (server, account) => {
     const expireTime = data.create + data.limit * timePeriod;
     account.expireTime = expireTime;
     if (expireTime <= Date.now() || data.create >= Date.now()) {
-      const nextCheckTime = 20 * 60 * 1000 + randomInt(300000);
+      const nextCheckTime = 10 * 60 * 1000 + randomInt(300000);
       if (account.active && account.autoRemove && expireTime + account.autoRemoveDelay < Date.now()) {
         modifyAccountFlow(server.id, account.id, nextCheckTime > account.autoRemoveDelay ? account.autoRemoveDelay : nextCheckTime);
         knex('account_plugin').delete().where({ id: account.id }).then();
@@ -165,6 +165,7 @@ const isOverFlow = async (server, account) => {
     }, { flow: data.flow }).flow;
 
     let nextCheckTime = (flowWithFlowPacks - sumFlow) / 200000000 * 60 * 1000 / server.scale;
+    console.log('nextCheckTime',nextCheckTime);
     if (nextCheckTime >= account.expireTime - Date.now() && account.expireTime - Date.now() > 0) { nextCheckTime = account.expireTime - Date.now(); }
     if (nextCheckTime <= 0) { nextCheckTime = 600 * 1000; }
     if (nextCheckTime >= 3 * 60 * 60 * 1000) { nextCheckTime = 3 * 60 * 60 * 1000; }
@@ -312,7 +313,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
     //掉线提醒
-    if (error_count[serverId] == 5) {
+    if (error_count[serverId] == 10) {
       isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
     }
     console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId);
@@ -468,7 +469,7 @@ cron.minute(() => {
         for (const account of accounts) {
           const start = Date.now();
           error_count[account.serverId] = error_count[account.serverId] || 0;
-          if (error_count[account.serverId] < 5)
+          if (error_count[account.serverId] < 10)
             await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
           const time = 60 * 1000 / accounts.length - (Date.now() - start);
           await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
@@ -478,7 +479,7 @@ cron.minute(() => {
           return sleep(index * (60 + Math.ceil(accounts.length % 10)) * 1000 / accounts.length).then(() => {
             //如果请求同一个服务器5次出错，5分钟内不再请求这个服务器，虽然不是同步的
             error_count[account.serverId] = error_count[account.serverId] || 0;
-            if (error_count[account.serverId] < 5) {
+            if (error_count[account.serverId] < 10) {
               return checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
             }
           });
