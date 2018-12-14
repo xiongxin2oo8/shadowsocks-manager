@@ -420,7 +420,7 @@ cron.minute(() => {
     let accounts = [];
     let server_not = [];
     error_count.map((v, i) => {
-      if (v > 4) server_not.push(i);
+      if (v > 9) server_not.push(i);
     })
 
     console.log('不检查服务器：', server_not);
