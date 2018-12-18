@@ -346,9 +346,9 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
       const config = configManager.getConfig();
       $scope.shadowrocket = subscribe => {
-        let base64 = base64Encode(`${config.site}/api/user/account/subscribe/${subscribe}?stype=0&ip=0`)
-        let remarks=config.site.split('//')[1]||config.site;//config.title
-        let str = `shadowrocket://add/sub://${base64}?remarks=${urlsafeBase64(remarks)}`;
+        let base64 = urlsafeBase64(`${config.site}/api/user/account/subscribe/${subscribe}?stype=0&ip=0`);
+        let remarks = base64Encode(config.site.split('//')[1] || config.site);//config.title
+        let str = `shadowrocket://add/sub://${base64}?remarks=${remarks}`;
         return str;
       }
       $scope.getServerPortData = (account, serverId) => {
