@@ -15,6 +15,11 @@
             <div layout="column" layout-align="center center" style="margin-top:10px">
                 <a ng-href="{{ publicInfo.ssAddress+'#'+ publicInfo.serverName }}">
                     <qr layout-margin text="publicInfo.ssAddress" image="true"></qr>
+                    <script>
+                    $(function(){
+                        $('qr img').css('width','90%');
+                    })
+                    </script>
                 </a>
                 <div>
                     <br>

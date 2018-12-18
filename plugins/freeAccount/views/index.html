@@ -39,7 +39,7 @@
     <script src="/libs/bootstrap.min.js"></script>
     <script src="/libs/qrcode.min.js"></script>
     <div class="row">
-      <div class="title col-md-12 col-lg-12">扫码添加账号<br>定期更换密码</div>
+      <div class="title col-md-12 col-lg-12"><span style="color:red">免费服务，请各位不要滥用！</span>扫码添加账号，定期更换密码</div>
     </div>
     <div class="row">
       <div class="time col-md-12 col-lg-12"></div>
@@ -58,7 +58,6 @@
       <div class="address col-md-12 col-lg-12"></div>
     </div>
     <script>
-      if(Math.random() > 0.5) { window.location.href='https://free0.gyteng.com/';  }
       var i = 0;
       var getToken = function() {
         if('<%=recaptcha%>') {

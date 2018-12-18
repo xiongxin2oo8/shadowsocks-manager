@@ -17,7 +17,8 @@
     </div>
     <div flex="100" flex-gt-md="{{flexGtSm}}" ng-repeat="a in accountList track by a.id">
         <md-card ng-click="toAccount(a.id)" style="position: relative;">
-            <div style="position: absolute; background: rgba(255, 255, 255, 0.75); width: 100%; height: 100%; z-index: 1;" ng-if="a.active === 0">
+            <div style="position: absolute; background: rgba(255, 255, 255, 0.75); width: 100%; height: 100%; z-index: 1;"
+                ng-if="a.active === 0">
                 <div style="width: 100%; height: 100%;" layout="row" layout-align="center center">
                     <md-button class="md-raised md-warn" ng-click="activeAccount(a)"><span style="font-size: 1.5em; margin: 10px;">激活账号</span></md-button>
                 </div>
@@ -145,12 +146,17 @@
                                 style='color:red'>点击二维码</span><br>不同地域，节点速度各不相同，每个节点都试试吧。</div>
                     </div>
                 </div>
-                <md-button class="md-primary" ng-click="showChangePasswordDialog(a.id, a.password)">{{ '修改密码' |
-                    translate }}</md-button>
-                <md-button class="md-primary" ng-show="config.alipay || config.paypal || config.giftcard" ng-if="a.type >= 2 && a.type <= 5"
-                    ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
-                <md-button class="md-primary" ng-click="subscribe(a.id)" ng-if="config.subscribe">{{ '订阅' | translate
-                    }}(推荐)</md-button>
+                <div class="btns" style="display: flex;justify-content: center;flex-wrap: wrap;">
+                    <md-button class="md-primary" ng-click="showChangePasswordDialog(a.id, a.password)">{{ '修改密码' |
+                        translate }}</md-button>
+                    <md-button class="md-primary" ng-show="config.alipay || config.paypal || config.giftcard" ng-if="a.type >= 2 && a.type <= 5"
+                        ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
+                    <md-button class="md-primary" ng-click="subscribe(a.id)" ng-if="config.subscribe">{{ '订阅' |
+                        translate
+                        }}(推荐)</md-button>
+                    <md-button class="md-primary" ng-click="subscribe(a.id)" ng-if="config.subscribe">
+                        <a class="md-primary" style="text-decoration:none;text-transform:lowercase;" href="{{shadowrocket(a.token)}}">shadowrocket(一键订阅)</a></md-button>
+                </div>
             </md-card-content>
         </md-card>
     </div>

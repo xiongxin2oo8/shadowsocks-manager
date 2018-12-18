@@ -178,8 +178,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
     }
   ])
-  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', '$q', '$state', '$timeout',
-    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, $q, $state, $timeout) => {
+  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', '$q', '$state', '$timeout', 'configManager',
+    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, $q, $state, $timeout, configManager) => {
       $scope.setTitle('账号');
       $scope.setMenuSearchButton('search');
       $scope.currentPage = 1;
@@ -344,6 +344,13 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         let str = 'ssr://' + urlsafeBase64(host + ':' + port + ':origin:' + method + ':plain:' + urlsafeBase64(password) + '/?obfsparam=&remarks=' + urlsafeBase64(serverName));
         return str;
       };
+      const config = configManager.getConfig();
+      $scope.shadowrocket = token => {
+        let base64 = base64Encode(`${config.site}/api/user/account/subscribe/${token}?stype=0&ip=0`)
+        let remarks=config.site.split('//')[1]||config.site;//config.title
+        let str = `shadowrocket://add/sub://${base64}?remarks=${urlsafeBase64(remarks)}`;
+        return str;
+      }
       $scope.getServerPortData = (account, serverId) => {
         account.currentServerId = serverId;
         // const server = $scope.servers.filter(f => f.id === serverId);
