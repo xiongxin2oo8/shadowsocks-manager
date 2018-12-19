@@ -5,6 +5,7 @@ const flowPack = appRequire('plugins/webgui_order/flowPack');
 const dns = require('dns');
 const net = require('net');
 const knex = appRequire('init/knex').knex;
+const moment = require('moment');
 
 const formatMacAddress = mac => mac.replace(/-/g, '').replace(/:/g, '').toLowerCase();
 
