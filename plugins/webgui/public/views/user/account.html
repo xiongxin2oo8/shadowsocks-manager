@@ -139,7 +139,7 @@
                         layout-align-gt-xs="space-between center">
                         <div hide-xs></div>
                         <qr ng-if="a.serverInfo" ng-click="showQrcodeDialog(a.serverInfo.method, a.password, a.serverInfo.host, a.port + a.serverInfo.shift, a.serverInfo.comment)"
-                            size="getQrCodeSize()" layout-margin text="createQrCode(a.serverInfo.method, a.password, a.serverInfo.host, a.port + a.serverInfo.shift, a.serverInfo.name)"
+                            size="getQrCodeSize()" layout-margin text="createQrCode(a.serverInfo.method, a.password, a.serverInfo.host, a.port + a.serverInfo.shift, a.serverInfo.comment)"
                             image="true"></qr>
                         <div hide-xs></div>
                         <div style="text-align:center;color:#c3c3c3;font-size: 14px;">提示：推荐<span style='color:green'>使用订阅</span>，否则请<span
@@ -147,15 +147,17 @@
                     </div>
                 </div>
                 <div class="btns" style="display: flex;justify-content: center;flex-wrap: wrap;">
-                    <md-button class="md-primary" ng-click="showChangePasswordDialog(a.id, a.password)">{{ '修改密码' |
+                    <md-button style="margin:6px 0;" class="md-primary" ng-click="showChangePasswordDialog(a.id, a.password)">{{
+                        '修改密码' |
                         translate }}</md-button>
-                    <md-button class="md-primary" ng-show="config.alipay || config.paypal || config.giftcard" ng-if="a.type >= 2 && a.type <= 5"
-                        ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
-                    <md-button class="md-primary" ng-click="subscribe(a.id)" ng-if="config.subscribe">{{ '订阅' |
+                    <md-button style="margin:6px 0;" class="md-primary" ng-show="config.alipay || config.paypal || config.giftcard"
+                        ng-if="a.type >= 2 && a.type <= 5" ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
+                    <md-button style="margin:6px 0;" class="md-primary" ng-click="subscribe(a.id)" ng-if="config.subscribe">{{
+                        '订阅' |
                         translate
                         }}(推荐)</md-button>
-                    <md-button class="md-primary" ng-click="subscribe(a.id)" ng-if="config.subscribe">
-                        <a class="md-primary" style="text-decoration:none;text-transform:lowercase;" href="{{shadowrocket(a.subscribe)}}">shadowrocket(一键订阅)</a></md-button>
+                    <md-button style="margin:6px 0;" class="md-primary" ng-click="subscribe(a.id)" ng-if="config.subscribe">
+                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;" href="{{shadowrocket(a.subscribe)}}">Shadowrocket(一键订阅)</a></md-button>
                 </div>
             </md-card-content>
         </md-card>

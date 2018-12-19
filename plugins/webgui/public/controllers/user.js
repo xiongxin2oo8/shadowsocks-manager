@@ -337,7 +337,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
       };
       $scope.createQrCode = (method, password, host, port, serverName) => {
-        let str = 'ss://' + base64Encode(method + ':' + password + '@' + host + ':' + port);
+        let str = 'ss://' + base64Encode(method + ':' + password + '@' + host + ':' + port) + '#' + encodeURIComponent(serverName);
         return str;
       };
       $scope.SSRAddress = (method, password, host, port, serverName) => {
@@ -347,7 +347,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       const config = configManager.getConfig();
       $scope.shadowrocket = subscribe => {
         let base64 = base64Encode(`${config.site}/api/user/account/subscribe/${subscribe}?stype=0&ip=0`)
-        let remarks=config.site.split('//')[1]||config.site;//config.title
+        let remarks = config.site.split('//')[1] || config.site;//config.title
         let str = `shadowrocket://add/sub://${base64}?remarks=${urlsafeBase64(remarks)}`;
         return str;
       }

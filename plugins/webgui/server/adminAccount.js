@@ -5,7 +5,6 @@ const flowPack = appRequire('plugins/webgui_order/flowPack');
 const dns = require('dns');
 const net = require('net');
 const knex = appRequire('init/knex').knex;
-const moment = require('moment');
 
 const formatMacAddress = mac => mac.replace(/-/g, '').replace(/:/g, '').toLowerCase();
 
@@ -205,10 +204,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (accountInfo.type == 1) {
           tip_time = '不限时不限量';
         } else {
-          tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.1:80').toString('base64') + '#使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack) + '\r\n';
+          tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.1:80').toString('base64') + encodeURIComponent('#使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)) + '\r\n';
           tip_time = accountInfo.data.expire <= new Date() ? '已过期' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss");
         }
-        tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.01:80').toString('base64') + '#过期时间：' + tip_time + '\r\n';
+        tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.01:80').toString('base64') + encodeURIComponent('#过期时间：' + tip_time) + '\r\n';
       } else if (stype == 1) {
         let tip_time = '';
         if (accountInfo.type == 1) {
@@ -249,7 +248,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         result = subscribeAccount.server.map(s => {
           let tag = (accountInfo.type > 1 && (accountInfo.server || []).indexOf(s.id) < 0) ? '[当前套餐不可用]' : '';
           if (stype == 0) {
-            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注') + tag;
+            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注') + tag);
           } else if (stype == 1) {
             return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64((s.comment || '这里显示备注') + tag) + '&group=' + urlsafeBase64(baseSetting.title));
           }
