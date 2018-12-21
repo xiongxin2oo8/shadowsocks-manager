@@ -205,10 +205,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (accountInfo.type == 1) {
           tip_time = '不限时不限量';
         } else {
-          tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.1:80').toString('base64') + encodeURIComponent('#使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)) + '\r\n';
+          tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.1:80').toString('base64') + '#' + encodeURIComponent('使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)) + '\r\n';
           tip_time = accountInfo.data.expire <= new Date() ? '已过期' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss");
         }
-        tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.01:80').toString('base64') + encodeURIComponent('#过期时间：' + tip_time) + '\r\n';
+        tip += 'ss://' + Buffer.from('aes-256-cfb:123456@127.0.0.01:80').toString('base64') + '#' + encodeURIComponent('过期时间：' + tip_time) + '\r\n';
       } else if (stype == 1) {
         let tip_time = '';
         if (accountInfo.type == 1) {
@@ -266,5 +266,5 @@ const flowNumber = (number) => {
   if (number < 1000) return number + ' B';
   else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' KB';
   else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' MB';
-  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(3) + ' GB';
+  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(2) + ' GB';
 };
