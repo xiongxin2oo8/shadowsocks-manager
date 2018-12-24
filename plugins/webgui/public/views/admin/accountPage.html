@@ -4,7 +4,8 @@
             <md-card-header>
                 <md-card-header-text>
                     <span class="md-title">{{ account.port || '...' }} <span ng-if="account.active === 0" style="color: #a33;">未激活</span></span>
-                    <span class="md-subhead" ng-click="toUserPage(account.userId)">{{ account.user || account.password || '...' }}</span>
+                    <span class="md-subhead" ng-click="toUserPage(account.userId)">{{ account.user || account.password
+                        || '...' }}</span>
                 </md-card-header-text>
             </md-card-header>
         </md-card>
@@ -15,10 +16,8 @@
         <md-card>
             <md-card-content>
                 <md-tabs md-selected="0" md-border-bottom md-dynamic-height>
-                    <md-tab ng-repeat="server in servers track by server.id"
-                            label="{{server.name}}"
-                            md-on-select="getServerPortData(server, accountId)"
-                            ng-disabled="account.server && account.server.indexOf(server.id) < 0">
+                    <md-tab ng-repeat="server in servers track by server.id" label="{{server.name}}" md-on-select="getServerPortData(server, accountId)"
+                        ng-disabled="account.server && account.server.indexOf(server.id) < 0">
                     </md-tab>
                 </md-tabs>
                 <div layout="row" layout-align="center center" layout-wrap ng-if="servers.length">
@@ -27,37 +26,45 @@
                         <md-list>
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>地址：</div><div flex="60" style="text-align:right">{{ server.host }}</div>
+                                    <div flex="40" translate>地址：</div>
+                                    <div flex="60" style="text-align:right">{{ server.host }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>端口：</div><div flex="60" style="text-align:right">{{ account.port + server.shift }}</div>
+                                    <div flex="40" translate>端口：</div>
+                                    <div flex="60" style="text-align:right">{{ account.port + server.shift }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
                             <md-list-item ng-hide="isWG(server)">
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>密码：</div><div flex="60" style="text-align:right">{{ account.password }}</div>
+                                    <div flex="40" translate>密码：</div>
+                                    <div flex="60" style="text-align:right">{{ account.password }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(server)"></md-divider>
                             <md-list-item ng-hide="isWG(server)">
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>加密方式：</div><div flex="60" style="text-align:right">{{ server.method }}</div>
+                                    <div flex="40" translate>加密方式：</div>
+                                    <div flex="60" style="text-align:right">{{ server.method }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(server)"></md-divider>
                             <md-list-item ng-show="isWG(server)">
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>公钥：</div><div flex="60" style="text-align:right; overflow: hidden; text-overflow: ellipsis; color: #666; font-size: 0.8em;">{{ account.publicKey }}</div>
+                                    <div flex="40" translate>公钥：</div>
+                                    <div flex="60" style="text-align:right; overflow: hidden; text-overflow: ellipsis; color: #666; font-size: 0.8em;">{{
+                                        account.publicKey }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-show="isWG(server)"></md-divider>
                             <md-list-item ng-show="isWG(server)">
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>私钥：</div><div flex="60" style="text-align:right; overflow: hidden; text-overflow: ellipsis; color: #666; font-size: 0.8em;">{{ account.privateKey }}</div>
+                                    <div flex="40" translate>私钥：</div>
+                                    <div flex="60" style="text-align:right; overflow: hidden; text-overflow: ellipsis; color: #666; font-size: 0.8em;">{{
+                                        account.privateKey }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-show="isWG(server)"></md-divider>
@@ -67,14 +74,17 @@
                                     <div flex="40" translate>流量：</div>
                                     <div flex="60" style="text-align:right">
                                         <span ng-if="account.type === 1" translate>不限量</span>
-                                        <span ng-if="account.type >=2 && account.type <= 5"><span ng-style="server.isFlowOutOfLimit ? {color: '#a33'} : {color: '#333'}">{{ serverPortFlow | flow }}</span> / {{ account.data.flow + account.data.flowPack | flow}}</span>
+                                        <span ng-if="account.type >=2 && account.type <= 5"><span ng-style="server.isFlowOutOfLimit ? {color: '#a33'} : {color: '#333'}">{{
+                                                serverPortFlow | flow }}</span> / {{ account.data.flow +
+                                            account.data.flowPack | flow}}</span>
                                     </div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>流量倍率：</div><div flex="60" style="text-align:right">{{ server.scale }}</div>
+                                    <div flex="40" translate>流量倍率：</div>
+                                    <div flex="60" style="text-align:right">{{ server.scale }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
@@ -84,7 +94,9 @@
                                     <div flex="60" style="text-align:right">
                                         <span ng-if="account.type === 1" translate>无</span>
                                         <span ng-if="account.type >=2 && account.type <= 5">
-                                            <span style="font-size: 0.9em;">{{account.data.from | date : 'yyyy-MM-dd HH:mm'}}</span><br><span style="font-size: 0.9em;">{{account.data.to | date : 'yyyy-MM-dd HH:mm'}}</span>
+                                            <span style="font-size: 0.9em;">{{account.data.from | date : 'yyyy-MM-dd
+                                                HH:mm'}}</span><br><span style="font-size: 0.9em;">{{account.data.to |
+                                                date : 'yyyy-MM-dd HH:mm'}}</span>
                                         </span>
                                     </div>
                                 </div>
@@ -97,7 +109,10 @@
                                         <span ng-if="account.type === 1" translate>不限时</span>
                                         <span ng-if="account.active === 0" translate>未激活</span>
                                         <span ng-if="account.type >=2 && account.type <= 5 && account.active !== 0">
-                                            <span ng-if="account.active !== 0" style="font-size: 0.9em;">{{account.data.expire | date : 'yyyy-MM-dd HH:mm'}}</span><br><span style="font-size: 0.9em;" ng-style="fontColor(account)">{{ account.data.expire | timeago | translateTime }}</span>
+                                            <span ng-if="account.active !== 0" style="font-size: 0.9em;">{{account.data.expire
+                                                | date : 'yyyy-MM-dd HH:mm'}}</span><br><span style="font-size: 0.9em;"
+                                                ng-style="fontColor(account)">{{ account.data.expire | timeago |
+                                                translateTime }}</span>
                                         </span>
                                     </div>
                                 </div>
@@ -105,23 +120,29 @@
                             <md-divider></md-divider>
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center" ng-click="clientIp(server.id, account.id)">
-                                  <div flex="40" translate>最近连接：</div><div flex="60" style="text-align:right">
-                                      <span ng-if="lastConnect" style="font-size: 0.9em;">{{lastConnect | date : 'yyyy-MM-dd HH:mm'}}<span><br><span ng-if="lastConnect" style="font-size: 0.9em;">{{ lastConnect | timeago | translateTime }}</span>
-                                  </div>
+                                    <div flex="40" translate>最近连接：</div>
+                                    <div flex="60" style="text-align:right">
+                                        <span ng-if="lastConnect" style="font-size: 0.9em;">{{lastConnect | date :
+                                            'yyyy-MM-dd HH:mm'}}<span><br><span ng-if="lastConnect" style="font-size: 0.9em;">{{
+                                                    lastConnect | timeago | translateTime }}</span>
+                                    </div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>备注：</div><div flex="60" style="text-align:right">{{ server.comment }}</div>
+                                    <div flex="40" translate>备注：</div>
+                                    <div flex="60" style="text-align:right">{{ server.comment }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
                         </md-list>
                     </div>
-                    <div flex flex-xs="100" flex-sm="40" flex-md="40" layout="row" layout-align-xs="center center" layout-align-gt-xs="space-between center">
+                    <div flex flex-xs="100" flex-sm="40" flex-md="40" layout="row" layout-align-xs="center center"
+                        layout-align-gt-xs="space-between center">
                         <div layout-hide-xs></div>
-                        <qr ng-click="showQrcodeDialog(server.method, account.password, server.host, account.port + server.shift, server.comment)" size="getQrCodeSize()" layout-margin text="createQrCode(server.method, account.password, server.host, account.port + server.shift, server.name)" image="true"></qr>
+                        <qr ng-click="showQrcodeDialog(server,account)" size="getQrCodeSize()" layout-margin text="createQrCode(server,account)"
+                            image="true"></qr>
                         <div layout-hide-xs></div>
                     </div>
                     <div flex-lg="10"></div>
@@ -130,9 +151,10 @@
                     <div flex flex="100" style="margin: 15px 0px 25px 0px;">
                         <div layout="column" layout-align="center center">
                             <div layout="row" layout-align="center center" style="margin-bottom: 15px;">
-                                <md-radio-group ng-model="flowType.value" ng-change="getChartData(server.id)" layout="row" layout-align="center center">
+                                <md-radio-group ng-model="flowType.value" ng-change="getChartData(server.id)" layout="row"
+                                    layout-align="center center">
                                     <md-radio-button value="hour">时</md-radio-button>
-                                    <md-radio-button value="day" >天</md-radio-button>
+                                    <md-radio-button value="day">天</md-radio-button>
                                     <md-radio-button value="week">周</md-radio-button>
                                 </md-radio-group>
                             </div>
@@ -152,15 +174,9 @@
                     <div width="{{getChartSize().line[0]}}">
                         <div layout="row" layout-align="center center">
                             <div>
-                                <canvas
-                                    width="{{getChartSize().line[0]}}"
-                                    height="{{getChartSize().line[1]}}"
-                                    class="chart chart-line"
-                                    chart-data="lineChart.data"
-                                    chart-labels="lineChart.labels"
-                                    chart-series="lineChart.series"
-                                    chart-options="lineChart.options"
-                                    chart-dataset-override="lineChart.datasetOverride">
+                                <canvas width="{{getChartSize().line[0]}}" height="{{getChartSize().line[1]}}" class="chart chart-line"
+                                    chart-data="lineChart.data" chart-labels="lineChart.labels" chart-series="lineChart.series"
+                                    chart-options="lineChart.options" chart-dataset-override="lineChart.datasetOverride">
                                 </canvas>
                             </div>
                         </div>
@@ -168,12 +184,8 @@
                     <div width="{{getChartSize().pie[0]}}">
                         <div layout="row" layout-align="center center">
                             <div>
-                                <canvas class="chart chart-pie"
-                                    width="{{getChartSize().pie[0]}}"
-                                    height="{{getChartSize().pie[1]}}"
-                                    chart-data="pieChart.data"
-                                    chart-labels="pieChart.labels"
-                                    chart-options="pieChart.options">
+                                <canvas class="chart chart-pie" width="{{getChartSize().pie[0]}}" height="{{getChartSize().pie[1]}}"
+                                    chart-data="pieChart.data" chart-labels="pieChart.labels" chart-options="pieChart.options">
                                 </canvas>
                             </div>
                         </div>

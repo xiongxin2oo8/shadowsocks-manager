@@ -257,7 +257,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
       const urlsafeBase64 = str => {
         return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
       };
-      $scope.createQrCode = (method, password, host, port, serverName) => {
+      $scope.createQrCode = (server, account) => {
         if (server.type === 'WireGuard') {
           const a = account.port % 254;
           const b = (account.port - a) / 254;
@@ -272,17 +272,17 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
             `AllowedIPs = 0.0.0.0/0`,
           ].join('\n');
         } else {
-          return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift));
+          return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment || '这里是备注');
         }
       };
-      $scope.SSRAddress = (method, password, host, port, serverName) => {
-        let str = 'ssr://' + urlsafeBase64(host + ':' + port + ':origin:' + method + ':plain:' + urlsafeBase64(password) + '/?obfsparam=&remarks=' + urlsafeBase64(serverName));
+      $scope.SSRAddress = (server, account) => {
+        let str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment || '这里是备注'));
         return str;
       };
-      $scope.showQrcodeDialog = (method, password, host, port, serverName) => {
-        const ssAddress = $scope.createQrCode(method, password, host, port, serverName);
-        const ssrAddress = $scope.SSRAddress(method, password, host, port, serverName);
-        qrcodeDialog.show(serverName, ssAddress, ssrAddress);
+      $scope.showQrcodeDialog =  (server, account) => {
+        const ssAddress = $scope.createQrCode(server, account);
+        const ssrAddress = $scope.SSRAddress(server, account);
+        qrcodeDialog.show(server.name, ssAddress, ssrAddress);
       };
       $scope.editAccount = id => {
         $state.go('admin.editAccount', { accountId: id });
