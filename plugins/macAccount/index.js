@@ -121,6 +121,8 @@ const getNoticeForUser = async (mac, ip) => {
 const getAccountForUser = async (mac, ip, opt) => {
   const noPassword = opt.noPassword;
   const noFlow = opt.noFlow;
+  let type = opt.type;
+  if(type !== 'WireGuard') { type = 'Shadowsocks'; }
   if(scanLoginLog(ip)) {
     return Promise.reject('ip is in black list');
   }
@@ -139,6 +141,7 @@ const getAccountForUser = async (mac, ip, opt) => {
     'account_plugin.port',
     'account_plugin.password',
     'account_plugin.multiServerFlow as multiServerFlow',
+    'account_plugin.key',
   ])
   .leftJoin('user', 'mac_account.userId', 'user.id')
   .leftJoin('account_plugin', 'mac_account.userId', 'account_plugin.userId');
@@ -162,7 +165,7 @@ const getAccountForUser = async (mac, ip, opt) => {
     expire = accountData.data.create + accountData.data.limit * timePeriod;
   }
   const isMultiServerFlow = account.multiServerFlow;
-  const servers = await serverPlugin.list({ status: false });
+  const servers = (await serverPlugin.list({ status: false })).filter(server => server.type === type);
   let server = servers.filter(s => {
     return s.id === myServerId;
   })[0];
@@ -192,7 +195,6 @@ const getAccountForUser = async (mac, ip, opt) => {
     }).then(success => {
       if(startTime && !noFlow) {
         return getFlow(isMultiServerFlow ? null : success.id, account.accountId);
-        // return flow.getFlowFromSplitTime(isMultiServerFlow ? null : success.id, account.accountId, startTime, Date.now());
       } else {
         return -1;
       }
@@ -213,7 +215,18 @@ const getAccountForUser = async (mac, ip, opt) => {
       });
     }).then(success => {
       serverInfo.status = success;
-      serverInfo.base64 = 'ss://' + Buffer.from(server.method + ':' + server.password + '@' + serverInfo.address + ':' + account.port).toString('base64');
+      if(f.type === 'Shadowsocks') {
+        serverInfo.base64 = 'ss://' + Buffer.from(server.method + ':' + server.password + '@' + serverInfo.address + ':' + account.port).toString('base64');
+      } else {
+        let privateKey = account.key || '';
+        if(privateKey.includes(':')) {
+          privateKey = privateKey.split(':')[1];
+        }
+        const a = account.port % 254;
+        const b = (account.port - a) / 254;
+        const address = `${ f.net.split('.')[0] }.${ f.net.split('.')[1] }.${ b }.${ a + 1 }`;
+        serverInfo.base64 = `wg://${ serverInfo.address }:${ f.wgPort }?prikey=${ privateKey }&pubkey=${ f.key }&gateway=${ f.net }&address=${ address }#${ serverInfo.name }`;
+      }
       return serverInfo;
     });
   });

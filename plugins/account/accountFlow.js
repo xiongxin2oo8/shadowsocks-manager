@@ -11,7 +11,7 @@ const add = async accountId => {
       serverId: server.id,
       accountId,
       port: accountInfo.port + server.shift,
-      nextCheckTime: Date.now(),
+      nextCheckTime: 0,//优先检查
     });
   };
   await Promise.all(servers.map(server => {
@@ -35,15 +35,34 @@ const pwd = async (accountId, password) => {
     });
   }
   accountServers.forEach(server => {
-    manager.send({
-      command: 'pwd',
-      port: accountInfo.port + server.shift,
-      password,
-    }, {
-        host: server.host,
-        port: server.port,
-        password: server.password,
-      });
+    if (server.type === 'WireGuard') {
+      let publicKey = accountInfo.key;
+      if (!publicKey) {
+        return;
+      }
+      if (publicKey.includes(':')) {
+        publicKey = publicKey.split(':')[0];
+      }
+      manager.send({
+        command: 'pwd',
+        port: accountInfo.port + server.shift,
+        password: publicKey,
+      }, {
+          host: server.host,
+          port: server.port,
+          password: server.password,
+        });
+    } else {
+      manager.send({
+        command: 'pwd',
+        port: accountInfo.port + server.shift,
+        password,
+      }, {
+          host: server.host,
+          port: server.port,
+          password: server.password,
+        });
+    }
   });
 };
 
@@ -53,7 +72,7 @@ const edit = async accountId => {
   await Promise.all(servers.map(server => {
     return knex('account_flow').update({
       port: accountInfo.port + server.shift,
-      nextCheckTime: 0,//Date.now() 设置为0在账号太多的情况下优先检查
+      nextCheckTime: 0,//优先检查
     }).where({
       serverId: server.id,
       accountId,

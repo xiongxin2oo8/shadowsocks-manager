@@ -178,8 +178,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
     }
   ])
-  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', '$q', '$state', '$timeout', 'configManager',
-    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, $q, $state, $timeout, configManager) => {
+  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
+    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
       $scope.setTitle('账号');
       $scope.setMenuSearchButton('search');
       $scope.currentPage = 1;
@@ -336,17 +336,32 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       const urlsafeBase64 = str => {
         return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
       };
-      $scope.createQrCode = (method, password, host, port, serverName) => {
-        let str = 'ss://' + base64Encode(method + ':' + password + '@' + host + ':' + port) + '#' + encodeURIComponent(serverName);
-        return str;
+      $scope.createQrCode = (server, account) => {
+        if (!server) { return ''; }
+        if (server.type === 'WireGuard') {
+          const a = account.port % 254;
+          const b = (account.port - a) / 254;
+          return [
+            '[Interface]',
+            `Address = ${server.net.split('.')[0]}.${server.net.split('.')[1]}.${b}.${a + 1}/32`,
+            `PrivateKey = ${account.privateKey}`,
+            'DNS = 8.8.8.8',
+            '[Peer]',
+            `PublicKey = ${server.key}`,
+            `Endpoint = ${server.host}:${server.wgPort}`,
+            `AllowedIPs = 0.0.0.0/0`,
+          ].join('\n');
+        } else {
+          return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
+        }
       };
-      $scope.SSRAddress = (method, password, host, port, serverName) => {
-        let str = 'ssr://' + urlsafeBase64(host + ':' + port + ':origin:' + method + ':plain:' + urlsafeBase64(password) + '/?obfsparam=&remarks=' + urlsafeBase64(serverName));
+      $scope.SSRAddress = (server, account) => {
+        let str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment));
         return str;
       };
       const config = configManager.getConfig();
       $scope.shadowrocket = subscribe => {
-        let base64 = urlsafeBase64(`${config.site}/api/user/account/subscribe/${subscribe}?stype=0&ip=0`);
+        let base64 = urlsafeBase64(`${config.site}/api/user/account/subscribe/${subscribe}?type=shadowrocket&ip=0`);
         let remarks = base64Encode(config.site.split('//')[1] || config.site);//config.title
         let str = `shadowrocket://add/sub://${base64}?remarks=${remarks}`;
         return str;
@@ -438,11 +453,10 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           return false;
         }
       };
-      $scope.showQrcodeDialog = (method, password, host, port, serverName) => {
-        const ssAddress = $scope.createQrCode(method, password, host, port, serverName);
-        const ssrAddress = $scope.SSRAddress(method, password, host, port, serverName);
-        console.log('ssr', ssrAddress)
-        qrcodeDialog.show(serverName, ssAddress, ssrAddress);
+      $scope.showQrcodeDialog = (server, account) => {
+        const ssAddress = $scope.createQrCode(server, account);
+        const ssrAddress = $scope.SSRAddress(server, account);
+        qrcodeDialog.show(server.name, ssAddress, ssrAddress);
       };
       $scope.cycleStyle = account => {
         let percent = 0;
@@ -467,6 +481,15 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         return {
           filter: 'blur(4px)'
         };
+      };
+      $scope.clipboardSuccess = event => {
+        $scope.toast('二维码链接已复制到剪贴板');
+      };
+      $scope.isWG = server => {
+        return (server && server.type === 'WireGuard');
+      };
+      $scope.showWireGuard = (server, account) => {
+        wireGuardConfigDialog.show(server, account);
       };
     }
   ])

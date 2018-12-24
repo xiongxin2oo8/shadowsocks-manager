@@ -4,8 +4,9 @@ const accountFlow = appRequire('plugins/account/accountFlow');
 const moment = require('moment');
 
 const add = async options => {
-  const { name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0 } = options;
+  const { type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort } = options;
   const [serverId] = await knex('server').insert({
+    type,
     name,
     comment,
     host,
@@ -16,6 +17,9 @@ const add = async options => {
     shift,
     monthflow,
     resetday,
+    key,
+    net,
+    wgPort,
   });
   accountFlow.addServer(serverId);
   return [serverId];
@@ -31,7 +35,7 @@ const del = (id) => {
 };
 
 const edit = async options => {
-  const { id, name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0 } = options;
+  const { id, type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort, } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
     const accounts = await knex('account_plugin').where({});
@@ -50,6 +54,7 @@ const edit = async options => {
   }
   if (check) { accountFlow.editServer(id); }
   return knex('server').where({ id }).update({
+    type,
     name,
     comment,
     host,
@@ -60,12 +65,16 @@ const edit = async options => {
     shift,
     monthflow,
     resetday,
+    key,
+    net,
+    wgPort,
   });
 };
 
 const list = async (options = {}) => {
   const serverList = await knex('server').select([
     'id',
+    'type',
     'name',
     'host',
     'port',
@@ -76,6 +85,9 @@ const list = async (options = {}) => {
     'shift',
     'monthflow',
     'resetday',
+    'key',
+    'net',
+    'wgPort',
   ]).orderBy('name');
   if (options.status) {
     const serverStatus = [];

@@ -188,57 +188,60 @@ const deletePort = (server, account) => {
       password: server.password,
     }).catch();
 };
-const addPort = (server, account) => {
-  const portNumber = server.shift + account.port;
-  manager.send({
-    command: 'add',
-    port: portNumber,
-    password: account.password,
-  }, {
+const runCommand = async cmd => {
+  const exec = require('child_process').exec;
+  return new Promise((resolve, reject) => {
+    exec(cmd, (err, stdout, stderr) => {
+      if(err) {
+        return reject(stderr);
+      } else {
+        return resolve(stdout);
+      }
+    });
+  });
+};
+const generateAccountKey = async account => {
+  const privateKey = await runCommand('wg genkey');
+  const publicKey = await runCommand(`echo '${ privateKey.trim() }' | wg pubkey`);
+  await knex('account_plugin').update({
+    key: publicKey.trim() + ':' + privateKey.trim(),
+  }).where({ id: account.id });
+  return publicKey.trim();
+};
+const addPort = async (server, account) => {
+  // console.log(`add ${ server.name } ${ account.port }`);
+  if(server.type === 'WireGuard') {
+    let publicKey = account.key;
+    if(!publicKey) {
+      publicKey = await generateAccountKey(account);
+    }
+    if(publicKey.includes(':')) {
+      publicKey = publicKey.split(':')[0];
+    }
+    const portNumber = server.shift + account.port;
+    await manager.send({
+      command: 'add',
+      port: portNumber,
+      password: publicKey,
+    }, {
       host: server.host,
       port: server.port,
-      password: server.password
+      password: server.password,
     }).catch();
-};
-var option_list = [];
-var ser_list = [];
-var del_list = [];
-//批量删除
-const delPortList = (server, account, list) => {
-  const portNumber = server.shift + account.port;
-  var data = {
-    command: 'del',
-    port: portNumber
-  };
-  list[server.id] = list[server.id] || [];
-  list[server.id].push(data);
-};
-//批量添加
-const addPortList = (server, account, list) => {
-  const portNumber = server.shift + account.port;
-  var data = {
-    command: 'add',
-    port: portNumber,
-    password: account.password,
-  };
-  list[server.id] = list[server.id] || [];
-  list[server.id].push(data);
-};
-//批量发送数据
-const sendOptions = async (list) => {
-  console.log('开始批量发送数据,' + list.length);
-  for (let i = 0; i < list.length; i++) {
-    let option = list[i];
-    if (option) {
-      await sleep(200);
-      manager.send({
-        command: 'batch_options',
-        list: option
-      }, ser_list[i]).catch();
-    }
+    
+  } else {
+    const portNumber = server.shift + account.port;
+    await manager.send({
+      command: 'add',
+      port: portNumber,
+      password: account.password,
+    }, {
+      host: server.host,
+      port: server.port,
+      password: server.password,
+    }).catch();
   }
-
-}
+};
 const deleteExtraPorts = async serverInfo => {
   try {
     const currentPorts = await manager.send({ command: 'list' }, {
@@ -320,6 +323,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
   }
 };
 
+var ser_list = [];
 (async () => {
   let time = 67;
   while (true) {

@@ -41,33 +41,19 @@ exports.getOneServer = (req, res) => {
   });
 };
 
-exports.addServer = (req, res) => {
-  req.checkBody('name', 'Invalid name').notEmpty();
-  req.checkBody('address', 'Invalid address').notEmpty();
-  req.checkBody('port', 'Invalid port').isInt({ min: 1, max: 65535 });
-  req.checkBody('password', 'Invalid password').notEmpty();
-  req.checkBody('method', 'Invalid method').notEmpty();
-  req.checkBody('scale', 'Invalid scale').notEmpty();
-  req.checkBody('shift', 'Invalid shift').isInt();
-  req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
-  req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
-  req.getValidationResult().then(result => {
-    console.log('req.body', req.body);
-    if (result.isEmpty()) {
-      const address = req.body.address;
-      const port = +req.body.port;
-      const password = req.body.password;
-      return manager.send({
-        command: 'flow',
-        options: { clear: false, },
-      }, {
-          host: address,
-          port,
-          password
-        });
-    }
-    result.throw();
-  }).then(success => {
+exports.addServer = async (req, res) => {
+  try {
+    req.checkBody('name', 'Invalid name').notEmpty();
+    req.checkBody('address', 'Invalid address').notEmpty();
+    req.checkBody('port', 'Invalid port').isInt({ min: 1, max: 65535 });
+    req.checkBody('password', 'Invalid password').notEmpty();
+    req.checkBody('method', 'Invalid method').notEmpty();
+    req.checkBody('scale', 'Invalid scale').notEmpty();
+    req.checkBody('shift', 'Invalid shift').isInt();
+    req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
+    req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
+    const result = await req.getValidationResult();
+    if (!result.isEmpty()) { return Promise.reject('Invalid Body'); }
     const name = req.body.name;
     const comment = req.body.comment;
     const address = req.body.address;
@@ -76,10 +62,21 @@ exports.addServer = (req, res) => {
     const method = req.body.method;
     const scale = req.body.scale;
     const shift = req.body.shift;
-    const monthflow=req.body.monthflow;
-    const resetday=req.body.resetday;
-    // return serverManager.add(name, address, port, password, method, scale, comment, shift);
-    return serverManager.add({
+    const monthflow = req.body.monthflow;
+    const resetday = req.body.resetday;
+    const key = isWG ? req.body.key : null;
+    const net = isWG ? req.body.net : null;
+    const wgPort = isWG ? req.body.wgPort : null;
+    await manager.send({
+      command: 'flow',
+      options: { clear: false, },
+    }, {
+        host: address,
+        port,
+        password,
+      });
+    await serverManager.add({
+      type,
       name,
       host: address,
       port,
@@ -90,41 +87,30 @@ exports.addServer = (req, res) => {
       shift,
       monthflow,
       resetday,
+      key,
+      net,
+      wgPort,
     });
-  }).then(success => {
     res.send('success');
-  }).catch(err => {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
-  });
+  }
 };
 
-exports.editServer = (req, res) => {
-  req.checkBody('name', 'Invalid name').notEmpty();
-  req.checkBody('address', 'Invalid address').notEmpty();
-  req.checkBody('port', 'Invalid port').isInt({ min: 1, max: 65535 });
-  req.checkBody('password', 'Invalid password').notEmpty();
-  req.checkBody('method', 'Invalid method').notEmpty();
-  req.checkBody('scale', 'Invalid scale').notEmpty();
-  req.checkBody('shift', 'Invalid shift').isInt();
-  req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
-  req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
-  req.getValidationResult().then(result => {
-    if (result.isEmpty()) {
-      const address = req.body.address;
-      const port = +req.body.port;
-      const password = req.body.password;
-      return manager.send({
-        command: 'flow',
-        options: { clear: false, },
-      }, {
-          host: address,
-          port,
-          password
-        });
-    }
-    result.throw();
-  }).then(success => {
+exports.editServer = async (req, res) => {
+  try {
+    req.checkBody('name', 'Invalid name').notEmpty();
+    req.checkBody('address', 'Invalid address').notEmpty();
+    req.checkBody('port', 'Invalid port').isInt({ min: 1, max: 65535 });
+    req.checkBody('password', 'Invalid password').notEmpty();
+    req.checkBody('method', 'Invalid method').notEmpty();
+    req.checkBody('scale', 'Invalid scale').notEmpty();
+    req.checkBody('shift', 'Invalid shift').isInt();
+    req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
+    req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
+    const result = await req.getValidationResult();
+    if (!result.isEmpty()) { return Promise.reject('Invalid Body'); }
     const serverId = req.params.serverId;
     const name = req.body.name;
     const comment = req.body.comment;
@@ -134,11 +120,21 @@ exports.editServer = (req, res) => {
     const method = req.body.method;
     const scale = req.body.scale;
     const shift = req.body.shift;
-    const check = +req.body.check;
-    const monthflow=req.body.monthflow;
-    const resetday=req.body.resetday;
-    return serverManager.edit({
-      id: serverId,
+    const monthflow = req.body.monthflow;
+    const resetday = req.body.resetday;
+    const key = isWG ? req.body.key : null;
+    const net = isWG ? req.body.net : null;
+    const wgPort = isWG ? req.body.wgPort : null;
+    await manager.send({
+      command: 'flow',
+      options: { clear: false, },
+    }, {
+        host: address,
+        port,
+        password,
+      });
+    await serverManager.add({
+      type,
       name,
       host: address,
       port,
@@ -147,16 +143,17 @@ exports.editServer = (req, res) => {
       scale,
       comment,
       shift,
-      check,      
       monthflow,
       resetday,
+      key,
+      net,
+      wgPort,
     });
-  }).then(success => {
     res.send('success');
-  }).catch(err => {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
-  });
+  }
 };
 
 exports.deleteServer = (req, res) => {

@@ -179,8 +179,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
     };
   }
 ])
-  .controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet',
-    ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet) => {
+  .controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog',
+    ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog) => {
       $scope.setTitle('账号');
       $scope.setMenuButton('arrow_back', 'admin.account');
       $scope.accountId = +$stateParams.accountId;
@@ -258,8 +258,22 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
         return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
       };
       $scope.createQrCode = (method, password, host, port, serverName) => {
-        let str = 'ss://' + base64Encode(method + ':' + password + '@' + host + ':' + port);
-        return str;
+        if (server.type === 'WireGuard') {
+          const a = account.port % 254;
+          const b = (account.port - a) / 254;
+          return [
+            '[Interface]',
+            `Address = ${server.net.split('.')[0]}.${server.net.split('.')[1]}.${b}.${a + 1}/32`,
+            `PrivateKey = ${account.privateKey}`,
+            'DNS = 8.8.8.8',
+            '[Peer]',
+            `PublicKey = ${server.key}`,
+            `Endpoint = ${server.host}:${server.wgPort}`,
+            `AllowedIPs = 0.0.0.0/0`,
+          ].join('\n');
+        } else {
+          return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift));
+        }
       };
       $scope.SSRAddress = (method, password, host, port, serverName) => {
         let str = 'ssr://' + urlsafeBase64(host + ':' + port + ':origin:' + method + ':plain:' + urlsafeBase64(password) + '/?obfsparam=&remarks=' + urlsafeBase64(serverName));
@@ -461,6 +475,13 @@ app.controller('AdminAccountController', ['$scope', '$state', '$stateParams', '$
             });
           });
         });
+      };
+      $scope.clipboardSuccess = event => {
+        $scope.toast('二维码链接已复制到剪贴板');
+      };
+      $scope.isWG = server => server.type === 'WireGuard';
+      $scope.showWireGuard = (server, account) => {
+        wireGuardConfigDialog.show(server, account);
       };
     }
   ])

@@ -73,7 +73,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
             server.port = servers[index].port;
             server.status = servers[index].status;
             server.isGfw = servers[index].isGfw;
-            server.resetday=servers[index].resetday;
+            server.resetday = servers[index].resetday;
             server.useFlowStr = $filter('flowNum2Str')(servers[index].useflow);
             server.monthFlowStr = $filter('flowNum2Str')(servers[index].monthflow);
             adminApi.getServerFlow(server.id).then(flow => {
@@ -425,13 +425,18 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         $scope.server.method = $scope.methodSearch;
       };
       $scope.server = {
+        type: 'Shadowsocks',
+        method: 'aes-256-cfb',
         scale: 1,
-        shift: 0
+        shift: 0,
+        monthflow: 0,
+        resetday: 1
       };
       $scope.server.monthflow = $filter('flowStr2Num')($scope.server.monthflowStr);
       $scope.confirm = () => {
         alertDialog.loading();
         $http.post('/api/admin/server', {
+          type: $scope.server.type,
           name: $scope.server.name,
           address: $scope.server.address,
           port: +$scope.server.port,
@@ -441,7 +446,10 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           scale: $scope.server.scale,
           shift: $scope.server.shift,
           monthflow: $scope.server.monthflow,
-          resetday: $scope.server.resetday
+          resetday: $scope.server.resetday,
+          key: $scope.server.key,
+          net: $scope.server.net,
+          wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
         }, {
             timeout: 15000,
           }).then(success => {
@@ -491,6 +499,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       })
         .then(success => {
           $scope.serverInfoloaded = true;
+          $scope.server.type = success.data.type;
           $scope.server.name = success.data.name;
           $scope.server.comment = success.data.comment;
           $scope.server.address = success.data.host;
@@ -502,11 +511,15 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.monthflow = success.data.monthflow;
           $scope.server.monthflowStr = $filter('flowNum2Str')(success.data.monthflow);
           $scope.server.resetday = success.data.resetday;
+          $scope.server.key = success.data.key;
+          $scope.server.net = success.data.net;
+          $scope.server.wgPort = success.data.wgPort;
         });
       $scope.confirm = () => {
         alertDialog.loading();
         $scope.server.monthflow = $filter('flowStr2Num')($scope.server.monthflowStr);
         $http.put('/api/admin/server/' + $stateParams.serverId, {
+          type: $scope.server.type,
           name: $scope.server.name,
           comment: $scope.server.comment,
           address: $scope.server.address,
@@ -517,7 +530,10 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           shift: $scope.server.shift,
           check: $scope.server.check,
           monthflow: $scope.server.monthflow,
-          resetday: $scope.server.resetday
+          resetday: $scope.server.resetday,
+          key: $scope.server.key,
+          net: $scope.server.net,
+          wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
         }).then(success => {
           alertDialog.show('修改服务器成功', '确定');
           $state.go('admin.serverPage', { serverId: $stateParams.serverId });
