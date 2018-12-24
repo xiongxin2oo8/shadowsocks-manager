@@ -43,6 +43,7 @@ exports.getOneServer = (req, res) => {
 
 exports.addServer = async (req, res) => {
   try {
+    req.checkBody('type', 'Invalid type').notEmpty();
     req.checkBody('name', 'Invalid name').notEmpty();
     req.checkBody('address', 'Invalid address').notEmpty();
     req.checkBody('port', 'Invalid port').isInt({ min: 1, max: 65535 });
@@ -54,6 +55,8 @@ exports.addServer = async (req, res) => {
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
     const result = await req.getValidationResult();
     if (!result.isEmpty()) { return Promise.reject('Invalid Body'); }
+    const type = req.body.type;
+    const isWG = type === 'WireGuard';
     const name = req.body.name;
     const comment = req.body.comment;
     const address = req.body.address;
@@ -99,7 +102,8 @@ exports.addServer = async (req, res) => {
 };
 
 exports.editServer = async (req, res) => {
-  try {
+  try {    
+    req.checkBody('type', 'Invalid type').notEmpty();
     req.checkBody('name', 'Invalid name').notEmpty();
     req.checkBody('address', 'Invalid address').notEmpty();
     req.checkBody('port', 'Invalid port').isInt({ min: 1, max: 65535 });
@@ -112,6 +116,8 @@ exports.editServer = async (req, res) => {
     const result = await req.getValidationResult();
     if (!result.isEmpty()) { return Promise.reject('Invalid Body'); }
     const serverId = req.params.serverId;
+    const type = req.body.type;
+    const isWG = type === 'WireGuard';
     const name = req.body.name;
     const comment = req.body.comment;
     const address = req.body.address;
@@ -125,6 +131,7 @@ exports.editServer = async (req, res) => {
     const key = isWG ? req.body.key : null;
     const net = isWG ? req.body.net : null;
     const wgPort = isWG ? req.body.wgPort : null;
+    const check = +req.body.check;
     await manager.send({
       command: 'flow',
       options: { clear: false, },
@@ -133,7 +140,8 @@ exports.editServer = async (req, res) => {
         port,
         password,
       });
-    await serverManager.add({
+    await serverManager.edit({
+      id: serverId,
       type,
       name,
       host: address,
@@ -148,6 +156,7 @@ exports.editServer = async (req, res) => {
       key,
       net,
       wgPort,
+      check
     });
     res.send('success');
   } catch (err) {
