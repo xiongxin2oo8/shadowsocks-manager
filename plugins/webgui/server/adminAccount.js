@@ -160,16 +160,19 @@ exports.getSubscribeAccountForUser = async (req, res) => {
     const resolveIp = req.query.ip;
     const token = req.params.token;
     const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    let subscribeAccount;
     if (isMacAddress(token)) {
-      await macAccount.getAccountForUser(token.toLowerCase(), ip, {
-        noPassword: 0,
-        noFlow: 1,
-      }).then(success => {
-        const result = success.servers.map(server => {
-          return 'ss://' + Buffer.from(server.method + ':' + success.default.password + '@' + server.address + ':' + server.port).toString('base64') + '#' + Buffer.from(server.name).toString('base64');
-        }).join('\r\n');
-        return res.send(Buffer.from(result).toString('base64'));
-      });
+      subscribeAccount = await macAccount.getMacAccountForSubscribe(token, ip);
+      // await macAccount.getAccountForUser(token.toLowerCase(), ip, {
+      //   noPassword: 0,
+      //   noFlow: 1,
+      //   type,
+      // }).then(success => {
+      //   const result = success.servers.map(server => {
+      //     return 'ss://' + Buffer.from(server.method + ':' + success.default.password + '@' + server.address + ':' + server.port).toString('base64') + '#' + Buffer.from(server.name).toString('base64');
+      //   }).join('\r\n');
+      //   return res.send(Buffer.from(result).toString('base64'));
+      // });
     } else {
       const isSubscribeOn = await knex('webguiSetting').where({
         key: 'account'
@@ -203,7 +206,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }
 
       const flowInfo = await flow.getServerPortFlowWithScale(0, accountInfo.id, [accountInfo.data.from, accountInfo.data.to], 1);
-      
+
       let result = '';
       if (type === 'ssd') {
         let obj = {
@@ -237,7 +240,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             method: 'chacha20',
             host: '127.0.0.1',
             shift: 0,
-            comment: accountInfo.data.expire <= new Date() ? '已过期' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
+            comment: accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
           };
           let insertFlow = {
             method: 'chacha20',
@@ -260,6 +263,19 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         return res.send(Buffer.from(result).toString('base64'));
       }
     }
+    if (type === 'ssd') {
+      return res.send('ssd://' + Buffer.from(JSON.stringify(ssdInfo)).toString('base64'));
+    }
+    const result = subscribeAccount.server.map(s => {
+      if (type === 'shadowrocket') {
+        return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + Buffer.from(s.subscribeName || s.name).toString('base64');
+      } else if (type === 'potatso') {
+        return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + (s.subscribeName || s.name);
+      } else if (type === 'ssr') {
+        return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(s.subscribeName || s.name) + '&group=' + urlsafeBase64(baseSetting.title));
+      }
+    }).join('\r\n');
+    return res.send(Buffer.from(result).toString('base64'));
   } catch (err) {
     console.log(err);
     res.status(403).end();

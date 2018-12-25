@@ -17,6 +17,7 @@ const addAccount = async (type, options) => {
       orderId: 0,
       userId: options.user,
       port: options.port,
+      subscribe: crypto.randomBytes(16).toString('hex'),
       password: options.password,
       status: 0,
       server: options.server ? options.server : null,
@@ -94,14 +95,14 @@ const getAccount = async (options = {}) => {
 };
 
 const getOnlineAccount = async serverId => {
-  if(!serverId) {
+  if (!serverId) {
     const onlines = await knex('saveFlow').select([
       'saveFlow.id as serverId',
     ]).countDistinct('saveFlow.accountId as online')
-    .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
-    .groupBy('saveFlow.id');
+      .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
+      .groupBy('saveFlow.id');
     const result = {};
-    for(const online of onlines) {
+    for (const online of onlines) {
       result[online.serverId] = online.online;
     };
     return result;
@@ -110,12 +111,12 @@ const getOnlineAccount = async serverId => {
     'account_plugin.id',
     'account_plugin.port',
   ])
-  .whereExists(
-    knex('saveFlow')
-    .where({ 'saveFlow.id': serverId })
-    .whereRaw('saveFlow.accountId = account_plugin.id')
-    .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
-  );
+    .whereExists(
+      knex('saveFlow')
+        .where({ 'saveFlow.id': serverId })
+        .whereRaw('saveFlow.accountId = account_plugin.id')
+        .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
+    );
   return account.map(m => m.id);
 };
 
