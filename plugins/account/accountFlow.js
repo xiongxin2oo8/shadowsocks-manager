@@ -67,6 +67,7 @@ const pwd = async (accountId, password) => {
 };
 
 const edit = async accountId => {
+  
   const servers = await knex('server').select();
   const accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
   await Promise.all(servers.map(server => {
@@ -94,7 +95,7 @@ const server = async serverId => {
         serverId: server.id,
         accountId: account.id,
         port: account.port + server.shift,
-        nextCheckTime: Date.now(),
+        nextCheckTime: 0,//优先检查
       });
     } else {
       await knex('account_flow').update({

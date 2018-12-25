@@ -99,12 +99,12 @@ const processOrder = async (userId, accountId, password) => {
         usedTime: Date.now()
       });
     }).then(() => {
-      isTelegram && telegram.push(`充值码[ ${password} ][ ${orderInfo.name} ]支付成功`);
+      isTelegram && telegram.push(`充值码[ ${password} ][ ${orderInfo.name} ]使用成功`);
       ref.payWithRef(userId, card.orderType);
       return { success: true, type: card.orderType, cardId: card.id };
     }).catch(err => {
       logger.error(`充值码使用失败: [${password}]`, err);
-      isTelegram && telegram.push(`请注意，充值码[ ${password} ][ ${orderInfo.name} ]使用成功`);
+      isTelegram && telegram.push(`请注意，充值码[ ${password} ][ ${orderInfo.name} ]充值失败了`);
     });
 };
 

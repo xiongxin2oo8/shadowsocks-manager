@@ -65,8 +65,8 @@ const day_push = async () => {
     .where('status', 'FINISH')
     .then(success => success[0]);
   await push(`主人，晚上好！`);
-  await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人，登录了网站`);
-  await push(`截止目前，共有账号数 ${total_info.count} 个，其中有 ${total_info.sub_count} 个正在使用订阅`);
+  await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人登录了网站`);
+  await push(`截止目前，共有账号数 ${total_info.count} 个`);
   await push(`今天，共有 ${today_info.count} 个账号使用服务`);
   await push(`各个服务器使用情况：\n${server_info}`);
   await push(`今天共产生 ${pay_info.count} 个订单，共筹得 ${(pay_info.amount || 0).toFixed(2)} 元`);

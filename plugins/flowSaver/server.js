@@ -52,7 +52,11 @@ const edit = async options => {
       }
     })(serverInfo);
   }
-  if (check) { accountFlow.editServer(id); }
+  console.log(`ss=${id} ${check}`);
+  if (check) {
+    console.log(`ss2=${id} ${check}`);
+    accountFlow.editServer(id);
+  }
   return knex('server').where({ id }).update({
     type,
     name,
