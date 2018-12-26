@@ -7,21 +7,21 @@ const knex = appRequire('init/knex').knex;
 const manager = appRequire('services/manager');
 const port = config.plugins.freeAccount.port;
 let flow = config.plugins.freeAccount.flow;
-if(flow.toString().trim().substr(-1).toUpperCase() === 'K') {
+if (flow.toString().trim().substr(-1).toUpperCase() === 'K') {
   flow = +flow.substr(0, flow.length - 1) * 1000;
 }
-if(flow.toString().trim().substr(-1).toUpperCase() === 'M') {
+if (flow.toString().trim().substr(-1).toUpperCase() === 'M') {
   flow = +flow.substr(0, flow.length - 1) * 1000 * 1000;
 }
-if(flow.toString().trim().substr(-1).toUpperCase() === 'G') {
+if (flow.toString().trim().substr(-1).toUpperCase() === 'G') {
   flow = +flow.substr(0, flow.length - 1) * 1000 * 1000 * 1000;
 }
 flow = +flow;
 let time = config.plugins.freeAccount.time;
-if(time.toString().trim().substr(-1).toUpperCase() === 'M') {
+if (time.toString().trim().substr(-1).toUpperCase() === 'M') {
   time = +time.substr(0, time.length - 1) * 60 * 1000;
 }
-if(time.toString().trim().substr(-1).toUpperCase() === 'H') {
+if (time.toString().trim().substr(-1).toUpperCase() === 'H') {
   time = +time.substr(0, time.length - 1) * 60 * 60 * 1000;
 }
 time = +time;
@@ -39,12 +39,12 @@ const randomPort = () => {
   const portString = port.toString();
   const portArray = [];
   portString.split(',').forEach(f => {
-    if(f.indexOf('-') < 0) {
+    if (f.indexOf('-') < 0) {
       portArray.push(+f);
     } else {
       const start = f.split('-')[0];
       const end = f.split('-')[1];
-      for(let p = +start; p <= +end; p++) {
+      for (let p = +start; p <= +end; p++) {
         portArray.push(p);
       }
     }
@@ -62,15 +62,15 @@ const randomPassword = () => {
 };
 
 const prettyFlow = number => {
-  if(number >= 0 && number < 1000) {
+  if (number >= 0 && number < 1000) {
     return number + ' B';
-  } else if(number >= 1000 && number < 1000 * 1000) {
+  } else if (number >= 1000 && number < 1000 * 1000) {
     return (number / 1000).toFixed(1) + ' KB';
-  } else if(number >= 1000 * 1000 && number < 1000 * 1000 * 1000) {
+  } else if (number >= 1000 * 1000 && number < 1000 * 1000 * 1000) {
     return (number / (1000 * 1000)).toFixed(2) + ' MB';
-  } else if(number >= 1000 * 1000 * 1000 && number < 1000 * 1000 * 1000 * 1000) {
+  } else if (number >= 1000 * 1000 * 1000 && number < 1000 * 1000 * 1000 * 1000) {
     return (number / (1000 * 1000 * 1000)).toFixed(3) + ' GB';
-  } else if(number >= 1000 * 1000 * 1000 * 1000 && number < 1000 * 1000 * 1000 * 1000 * 1000) {
+  } else if (number >= 1000 * 1000 * 1000 * 1000 && number < 1000 * 1000 * 1000 * 1000 * 1000) {
     return (number / (1000 * 1000 * 1000 * 1000)).toFixed(3) + ' TB';
   } else {
     return number + '';
@@ -78,14 +78,14 @@ const prettyFlow = number => {
 };
 
 const prettyTime = number => {
-  const numberOfSecond = Math.ceil(number/1000);
-  if(numberOfSecond >= 0 && numberOfSecond < 60) {
+  const numberOfSecond = Math.ceil(number / 1000);
+  if (numberOfSecond >= 0 && numberOfSecond < 60) {
     return numberOfSecond + 's';
   } else if (numberOfSecond >= 60 && numberOfSecond < 3600) {
-    return Math.floor(numberOfSecond/60) + 'm' + (numberOfSecond%60) + 's';
+    return Math.floor(numberOfSecond / 60) + 'm' + (numberOfSecond % 60) + 's';
   } else if (numberOfSecond >= 3600) {
-    const hour = Math.floor(numberOfSecond/3600);
-    const min = Math.floor((numberOfSecond - 3600 * hour)/60);
+    const hour = Math.floor(numberOfSecond / 3600);
+    const min = Math.floor((numberOfSecond - 3600 * hour) / 60);
     const sec = (numberOfSecond - 3600 * hour) % 60;
     return hour + 'h' + min + 'm' + sec + 's';
   } else {
@@ -129,12 +129,12 @@ const checkPort = async () => {
   let changePasswordMark = false;
   const accounts = await manager.send({ command: 'list' });
   accounts.forEach(account => {
-    if(account.port !== currentPort) {
-      manager.send({ command: 'del', port: account.port});
+    if (account.port !== currentPort) {
+      manager.send({ command: 'del', port: account.port });
     }
   });
   const exists = accounts.filter(f => f.port === currentPort)[0];
-  if(!exists) {
+  if (!exists) {
     await manager.send({ command: 'add', port: currentPort, password: randomPassword() });
     await setKey('create', { time: Date.now() });
   } else {
@@ -142,7 +142,7 @@ const checkPort = async () => {
     currentPassword = exists.password;
     const createTime = (await getKey('create', { time: Date.now() })).time;
     logger.info('time: ' + prettyTime(time - Date.now() + createTime) + ' left');
-    if(Date.now() - createTime >= time) { changePasswordMark = true; }
+    if (Date.now() - createTime >= time) { changePasswordMark = true; }
     const currentFlow = (await getKey('flow', { flow: 0 })).flow;
     const newFlow = await manager.send({
       command: 'flow',
@@ -151,30 +151,30 @@ const checkPort = async () => {
       }
     }).then(success => {
       success.forEach(f => {
-        if(f.port !== currentPort) {
-          manager.send({ command: 'del', port: f.port});
+        if (f.port !== currentPort) {
+          manager.send({ command: 'del', port: f.port });
         }
       });
       const myFlow = success.filter(f => f.port === currentPort)[0];
-      if(myFlow) {
+      if (myFlow) {
         return myFlow.sumFlow;
       } else {
         return 0;
       }
     });
-    logger.info('flow: ' + prettyFlow(currentFlow + newFlow) + '/' + prettyFlow(flow) + ' ' + Math.ceil((currentFlow + newFlow) * 100/flow) + '%');
+    logger.info('flow: ' + prettyFlow(currentFlow + newFlow) + '/' + prettyFlow(flow) + ' ' + Math.ceil((currentFlow + newFlow) * 100 / flow) + '%');
     await setKey('flow', { flow: currentFlow + newFlow });
     const sumFlow = (await getKey('sumFlow', { flow: 0 })).flow;
     await setKey('sumFlow', { flow: sumFlow + newFlow });
     logger.info('sumFlow: ' + prettyFlow(sumFlow + newFlow));
     const ips = await manager.send({ command: 'ip', port: currentPort });
     logger.info(ips);
-    if(currentFlow + newFlow >= flow) { changePasswordMark = true; }
-    if(changePasswordMark) {
+    if (currentFlow + newFlow >= flow) { changePasswordMark = true; }
+    if (changePasswordMark) {
       await manager.send({ command: 'add', port: randomPort(), password: randomPassword() });
       await setKey('create', { time: Date.now() });
       await setKey('flow', { flow: 0 });
-      qrcode = 'ss://' + Buffer.from(`${ method }:${ currentPassword }@${ address }:${ currentPort }`).toString('base64');
+      qrcode = 'ss://' + Buffer.from(`${method}:${currentPassword}@${address}:${currentPort}`).toString('base64');
     }
   }
 };
@@ -198,8 +198,8 @@ app.use('/libs', express.static(path.resolve('./plugins/freeAccount/libs')));
 const listenPort = config.plugins.freeAccount.listen.split(':')[1];
 const listenHost = config.plugins.freeAccount.listen.split(':')[0];
 app.get('/', (req, res) => {
-  logger.info(`[${ req.ip }] /`);
-  qrcode = 'ss://' + Buffer.from(`${ method }:${ currentPassword }@${ address }:${ currentPort }`).toString('base64');
+  logger.info(`[${req.ip}] /`);
+  qrcode = 'ss://' + Buffer.from(`${method}:${currentPassword}@${address}:${currentPort}`).toString('base64');
   return res.render('index', {
     recaptcha: config.plugins.freeAccount.recaptcha ? config.plugins.freeAccount.recaptcha.site : '',
     analytics,
@@ -216,7 +216,7 @@ app.post('/qrcode', async (req, res) => {
     success: true,
     score: 1,
   };
-  if(config.plugins.freeAccount.recaptcha) {
+  if (config.plugins.freeAccount.recaptcha) {
     recaptchaResult = await rp({
       uri: 'https://www.google.com/recaptcha/api/siteverify',
       method: 'POST',
@@ -228,22 +228,24 @@ app.post('/qrcode', async (req, res) => {
       json: true,
     });
   }
-  if(!recaptchaResult.success) { return res.send({
-    qrcode: 'ss://invalidRequest',
-    updateTime,
-  }); }
-  logger.info(`[${ ip }] ${ recaptchaResult.score }`);
-  if(recaptchaResult.score < 0.5) {
+  if (!recaptchaResult.success) {
     return res.send({
-    qrcode: 'ss://invalidRequest',
-    updateTime,
-    score: recaptchaResult.score,
+      qrcode: 'ss://invalidRequest',
+      updateTime,
     });
   }
-  res.send({ qrcode, updateTime, score: recaptchaResult.score, });
+  logger.info(`[${ip}] ${recaptchaResult.score}`);
+  if (recaptchaResult.score < 0.5) {
+    return res.send({
+      qrcode: 'ss://invalidRequest',
+      updateTime,
+      score: recaptchaResult.score,
+    });
+  }
+  res.send({ qrcode, updateTime, nextTime: updateTime + time, score: recaptchaResult.score, });
 });
 app.listen(listenPort, listenHost, () => {
-  logger.info(`server start at ${ listenHost }:${ listenPort }`);
+  logger.info(`server start at ${listenHost}:${listenPort}`);
 }).on('error', err => {
   logger.error('express server error: ' + err);
   process.exit(1);

@@ -168,10 +168,10 @@ exports.editServer = async (req, res) => {
 exports.deleteServer = (req, res) => {
   const serverId = req.params.serverId;
   serverManager.del(serverId)
-    .then(success => {
-      res.send('success');
-    }).catch(err => {
-      console.log(err);
-      res.status(403).end();
-    });
+  .then(success => {
+    res.send('success');
+  }).catch(err => {
+    console.log(err);
+    res.status(403).end();
+  });
 };
