@@ -600,5 +600,4 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
       getMacAccount();
     }
-  ])
-  ;
+  ]);

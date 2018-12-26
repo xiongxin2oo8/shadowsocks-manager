@@ -65,13 +65,14 @@ exports.getBatchDetails = async (req, resp) => {
 exports.getOrders = async (req, res) => {
   try {
     const options = {};
-    if(req.adminInfo.id === 1) {
+    if (req.adminInfo.id === 1) {
       options.group = +req.query.group;
     } else {
       options.group = req.adminInfo.group;
     }
     options.page = +req.query.page;
     options.pageSize = +req.query.pageSize;
+    options.search = req.query.search || '';
     options.start = req.query.start;
     options.end = req.query.end;
     const details = await giftcard.orderListAndPaging(options);
