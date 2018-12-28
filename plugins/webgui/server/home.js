@@ -12,6 +12,7 @@ const groupPlugin = appRequire('plugins/group/index');
 const push = appRequire('plugins/webgui/server/push');
 const macAccount = appRequire('plugins/macAccount/index');
 const ref = appRequire('plugins/webgui_ref/index');
+const request = require('request-promise');
 
 const isTelegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
 let telegram;
@@ -114,14 +115,14 @@ exports.signup = async (req, res) => {
         });
       };
       const port = await getNewPort();
-      if(newUserAccount.fromOrder) {
+      if (newUserAccount.fromOrder) {
         const orderInfo = await knex('webgui_order').where({ id: newUserAccount.type }).then(s => s[0]);
-        if(orderInfo) {
+        if (orderInfo) {
           await account.addAccount(orderInfo.type || 5, {
             user: userId,
             orderId: orderInfo.id,
             port,
-            password: Math.random().toString().substr(2,10),
+            password: Math.random().toString().substr(2, 10),
             time: Date.now(),
             limit: orderInfo.cycle,
             flow: orderInfo.flow,
@@ -135,21 +136,21 @@ exports.signup = async (req, res) => {
           user: userId,
           orderId: 0,
           port,
-          password: Math.random().toString().substr(2,10),
+          password: Math.random().toString().substr(2, 10),
           time: Date.now(),
           limit: newUserAccount.limit || 8,
           flow: (newUserAccount.flow ? newUserAccount.flow : 350) * 1000000,
-          server: newUserAccount.server ? JSON.stringify(newUserAccount.server): null,
+          server: newUserAccount.server ? JSON.stringify(newUserAccount.server) : null,
           autoRemove: newUserAccount.autoRemove ? 1 : 0,
           multiServerFlow: newUserAccount.multiServerFlow ? 1 : 0,
         });
       }
     }
-    logger.info(`[${ req.body.email }] signup success`);
+    logger.info(`[${req.body.email}] signup success`);
     push.pushMessage('注册', {
-      body: `用户[ ${ req.body.email.toString().toLowerCase() } ]注册成功`,
+      body: `用户[ ${req.body.email.toString().toLowerCase()} ]注册成功`,
     });
-    isTelegram && telegram.push(`用户[ ${ req.body.email.toString().toLowerCase() } ]注册成功`);
+    isTelegram && telegram.push(`用户[ ${req.body.email.toString().toLowerCase()} ]注册成功`);
     res.send(type);
   } catch (err) {
     logger.error(`[${req.body.email}] signup fail: ${err}`);
@@ -485,3 +486,13 @@ exports.visitRef = (req, res) => {
     res.status(403).end();
   });
 };
+//壁纸api
+exports.wallpaper = async (req, res) => {
+  let rand = Math.floor(Math.random() * 10);
+  let url = `http://cn.bing.com/HPImageArchive.aspx?format=js&idx=${rand}&n=1`
+  let imgurl = await request({ url, timeout: 10 * 1000 }).then(success => {
+    console.log(success)
+    return 'https://cn.bing.com/' + JSON.parse(success).images[0].url;
+  })
+  res.redirect(302, imgurl);
+}

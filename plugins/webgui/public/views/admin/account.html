@@ -1,17 +1,18 @@
 <div style=" font-size: 0.8em; color: #555;position:fixed;padding: 3px;text-align: center;width: 100%;background-color: #FAFAFA;z-index: 2">共
-    {{accountInfo.originalAccount.length}} 条，显示
-    {{accountList.length}} 条</div>
+    {{ total }} 条，显示 {{account.length}} 条</div>
 <div layout="row" style="margin-top:20px" layout-wrap>
-    <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" ng-repeat="a in accountList track by $index">
-        <md-card ng-click="toAccount(a.id)" md-colors="{{accountColor(a)}}">
-            <md-card-content style="padding: 10px;">
+    <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" ng-repeat="a in account track by $index">
+        <md-card ng-click="toAccount(a)" md-colors="{{ accountColor(a) }}">
+            <md-card-content style="padding:8px 10px;">
                 <div layout="row" layout-align="space-between center" style="word-break: keep-all; white-space:nowrap; overflow: hidden; text-overflow:ellipsis;">
-                    <div flex="30">{{a.port}}
+                    <div flex="30" ng-if="a.mac">{{ a.mac | mac }}</div>
+                    <div flex="30" ng-if="!a.mac">{{ a.port }}
                         <br>
                         <span style="font-size: 0.7em;">{{ a.data.expire?( (a.data.expire | timeago |
-                            translateTime)+' '+flowNumber(a.data.flow)):'无限' }}</span></div>
+                            translateTime)+' '+flowNumber(a.data.flow)):'无限' }}</span>
+                    </div>
                     <div flex layout="row" layout-align="end center">
-                        <span style="color: #aaa; font-size: 0.8em; text-overflow: ellipsis; overflow: hidden;">{{a.user
+                        <span ng-if="!a.mac" style="color: #aaa; font-size: 0.8em; text-overflow: ellipsis; overflow: hidden;">{{a.user
                             || a.password}}</span>
                         <div>
                             <md-icon>chevron_right</md-icon>
@@ -21,8 +22,17 @@
             </md-card-content>
         </md-card>
     </div>
+    <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" in-view="view($inview)" ng-if="account.length && !isAccountPageFinish">
+        <md-card>
+            <md-card-content>
+                <div layout="row" layout-align="center center">
+                    <md-progress-circular md-mode="indeterminate" class="md-hue-2" md-diameter="20px"></md-progress-circular>
+                </div>
+            </md-card-content>
+        </md-card>
+    </div>
 </div>
-<div layout="row" layout-wrap ng-show="accountMethod.filter.mac">
+<!-- <div layout="row" layout-wrap ng-show="accountMethod.filter.mac">
     <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" ng-repeat="a in macAccountInfo.account track by $index">
         <md-card ng-click="toMacAccount(a.userId)">
             <md-card-content>
@@ -33,13 +43,11 @@
             </md-card-content>
         </md-card>
     </div>
-</div>
-<div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" in-view="view($inview)" ng-if="!isUserPageFinish&&!isUserLoading">
-    <md-card>
-        <md-card-content>
-            <div layout="row" layout-align="center center">
-                <md-progress-circular md-mode="indeterminate" class="md-hue-2" md-diameter="20px"></md-progress-circular>
-            </div>
-        </md-card-content>
-    </md-card>
+</div> -->
+<div layout-fill layout="row" layout-align="center center" in-view="view($inview)" ng-if="!account.length && !isAccountPageFinish">
+    <div flex style="height: 180px;"></div>
+    <div flex layout="row" layout-align="center center">
+        <md-progress-circular md-mode="indeterminate" class="md-accent"></md-progress-circular>
+    </div>
+    <div flex style="height: 180px;"></div>
 </div>

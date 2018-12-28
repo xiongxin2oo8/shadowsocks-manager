@@ -166,5 +166,5 @@ server.listen({
   port,
   host,
 }, () => {
-  logger.info(`server listen on ${host}:${port}`);
+  logger.info(`server listen on ${ host }:${ port }`);
 });

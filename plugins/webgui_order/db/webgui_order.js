@@ -78,12 +78,12 @@ const createTable = async () => {
         table.integer('active').defaultTo(1);
       });
     }
-    const hasChangeOrderType= await knex.schema.hasColumn(tableName, 'changeOrderType');
-    if (!hasChangeOrderType) {
-      await knex.schema.table(tableName, function (table) {
-        table.integer('changeOrderType').defaultTo(0);
-      });
-    }
+    // const hasChangeOrderType= await knex.schema.hasColumn(tableName, 'changeOrderType');
+    // if (!hasChangeOrderType) {
+    //   await knex.schema.table(tableName, function (table) {
+    //     table.integer('changeOrderType').defaultTo(0);
+    //   });
+    // }
     await addDefaultOrder();
     await fixRefTime();
     return;
