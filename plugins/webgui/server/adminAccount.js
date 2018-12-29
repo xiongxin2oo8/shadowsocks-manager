@@ -258,7 +258,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         }
         result = subscribeAccount.server.map(s => {
           if (type === 'shadowrocket') {
-            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
+            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '&group=' + urlsafeBase64(baseSetting.title) + '#' + encodeURIComponent((s.comment || '这里显示备注'));
           } else if (type === 'potatso') {
             return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
           } else if (type === 'ssr') {
