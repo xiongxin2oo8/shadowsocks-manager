@@ -254,6 +254,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               type: 'ss'
             };
           });
+          clashConfig['Proxy Group'][0] = {
+            name: 'Proxy',
+            type: 'select',
+            proxies: subscribeAccount.server.map(server => {
+              return server.subscribeName || server.name;
+            }),
+          };
           return res.send(yaml.safeDump(clashConfig));
         }
         result = subscribeAccount.server.map(s => {
