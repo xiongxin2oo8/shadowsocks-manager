@@ -54,6 +54,7 @@ module.exports = {
   '订阅': 'Subscription',
   '推荐': 'Recommended',
   '一键订阅': 'Quick subscription',
+  'mac地址': 'MAC Address',
   '修改密码成功': 'Change password success',
   '修改密码失败': 'Change password fail',
   '续费': 'Recharge',

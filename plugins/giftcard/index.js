@@ -132,12 +132,12 @@ const orderListAndPaging = async (options = {}) => {
     `${dbTableName}.status`,
     `${dbTableName}.usedTime as createTime`,
   ])
-    .where(where)
-    .orderBy(`${dbTableName}.usedTime`, 'DESC')
-    .leftJoin('user', 'user.id', `${dbTableName}.user`)
-    .leftJoin('account_plugin', 'account_plugin.id', `${dbTableName}.account`)
-    .leftJoin('webgui_order', 'webgui_order.id', `${dbTableName}.orderType`)
-    .whereBetween(`${dbTableName}.usedTime`, [start, end]);
+  .where(where)
+  .orderBy(`${dbTableName}.usedTime`, 'DESC')
+  .leftJoin('user', 'user.id', `${dbTableName}.user`)
+  .leftJoin('account_plugin', 'account_plugin.id', `${dbTableName}.account`)
+  .leftJoin('webgui_order', 'webgui_order.id', `${dbTableName}.orderType`)
+  .whereBetween(`${dbTableName}.usedTime`, [start, end]);
 
   if (filter.length) {
     count = count.whereIn(`${dbTableName}.status`, filter);

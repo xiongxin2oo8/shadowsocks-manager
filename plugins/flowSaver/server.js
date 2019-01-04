@@ -53,6 +53,7 @@ const edit = async options => {
     })(serverInfo);
   }
   console.log(`ss=${id} ${check}`);
+  //立即同步
   if (check) {
     console.log(`ss2=${id} ${check}`);
     accountFlow.editServer(id);
