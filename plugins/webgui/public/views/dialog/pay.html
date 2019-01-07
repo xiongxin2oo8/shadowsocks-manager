@@ -45,6 +45,7 @@
                         ng-show="+publicInfo.orderId === +order.id" ng-repeat-end>有效期：{{ publicInfo.account.data.to |
                         date : 'yyyy-MM-dd HH:mm' }}</div>
                 </md-radio-group>
+                <div style="font-size:12px;margin: 20px 0 0 0;">注意：套餐过期时间小于5天才可以更换套餐。</div>
             </div>
             <div layout="column" layout-align="center center" ng-show="publicInfo.status === 'giftcard'">
                 <form>

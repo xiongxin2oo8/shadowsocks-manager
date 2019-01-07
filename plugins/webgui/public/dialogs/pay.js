@@ -2,7 +2,7 @@ const app = angular.module('app');
 const window = require('window');
 const cdn = window.cdn || '';
 
-app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$localStorage', 'configManager', ($mdDialog, $interval, $timeout, $http, $localStorage, configManager) => {
+app.factory('payDialog', ['$mdDialog', '$interval', '$timeout', '$http', '$localStorage', 'configManager', ($mdDialog, $interval, $timeout, $http, $localStorage, configManager) => {
   const publicInfo = {
     config: configManager.getConfig(),
     time: [{
@@ -20,14 +20,14 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
     }],
     payType: [],
   };
-  if(publicInfo.config.alipay) { publicInfo.payType.push({ type: 'alipay', name: '支付宝' }); }
-  if(publicInfo.config.paypal) { publicInfo.payType.push({ type: 'paypal', name: 'Paypal' }); }
-  if(publicInfo.config.giftcard) { publicInfo.payType.push({ type: 'giftcard', name: '充值码' }); }
+  if (publicInfo.config.alipay) { publicInfo.payType.push({ type: 'alipay', name: '支付宝' }); }
+  if (publicInfo.config.paypal) { publicInfo.payType.push({ type: 'paypal', name: 'Paypal' }); }
+  if (publicInfo.config.giftcard) { publicInfo.payType.push({ type: 'giftcard', name: '充值码' }); }
   publicInfo.myPayType = publicInfo.payType[0] ? publicInfo.payType[0].type : undefined;
   let dialogPromise = null;
   const createOrder = () => {
     publicInfo.status = 'loading';
-    if(publicInfo.config.alipay && publicInfo.myPayType === 'alipay') {
+    if (publicInfo.config.alipay && publicInfo.myPayType === 'alipay') {
       $http.post('/api/user/order/qrcode', {
         accountId: publicInfo.accountId,
         orderId: publicInfo.orderId,
@@ -41,7 +41,7 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
             orderId: publicInfo.myOrderId,
           }).then(success => {
             const orderStatus = success.data.status;
-            if(orderStatus === 'TRADE_SUCCESS' || orderStatus === 'FINISH') {
+            if (orderStatus === 'TRADE_SUCCESS' || orderStatus === 'FINISH') {
               publicInfo.status = 'success';
               publicInfo.message = '订单会在两分钟内生效，请稍候';
               interval && $interval.cancel(interval);
@@ -55,38 +55,38 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
       publicInfo.status = 'pay';
     }
     const env = publicInfo.config.paypalMode === 'sandbox' ? 'sandbox' : 'production';
-    if(publicInfo.myPayType === 'paypal') {
+    if (publicInfo.myPayType === 'paypal') {
       paypal.Button.render({
         locale: $localStorage.language ? $localStorage.language.replace('-', '_') : 'zh_CN',
         style: {
           label: 'checkout', // checkout | credit | pay
-          size:  'medium',   // small    | medium | responsive
+          size: 'medium',   // small    | medium | responsive
           shape: 'rect',     // pill     | rect
           color: 'blue'      // gold     | blue   | silver
         },
         env, // production or sandbox
         commit: true,
-        payment: function() {
+        payment: function () {
           var CREATE_URL = '/api/user/paypal/create';
           return paypal.request.post(CREATE_URL, {
             accountId: publicInfo.accountId,
             orderId: publicInfo.orderId,
           })
-          .then(function(res) {
-            return res.paymentID;
-          });
+            .then(function (res) {
+              return res.paymentID;
+            });
         },
-        onAuthorize: function(data, actions) {
+        onAuthorize: function (data, actions) {
           var EXECUTE_URL = '/api/user/paypal/execute/';
           var data = {
             paymentID: data.paymentID,
             payerID: data.payerID
           };
           return paypal.request.post(EXECUTE_URL, data)
-          .then(function (res) {
-            publicInfo.status = 'success';
-            publicInfo.message = '订单会在两分钟内生效，请稍候';
-          });
+            .then(function (res) {
+              publicInfo.status = 'success';
+              publicInfo.message = '订单会在两分钟内生效，请稍候';
+            });
         }
       }, '#paypal-button-container');
     }
@@ -99,21 +99,21 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
   publicInfo.createOrder = createOrder;
   publicInfo.close = close;
   const dialog = {
-    templateUrl: `${ cdn }/public/views/dialog/pay.html`,
+    templateUrl: `${cdn}/public/views/dialog/pay.html`,
     escapeToClose: false,
     locals: { bind: publicInfo },
     bindToController: true,
     fullscreen: false,
-    controller: ['$scope', '$mdDialog', '$mdMedia', 'bind', function($scope, $mdDialog, $mdMedia, bind) {
+    controller: ['$scope', '$mdDialog', '$mdMedia', 'bind', function ($scope, $mdDialog, $mdMedia, bind) {
       $scope.publicInfo = bind;
       $scope.setDialogWidth = () => {
-        if($mdMedia('xs') || $mdMedia('sm')) {
+        if ($mdMedia('xs') || $mdMedia('sm')) {
           return {};
         }
         return { 'min-width': '405px' };
       };
       $scope.getQrCodeSize = () => {
-        if($mdMedia('xs') || $mdMedia('sm')) {
+        if ($mdMedia('xs') || $mdMedia('sm')) {
           return 200;
         }
         return 250;
@@ -130,11 +130,11 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
     publicInfo.status = 'type';
     publicInfo.account = account;
     publicInfo.accountId = account ? account.id : null;
-    if(account) {
+    if (account) {
       publicInfo.orderId = account.orderId;
     }
     dialogPromise = $mdDialog.show(dialog);
-    if(publicInfo.payType.length === 1) {
+    if (publicInfo.payType.length === 1) {
       publicInfo.jumpToPayPage();
     }
     return dialogPromise;
@@ -144,12 +144,18 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
     $http.get('/api/user/order/price', {
       params: { accountId: publicInfo.accountId }
     }).then(success => {
+      publicInfo.day = (publicInfo.account.data.expire - Date.now()) / (1000 * 60 * 60 * 24);
       publicInfo.orders = success.data.sort((a, b) => {
-        if(a.baseId > 0 && b.baseId === 0) { return 1; }
-        if(a.baseId === 0 && b.baseId > 0) { return -1; }
+        if (a.baseId > 0 && b.baseId === 0) { return 1; }
+        if (a.baseId === 0 && b.baseId > 0) { return -1; }
         return a[publicInfo.myPayType] - b[publicInfo.myPayType];
       });
-      if(publicInfo.orderId) { publicInfo.setOrder(publicInfo.orderId); }
+      if (publicInfo.day > 5) {
+        publicInfo.orders = publicInfo.orders.filter((item, index) => {
+          return item.id == publicInfo.orderId;
+        })
+      }
+      if (publicInfo.orderId) { publicInfo.setOrder(publicInfo.orderId); }
       $timeout(() => {
         publicInfo.status = 'choose';
       }, 125);
@@ -169,7 +175,7 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
       const data = result.data;
       if (data.success) {
         publicInfo.status = 'success';
-        publicInfo.message = `充值码[ ${ publicInfo.giftCardPassword } ]使用成功`;
+        publicInfo.message = `充值码[ ${publicInfo.giftCardPassword} ]使用成功`;
         publicInfo.giftCardPassword = '';
       } else {
         publicInfo.status = 'error';
@@ -181,7 +187,7 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
     });
   };
   const jumpToPayPage = () => {
-    if(publicInfo.myPayType === 'giftcard') {
+    if (publicInfo.myPayType === 'giftcard') {
       giftCard();
     } else {
       chooseOrderType();
@@ -189,13 +195,13 @@ app.factory('payDialog' , [ '$mdDialog', '$interval', '$timeout', '$http', '$loc
   };
   const showComment = () => {
     publicInfo.comment = publicInfo.selectedOrder.comment;
-    if(!publicInfo.comment) {
+    if (!publicInfo.comment) {
       publicInfo.createOrder();
     } else {
       publicInfo.status = 'comment';
       publicInfo.time = 3;
       $interval(() => {
-        if(publicInfo.time >= 1) {
+        if (publicInfo.time >= 1) {
           publicInfo.time--;
         }
       }, 1000, 3);
