@@ -144,17 +144,11 @@ app.factory('payDialog', ['$mdDialog', '$interval', '$timeout', '$http', '$local
     $http.get('/api/user/order/price', {
       params: { accountId: publicInfo.accountId }
     }).then(success => {
-      publicInfo.day = (publicInfo.account.data.expire - Date.now()) / (1000 * 60 * 60 * 24);
       publicInfo.orders = success.data.sort((a, b) => {
         if (a.baseId > 0 && b.baseId === 0) { return 1; }
         if (a.baseId === 0 && b.baseId > 0) { return -1; }
         return a[publicInfo.myPayType] - b[publicInfo.myPayType];
       });
-      if (publicInfo.day > 5) {
-        publicInfo.orders = publicInfo.orders.filter((item, index) => {
-          return item.id == publicInfo.orderId;
-        })
-      }
       if (publicInfo.orderId) { publicInfo.setOrder(publicInfo.orderId); }
       $timeout(() => {
         publicInfo.status = 'choose';

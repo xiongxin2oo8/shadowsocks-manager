@@ -361,7 +361,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
       const config = configManager.getConfig();
       $scope.shadowrocket = subscribe => {
-        let base64 = urlsafeBase64(`${config.site}/api/user/account/subscribe/${subscribe}?type=shadowrocket&ip=0`);
+        let base64 = urlsafeBase64(`${config.site}/api/user/account/subscribe/${subscribe}?type=shadowrocket&ip=0&flow=1`);
         let remarks = base64Encode(config.site.split('//')[1] || config.site);//config.title
         let str = `shadowrocket://add/sub://${base64}?remarks=${remarks}`;
         return str;

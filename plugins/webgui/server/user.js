@@ -23,7 +23,7 @@ exports.getAccount = async (req, res) => {
   try {
     const userId = req.session.user;
     const accounts = await account.getAccount({ userId });
-    for(const account of accounts) {
+    for (const account of accounts) {
       account.data = JSON.parse(account.data);
       if (account.type >= 2 && account.type <= 5) {
         const time = {
@@ -44,8 +44,8 @@ exports.getAccount = async (req, res) => {
       account.server = account.server ? JSON.parse(account.server) : account.server;
       account.publicKey = '';
       account.privateKey = '';
-      if(account.key) {
-        if(account.key.includes(':')) {
+      if (account.key) {
+        if (account.key.includes(':')) {
           account.publicKey = account.key.split(':')[0];
           account.privateKey = account.key.split(':')[1];
         } else {
@@ -65,7 +65,7 @@ exports.getOneAccount = async (req, res) => {
     const userId = req.session.user;
     const accountId = +req.params.accountId;
     const accountInfo = account.getAccount({ id: accountId, userId }).then(s => s[0]);
-    if(!accountInfo) { return Promise.reject('account not found'); }
+    if (!accountInfo) { return Promise.reject('account not found'); }
     if (accountInfo.type >= 2 && accountInfo.type <= 5) {
       accountInfo.data = JSON.parse(accountInfo.data);
       const time = {
@@ -85,7 +85,7 @@ exports.getOneAccount = async (req, res) => {
       accountInfo.data.flowPack = await flowPack.getFlowPack(accountId, accountInfo.data.from, accountInfo.data.to);
     }
     res.send(accountInfo);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -95,7 +95,7 @@ exports.getServers = (req, res) => {
   const userId = req.session.user;
   const serverAliasFilter = servers => {
     return servers.map(server => {
-      if(server.host.indexOf(':') >= 0) {
+      if (server.host.indexOf(':') >= 0) {
         const hosts = server.host.split(':');
         const number = Math.ceil(Math.random() * (hosts.length - 1));
         server.host = hosts[number];
@@ -104,7 +104,7 @@ exports.getServers = (req, res) => {
     });
   };
   let servers;
-  knex('server').select(['id', 'type' ,'host', 'name', 'method', 'scale', 'comment', 'shift', 'key', 'net', 'wgPort']).orderBy('name')
+  knex('server').select(['id', 'type', 'host', 'name', 'method', 'scale', 'comment', 'shift', 'key', 'net', 'wgPort']).orderBy('name')
     .then(success => {
       servers = serverAliasFilter(success);
       return account.getAccount({
@@ -227,7 +227,7 @@ exports.createOrder = async (req, res) => {
 
     const alipayOrder = await alipay.createOrder(userId, accountId, orderId);
     return res.send(alipayOrder);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -257,7 +257,7 @@ exports.getPrice = async (req, res) => {
     let changeOrderTypeId = 0;
     let orderInfo;
     const isExpired = account => {
-      if(!account) { return true; }
+      if (!account) { return true; }
       const accountData = JSON.parse(account.data);
       const time = {
         '2': 7 * 24 * 3600000,
@@ -266,26 +266,27 @@ exports.getPrice = async (req, res) => {
         '5': 3600000,
       };
       const expire = accountData.create + time[account.type] * accountData.limit;
-      return expire <= Date.now();
+      //5天内到期才能更换套餐
+      return expire <= Date.now() + 5 * 24 * 60 * 60 * 1000;
     };
-    if(accountId) {
+    if (accountId) {
       orderInfo = await orderPlugin.getOneOrderByAccountId(accountId);
       accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
-      if(orderInfo && !orderInfo.changeOrderType) {
+      if (orderInfo && !orderInfo.changeOrderType) {
         changeOrderTypeId = orderInfo.id;
       }
     }
     const groupId = req.userInfo.group;
     let orders = await orderPlugin.getOrders();
     const groupSetting = await groupPlugin.getOneGroup(groupId);
-    if(groupSetting.order) {
+    if (groupSetting.order) {
       orders = orders.filter(f => {
         return JSON.parse(groupSetting.order).indexOf(f.id) >= 0;
       });
-      if(orderInfo) {
+      if (orderInfo) {
         orders = orders.filter(f => {
-          if(!f.baseId) { return true; }
-          if(f.baseId === orderInfo.id && !isExpired(accountInfo)) { return true; }
+          if (!f.baseId) { return true; }
+          if (f.baseId === orderInfo.id && !isExpired(accountInfo)) { return true; }
           return false;
         });
       } else {
@@ -293,13 +294,13 @@ exports.getPrice = async (req, res) => {
       }
     }
     let currentOrder = [];
-    if(changeOrderTypeId && !isExpired(accountInfo)) {
+    if (changeOrderTypeId && !isExpired(accountInfo)) {
       currentOrder = orders.filter(f => {
         return (f.id === changeOrderTypeId || f.baseId === changeOrderTypeId);
       });
     }
     return res.send(currentOrder.length ? currentOrder : orders);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -315,7 +316,7 @@ exports.getNotice = async (req, res) => {
       'user.id': userId,
     }).then(s => s[0]);
     const group = [groupInfo.id];
-    if(groupInfo.showNotice) { group.push(-1); }
+    if (groupInfo.showNotice) { group.push(-1); }
     const notices = await knex('notice').select().whereIn('group', group).orderBy('time', 'desc');
     return res.send(notices);
   } catch (err) {
@@ -356,7 +357,7 @@ exports.createPaypalOrder = async (req, res) => {
     const orderId = req.body.orderId;
     const paypalOrder = await paypal.createOrder(userId, accountId, orderId);
     return res.send(paypalOrder);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -428,7 +429,7 @@ exports.payByGiftCard = async (req, res) => {
       let changeOrderTypeId = 0;
       let orderInfo;
       const isExpired = account => {
-        if(!account) { return true; }
+        if (!account) { return true; }
         const accountData = JSON.parse(account.data);
         const time = {
           '2': 7 * 24 * 3600000,
@@ -439,24 +440,24 @@ exports.payByGiftCard = async (req, res) => {
         const expire = accountData.create + time[account.type] * accountData.limit;
         return expire <= Date.now();
       };
-      if(accountId) {
+      if (accountId) {
         orderInfo = await orderPlugin.getOneOrderByAccountId(accountId);
         accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
-        if(orderInfo && !orderInfo.changeOrderType) {
+        if (orderInfo && !orderInfo.changeOrderType) {
           changeOrderTypeId = orderInfo.id;
         }
       }
       const groupId = req.userInfo.group;
       let orders = await orderPlugin.getOrders();
       const groupSetting = await groupPlugin.getOneGroup(groupId);
-      if(groupSetting.order) {
+      if (groupSetting.order) {
         orders = orders.filter(f => {
           return JSON.parse(groupSetting.order).indexOf(f.id) >= 0;
         });
-        if(orderInfo) {
+        if (orderInfo) {
           orders = orders.filter(f => {
-            if(!f.baseId) { return true; }
-            if(f.baseId === orderInfo.id && !isExpired(accountInfo)) { return true; }
+            if (!f.baseId) { return true; }
+            if (f.baseId === orderInfo.id && !isExpired(accountInfo)) { return true; }
             return false;
           });
         } else {
@@ -464,7 +465,7 @@ exports.payByGiftCard = async (req, res) => {
         }
       }
       let currentOrder = [];
-      if(changeOrderTypeId && !isExpired(accountInfo)) {
+      if (changeOrderTypeId && !isExpired(accountInfo)) {
         currentOrder = orders.filter(f => {
           return (f.id === changeOrderTypeId || f.baseId === changeOrderTypeId);
         });
@@ -513,8 +514,8 @@ exports.payByGiftCard = async (req, res) => {
       // }
       // return false;
     };
-    
-    if(await checkGiftcardType()) {
+
+    if (await checkGiftcardType()) {
       return res.send({ success: false, message: '充值码类型错误' });
     };
     const result = await giftcard.processOrder(userId, accountId, password);
@@ -559,7 +560,7 @@ exports.getAccountSubscribe = async (req, res) => {
       id: accountId,
       userId,
     }).then(s => s[0]);
-    if(!account.subscribe) {
+    if (!account.subscribe) {
       const subscribeToken = crypto.randomBytes(16).toString('hex');;
       await await knex('account_plugin').update({
         subscribe: subscribeToken
@@ -570,7 +571,7 @@ exports.getAccountSubscribe = async (req, res) => {
       account.subscribe = subscribeToken;
     }
     res.send(account);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -587,7 +588,7 @@ exports.updateAccountSubscribe = async (req, res) => {
       id: accountId,
       userId,
     }).then(s => s[0]);
-    if(!account) { return Promise.reject('account not found'); }
+    if (!account) { return Promise.reject('account not found'); }
     const subscribeToken = crypto.randomBytes(16).toString('hex');;
     await await knex('account_plugin').update({
       subscribe: subscribeToken
@@ -597,7 +598,7 @@ exports.updateAccountSubscribe = async (req, res) => {
     });
     account.subscribe = subscribeToken;
     res.send(account);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -608,10 +609,10 @@ exports.activeAccount = async (req, res) => {
     const userId = req.session.user;
     const accountId = +req.params.accountId;
     const accountInfo = await account.getAccount({ id: accountId, userId }).then(s => s[0]);
-    if(!accountInfo) { return Promise.reject('account not found'); }
+    if (!accountInfo) { return Promise.reject('account not found'); }
     await account.activeAccount(accountInfo.id);
     res.send('success');
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -622,12 +623,12 @@ exports.getOrder = async (req, res) => {
     const userId = req.session.user;
     let orders = [];
 
-    if(config.plugins.alipay && config.plugins.alipay.use) {
+    if (config.plugins.alipay && config.plugins.alipay.use) {
       const alipayOrders = await alipayPlugin.getUserFinishOrder(userId);
       orders = [...orders, ...alipayOrders];
     }
 
-    if(config.plugins.paypal && config.plugins.paypal.use) {
+    if (config.plugins.paypal && config.plugins.paypal.use) {
       const paypalOrders = await paypal.getUserFinishOrder(userId);
       orders = [...orders, ...paypalOrders];
     }
@@ -635,7 +636,7 @@ exports.getOrder = async (req, res) => {
     const refOrders = await refOrder.getUserFinishOrder(userId);
     orders = [...orders, ...refOrders];
 
-    if(config.plugins.giftcard && config.plugins.giftcard.use) {
+    if (config.plugins.giftcard && config.plugins.giftcard.use) {
       const giftCardOrders = await giftcard.getUserFinishOrder(userId);
       orders = [...orders, ...giftCardOrders];
     }
@@ -644,7 +645,7 @@ exports.getOrder = async (req, res) => {
       return b.createTime - a.createTime;
     });
     res.send(orders);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -655,7 +656,7 @@ exports.getMacAccount = async (req, res) => {
     const userId = req.session.user;
     const accounts = await macAccountPlugin.getAccountByUserId(userId);
     res.send(accounts);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -667,7 +668,7 @@ exports.addMacAccount = async (req, res) => {
     const { mac } = req.body;
     await macAccountPlugin.userAddMacAccount(userId, mac);
     res.send('success');
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }

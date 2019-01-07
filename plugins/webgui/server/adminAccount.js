@@ -158,6 +158,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       type = 'ssd'
     }
     const resolveIp = req.query.ip;
+    const showFlow = req.query.flow || 0;
     const token = req.params.token;
     const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
     let subscribeAccount;
@@ -225,7 +226,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (accountInfo.type == 1) {
           const insert = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
           subscribeAccount.server.unshift(insert);
-        } else {
+        } else if (+showFlow) {
           let insertExpire = {
             method: 'chacha20',
             host: '127.0.0.1',
@@ -265,7 +266,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         }
         result = subscribeAccount.server.map(s => {
           if (type === 'shadowrocket') {
-            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') +  '#' + encodeURIComponent((s.comment || '这里显示备注'));
+            return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
           } else if (type === 'potatso') {
             return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
           } else if (type === 'ssr') {
