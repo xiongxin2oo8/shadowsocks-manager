@@ -35,13 +35,30 @@ const modifyAccountFlow = async (serverId, accountId, time) => {
   }).where({ serverId, accountId });
 };
 
+const portList = {};
+const updatePorts = async server => {
+  if (!portList[server.id] || Date.now() - portList[server.id].update >= 35 * 1000) {
+    const ports = (await manager.send({ command: 'list' }, {
+      host: server.host,
+      port: server.port,
+      password: server.password,
+    })).map(m => m.port);
+    portList[server.id] = {
+      ports,
+      update: Date.now(),
+    };
+  }
+  return portList[server.id].ports;
+};
+
 const isPortExists = async (server, account) => {
-  const ports = (await manager.send({ command: 'list' }, {
-    host: server.host,
-    port: server.port,
-    password: server.password,
-  })).map(m => m.port);
-  if (ports.indexOf(server.shift + account.port) >= 0) {
+  // const ports = (await manager.send({ command: 'list' }, {
+  //   host: server.host,
+  //   port: server.port,
+  //   password: server.password,
+  // })).map(m => m.port);
+  const ports = await updatePorts(server);
+  if (ports.includes(server.shift + account.port)) {
     return true;
   } else {
     return false;
@@ -192,7 +209,7 @@ const runCommand = async cmd => {
   const exec = require('child_process').exec;
   return new Promise((resolve, reject) => {
     exec(cmd, (err, stdout, stderr) => {
-      if(err) {
+      if (err) {
         return reject(stderr);
       } else {
         return resolve(stdout);
@@ -202,7 +219,7 @@ const runCommand = async cmd => {
 };
 const generateAccountKey = async account => {
   const privateKey = await runCommand('wg genkey');
-  const publicKey = await runCommand(`echo '${ privateKey.trim() }' | wg pubkey`);
+  const publicKey = await runCommand(`echo '${privateKey.trim()}' | wg pubkey`);
   await knex('account_plugin').update({
     key: publicKey.trim() + ':' + privateKey.trim(),
   }).where({ id: account.id });
@@ -210,12 +227,12 @@ const generateAccountKey = async account => {
 };
 const addPort = async (server, account) => {
   // console.log(`add ${ server.name } ${ account.port }`);
-  if(server.type === 'WireGuard') {
+  if (server.type === 'WireGuard') {
     let publicKey = account.key;
-    if(!publicKey) {
+    if (!publicKey) {
       publicKey = await generateAccountKey(account);
     }
-    if(publicKey.includes(':')) {
+    if (publicKey.includes(':')) {
       publicKey = publicKey.split(':')[0];
     }
     const portNumber = server.shift + account.port;
@@ -224,11 +241,11 @@ const addPort = async (server, account) => {
       port: portNumber,
       password: publicKey,
     }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    }).catch();
-    
+        host: server.host,
+        port: server.port,
+        password: server.password,
+      }).catch();
+
   } else {
     const portNumber = server.shift + account.port;
     await manager.send({
@@ -236,10 +253,10 @@ const addPort = async (server, account) => {
       port: portNumber,
       password: account.password,
     }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    }).catch();
+        host: server.host,
+        port: server.port,
+        password: server.password,
+      }).catch();
   }
 };
 const deleteExtraPorts = async serverInfo => {
@@ -260,7 +277,7 @@ const deleteExtraPorts = async serverInfo => {
       deletePort(serverInfo, { port: p.port - serverInfo.shift });
     }
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
 };
 
@@ -319,6 +336,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
       isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
     }
     console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId);
+    logger.error(err);
     //}
   }
 };
@@ -384,7 +402,7 @@ var ser_list = [];
       }
       if (time <= 300) { time += 10; }
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       const end = Date.now();
       if (end - start <= time * 1000) {
         await sleep(time * 1000 - (end - start));
@@ -454,7 +472,7 @@ cron.minute(() => {
       const datas = await knex('account_flow').select()
         .orderBy('updateTime', 'desc').where('checkTime', '<', Date.now() - 60000).limit(15);
       accounts = [...accounts, ...datas];
-    } catch (err) { console.log(err); }
+    } catch (err) { logger.error(err); }
     try {
       datas = await knex('account_flow').select()
         .orderByRaw('rand()').limit(5);
