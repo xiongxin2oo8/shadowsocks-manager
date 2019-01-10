@@ -1,6 +1,6 @@
 const app = angular.module('app');
 
-app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http', 'accountSortDialog','$timeout', 'adminApi', '$localStorage',
+app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http', 'accountSortDialog', '$timeout', 'adminApi', '$localStorage',
   ($scope, $state, $mdMedia, $http, accountSortDialog, $timeout, adminApi, $localStorage) => {
     $scope.setTitle('账号');
     $scope.setMenuRightButton('sort_by_alpha');
@@ -16,11 +16,11 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
           orderId: 0,
         },
       };
-    }    
+    }
     $scope.accountFilter = $localStorage.admin.accountFilterSettings;
     $scope.currentPage = 1;
     $scope.isUserLoading = false;
-    $scope.isUserPageFinish = false;    
+    $scope.isUserPageFinish = false;
     $scope.account = [];
     const getPageSize = () => {
       if ($mdMedia('xs')) { return 15; }
@@ -38,19 +38,19 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         filter: $scope.accountFilter.filter,
       }).then(success => {
         $scope.total = success.data.total;
-        if(!search && $scope.menuSearch.text) { return; }
-        if(search && search !== $scope.menuSearch.text) { return; }
+        if (!search && $scope.menuSearch.text) { return; }
+        if (search && search !== $scope.menuSearch.text) { return; }
         success.data.account.forEach(f => {
           $scope.account.push(f);
         });
-        if(success.data.maxPage > $scope.currentPage) {
+        if (success.data.maxPage > $scope.currentPage) {
           $scope.currentPage++;
         } else {
           $scope.isAccountPageFinish = true;
         }
         $scope.isAccountLoading = false;
       }).catch(() => {
-        if($state.current.name !== 'admin.account') { return; }
+        if ($state.current.name !== 'admin.account') { return; }
         $timeout(() => {
           $scope.getAccount(search);
         }, 5000);
@@ -58,8 +58,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };
     $scope.view = (inview) => {
       console.log('上拉加载');
-      if (!inview || $scope.isUserLoading || $scope.isAccountPageFinish) { return; }+
-      $scope.getAccount();
+      if (!inview || $scope.isUserLoading || $scope.isAccountPageFinish) { return; } +
+        $scope.getAccount();
     };
     const accountFilter = () => {
       $scope.account = [];
@@ -75,7 +75,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
 
     let timeoutPromise;
     $scope.$watch('menuSearch.text', () => {
-      if(!$scope.menuSearch.text) { return; }
+      if (!$scope.menuSearch.text) { return; }
       timeoutPromise && $timeout.cancel(timeoutPromise);
       timeoutPromise = $timeout(() => {
         accountFilter();
@@ -85,7 +85,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       $state.go('admin.addAccount');
     } : null);
     $scope.toAccount = account => {
-      if(account.mac) {
+      if (account.mac) {
         $state.go('admin.userPage', { userId: account.userId });
       } else {
         $state.go('admin.accountPage', { accountId: account.id });
@@ -103,15 +103,15 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       });
     });
     $scope.accountColor = account => {
-      if(account.type === 1) {
+      if (account.type === 1) {
         return {
           background: 'blue-50', 'border-color': 'blue-300',
         };
-      } else if(account.data && account.data.expire <= Date.now()) {
+      } else if (account.data && account.data.expire <= Date.now()) {
         return {
           background: 'red-50', 'border-color': 'red-300',
         };
-      } else if(account.autoRemove) {
+      } else if (account.autoRemove) {
         return {
           background: 'lime-50', 'border-color': 'lime-300',
         };
@@ -120,8 +120,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };
   }
 ])
-  .controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog',
-    ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog) => {
+  .controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog', 'banDialog',
+    ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog, banDialog) => {
       $scope.setTitle('账号');
       $scope.setMenuButton('arrow_back', 'admin.account');
       $scope.accountId = +$stateParams.accountId;
@@ -182,6 +182,10 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         })[0];
 
       };
+      //封禁该账号下所有服务器
+      $scope.banAccount = () => {
+        banDialog.show(0, $scope.accountId);
+      };
       $scope.setInterval($interval(() => {
         const serverId = currentServerId;
         adminApi.getServerPortData(serverId, $scope.accountId).then(success => {
@@ -220,7 +224,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         let str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment || '这里是备注'));
         return str;
       };
-      $scope.showQrcodeDialog =  (server, account) => {
+      $scope.showQrcodeDialog = (server, account) => {
         const ssAddress = $scope.createQrCode(server, account);
         const ssrAddress = $scope.SSRAddress(server, account);
         qrcodeDialog.show(server.name, ssAddress, ssrAddress);

@@ -708,23 +708,44 @@ const banAccount = async options => {
   const serverId = options.serverId;
   const accountId = options.accountId;
   const time = options.time;
-  await knex('account_flow').update({
-    status: 'ban',
-    nextCheckTime: Date.now(),
-    autobanTime: Date.now() + time,
-  }).where({
-    serverId, accountId,
-  });
+  //serverId=0 封禁所有服务器
+  if (serverId === 0) {
+    await knex('account_flow').update({
+      status: 'ban',
+      nextCheckTime: Date.now(),
+      autobanTime: Date.now() + time,
+    }).where({
+      accountId,
+    });
+  } else {
+    await knex('account_flow').update({
+      status: 'ban',
+      nextCheckTime: Date.now(),
+      autobanTime: Date.now() + time,
+    }).where({
+      serverId, accountId,
+    });
+  }
 };
 
 const getBanAccount = async options => {
   const serverId = options.serverId;
   const accountId = options.accountId;
-  const accountInfo = await knex('account_flow').select([
-    'autobanTime as banTime'
-  ]).where({
-    serverId, accountId, status: 'ban'
-  });
+  let accountInfo = [];
+  if (serverId === 0) {
+    //返回最小的一个
+    accountInfo = await knex('account_flow').select([
+      'autobanTime as banTime'
+    ]).where({
+      accountId, status: 'ban'
+    }).orderBy('autobanTime');
+  } else {
+    accountInfo = await knex('account_flow').select([
+      'autobanTime as banTime'
+    ]).where({
+      serverId, accountId, status: 'ban'
+    });
+  }
   if (!accountInfo.length) { return { banTime: 0 }; }
   return accountInfo[0];
 };
@@ -822,10 +843,10 @@ const getAccountAndPaging = async (opt) => {
   const filter = opt.filter;
 
   const where = {};
-  if(filter.orderId) {
+  if (filter.orderId) {
     where['account_plugin.orderId'] = +filter.orderId;
   }
-  
+
   let account = knex('account_plugin').select([
     'account_plugin.id',
     'account_plugin.type',
@@ -844,20 +865,20 @@ const getAccountAndPaging = async (opt) => {
     'user.id as userId',
     'user.email as user',
   ])
-  .leftJoin('user', 'user.id', 'account_plugin.userId')
-  .orderBy('account_plugin.port', 'ASC')
-  .where(where);
+    .leftJoin('user', 'user.id', 'account_plugin.userId')
+    .orderBy('account_plugin.port', 'ASC')
+    .where(where);
 
-  if(!filter.hasUser && filter.noUser) {
+  if (!filter.hasUser && filter.noUser) {
     account = await account.whereNotNull('user.id');
-  } else if(filter.hasUser && !filter.noUser) {
+  } else if (filter.hasUser && !filter.noUser) {
     account = await account.whereNull('user.id');
   } else {
     account = await account;
   }
 
   account.forEach(a => {
-    if(a.data) {
+    if (a.data) {
       a.data = JSON.parse(a.data);
       const time = {
         '2': 7 * 24 * 3600000,
@@ -868,11 +889,11 @@ const getAccountAndPaging = async (opt) => {
       a.data.expire = a.data.create + a.data.limit * time[a.type];
     }
   });
-  if(filter.mac) {
+  if (filter.mac) {
     const macAccounts = await macAccount.getAllAccount();
     account.splice(account.length, 0, ...macAccounts);
   }
-  if(search) {
+  if (search) {
     account = account.filter(f => {
       return (
         (f.user && f.user.includes(search)) ||
@@ -884,33 +905,33 @@ const getAccountAndPaging = async (opt) => {
   }
   account = account.filter(f => {
     let show = true;
-    if(!filter.unlimit && f.type === 1) {
+    if (!filter.unlimit && f.type === 1) {
       show = false;
     }
-    if(!filter.expired && f.data && f.data.expire >= Date.now()) {
+    if (!filter.expired && f.data && f.data.expire >= Date.now()) {
       show = false;
     }
-    if(!filter.unexpired && f.data && f.data.expire <= Date.now()) {
+    if (!filter.unexpired && f.data && f.data.expire <= Date.now()) {
       show = false;
     }
     return show;
   });
   account = account.sort((a, b) => {
-    if(a.mac && !b.mac) {
+    if (a.mac && !b.mac) {
       return 1;
-    } else if(!a.mac && b.mac) {
+    } else if (!a.mac && b.mac) {
       return -1;
-    } else if(sort === 'port_asc') {
+    } else if (sort === 'port_asc') {
       return a.port >= b.port ? 1 : -1;
     } else if (sort === 'port_desc') {
       return a.port <= b.port ? 1 : -1;
     } else if (sort === 'expire_desc') {
-      if(!a.data) { return -1; }
-      if(!b.data) { return 1; }
+      if (!a.data) { return -1; }
+      if (!b.data) { return 1; }
       return a.data.expire <= b.data.expire ? 1 : -1;
     } else if (sort === 'expire_asc') {
-      if(!a.data) { return 1; }
-      if(!b.data) { return -1; }
+      if (!a.data) { return 1; }
+      if (!b.data) { return -1; }
       return a.data.expire >= b.data.expire ? 1 : -1;
     }
   });
@@ -919,7 +940,7 @@ const getAccountAndPaging = async (opt) => {
   const start = pageSize * (page - 1);
   const end = start + pageSize;
   const result = account.slice(start, end);
-  
+
   const maxPage = Math.ceil(count / pageSize);
   return {
     total: count,

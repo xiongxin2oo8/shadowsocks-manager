@@ -8,6 +8,9 @@
                     </span>
                     <span class="md-subhead" ng-click="toUserPage(account.userId)">{{ account.user || account.password
                         || '...' }}</span>
+                    <md-button class="md-icon-button" data-id="id" ng-if="id === 1" style="position:absolute;right:16px;"  aria-label="ban" ng-click="banAccount()">
+                        <md-icon class="material-icons" style="color: #bbb">schedule</md-icon>
+                    </md-button>
                 </md-card-header-text>
             </md-card-header>
         </md-card>
