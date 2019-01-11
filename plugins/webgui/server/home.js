@@ -269,6 +269,7 @@ exports.status = async (req, res) => {
     let email;
     let subscribe;
     let multiAccount;
+    let hideFlow;
     if (status) {
       email = (await knex('user').select(['email']).where({ id }).then(s => s[0])).email;
       alipay = config.plugins.alipay && config.plugins.alipay.use;
@@ -276,6 +277,7 @@ exports.status = async (req, res) => {
       paypalMode = config.plugins.paypal && config.plugins.paypal.mode;
       telegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
       giftcard = config.plugins.giftcard && config.plugins.giftcard.use;
+      hideFlow = config.plugins.webgui.hideFlow;
       refCode = (await knex('webguiSetting').select().where({
         key: 'webgui_ref',
       }).then(success => {
@@ -313,6 +315,7 @@ exports.status = async (req, res) => {
       subscribe,
       multiAccount,
       title,
+      hideFlow,
     });
   } catch (err) {
     console.log(err);

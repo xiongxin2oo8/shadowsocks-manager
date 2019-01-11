@@ -2,7 +2,7 @@ const app = angular.module('app');
 const window = require('window');
 const cdn = window.cdn || '';
 
-app.factory('subscribeDialog', [ '$mdDialog', '$http', ($mdDialog, $http) => {
+app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
   const publicInfo = { linkType: 'shadowrocket', ip: '0', flow: '0' };
   const hide = () => {
     return $mdDialog.hide()
@@ -41,17 +41,18 @@ app.factory('subscribeDialog', [ '$mdDialog', '$http', ($mdDialog, $http) => {
         'shadowrocket', 'potatso', 'ssr', 'ssd', 'clash',
       ];
       const config = configManager.getConfig();
+      $scope.hideFlow = config.hideFlow;
       $scope.changeLinkType = () => {
-        $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${ $scope.publicInfo.flow}`;
+        $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
       };
       $scope.publicInfo.getSubscribe().then(success => {
         $scope.publicInfo.token = success.data.subscribe;
-        $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${ $scope.publicInfo.flow}`;
+        $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
       });
       $scope.publicInfo.updateLink = () => {
         $scope.publicInfo.updateSubscribe().then(success => {
           $scope.publicInfo.token = success.data.subscribe;
-          $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${ $scope.publicInfo.flow}`;
+          $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
         });
       };
       $scope.toast = () => {

@@ -6,6 +6,7 @@ const dns = require('dns');
 const net = require('net');
 const knex = appRequire('init/knex').knex;
 const moment = require('moment');
+const config = appRequire('services/config').all();
 
 const formatMacAddress = mac => mac.replace(/-/g, '').replace(/:/g, '').toLowerCase();
 
@@ -206,7 +207,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           encryption: 'chacha20',
           password: subscribeAccount.account.password,
           traffic_used: ((flowInfo[0] || 10) / 1000000000).toFixed(2),
-          traffic_total: accountInfo.type == 1 ? 10000 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
+          traffic_total: accountInfo.type == 1 || config.hideFlow ? 10000 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
           expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
         };
         let servers = subscribeAccount.server.map((s, index) => {
@@ -226,7 +227,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (accountInfo.type == 1) {
           const insert = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
           subscribeAccount.server.unshift(insert);
-        } else if (+showFlow) {
+        } else if (+showFlow && !config.hideFlow) {
           let insertExpire = {
             method: 'chacha20',
             host: '127.0.0.1',
