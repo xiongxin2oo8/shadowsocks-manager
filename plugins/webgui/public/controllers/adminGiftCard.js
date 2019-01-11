@@ -17,7 +17,7 @@ app.controller('AdminGiftCardController', ['$scope', '$http', 'addGiftCardBatchD
     });
     showBatch();
     $scope.batchColor = batch => {
-      if(batch.status === 'REVOKED') {
+      if (batch.status === 'REVOKED') {
         return {
           background: 'red-50', 'border-color': 'red-300',
         };
@@ -25,8 +25,8 @@ app.controller('AdminGiftCardController', ['$scope', '$http', 'addGiftCardBatchD
       return {};
     };
   }
-]).controller('AdminGiftCardBatchDetailsController', ['$scope', '$http', '$stateParams', 'confirmDialog', 'alertDialog',
-  ($scope, $http, $stateParams, confirmDialog, alertDialog) => {
+]).controller('AdminGiftCardBatchDetailsController', ['$scope', '$http', '$stateParams', 'confirmDialog', 'alertDialog', '$mdToast',
+  ($scope, $http, $stateParams, confirmDialog, alertDialog, $mdToast, ) => {
     const batchNumber = $stateParams.batchNumber;
     $scope.setTitle(`充值码[ ${batchNumber} ]`);
     $scope.setMenuButton('arrow_back', 'admin.listGiftCardBatch');
@@ -45,7 +45,17 @@ app.controller('AdminGiftCardController', ['$scope', '$http', 'addGiftCardBatchD
       alertDialog.show(`卡号：${id}，密码：${password}`, '确定');
     };
     showDetails();
-
+    $scope.copy = ($event) => {
+      $event.stopPropagation();
+    }
+    $scope.toast = () => {
+      $mdToast.show(
+        $mdToast.simple()
+          .textContent('充值码已复制到剪贴板')
+          .position('top right')
+          .hideDelay(3000)
+      );
+    };
     $scope.revoke = () => {
       confirmDialog.show({
         text: '确实要召回这些卡片吗？该操作不可撤销。',

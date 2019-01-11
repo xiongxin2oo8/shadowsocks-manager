@@ -168,7 +168,7 @@
                         <div style="text-align:center;color:#c3c3c3;font-size: 14px;">提示：
                             <span style='color:green;font-weight: 600'>推荐使用订阅</span>，
                             <span>否则请</span>
-                            <span style='color:red;'>点击二维码(不推荐)</span>
+                            <span style='color:red;'>点击二维码(极度不推荐)</span>
                             <br>不同地域，节点速度各不相同，每个节点都试试吧。
                         </div>
                     </div>
@@ -179,7 +179,8 @@
                         translate }}</md-button>
                     <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary" ng-show="config.alipay || config.paypal || config.giftcard"
                         ng-if="a.type >= 2 && a.type <= 5" ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
-                    <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary" ng-click="subscribe(a.id)" ng-if="config.subscribe">{{
+                    <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary" ng-click="subscribe(a.id)"
+                        ng-if="config.subscribe">{{
                         '订阅' | translate }}({{'推荐' | translate }})</md-button>
                     <md-button style="margin:6px 0;" class="md-primary" ng-if="config.subscribe">
                         <a class="md-primary" style="text-decoration:none;text-transform:capitalize;" href="{{shadowrocket(a.subscribe)}}">Shadowrocket({{'一键订阅'

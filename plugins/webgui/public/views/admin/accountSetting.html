@@ -11,7 +11,9 @@
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
                         <div flex="75" translate>新用户自动分配账号</div>
-                        <div flex layout="row" layout-align="end center"><md-switch ng-model="accountData.accountForNewUser.isEnable" aria-label="accountForNewUser"></md-switch></div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="accountData.accountForNewUser.isEnable" aria-label="accountForNewUser"></md-switch>
+                        </div>
                     </div>
                 </md-list-item>
             </md-list>
@@ -20,7 +22,9 @@
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
                         <div flex="75" translate>从订单中选择类型</div>
-                        <div flex layout="row" layout-align="end center"><md-switch ng-model="accountData.accountForNewUser.fromOrder" aria-label="accountForNewUser"></md-switch></div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="accountData.accountForNewUser.fromOrder" aria-label="accountForNewUser"></md-switch>
+                        </div>
                     </div>
                 </md-list-item>
             </md-list>
@@ -63,7 +67,9 @@
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
                         <div flex="75" translate>合并多服务器流量统计</div>
-                        <div flex layout="row" layout-align="end center"><md-switch ng-model="accountData.accountForNewUser.multiServerFlow" aria-label="multiServer"></md-switch></div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="accountData.accountForNewUser.multiServerFlow" aria-label="multiServer"></md-switch>
+                        </div>
                     </div>
                 </md-list-item>
             </md-list>
@@ -72,7 +78,9 @@
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
                         <div flex="75" translate>到期自动删除</div>
-                        <div flex layout="row" layout-align="end center"><md-switch ng-model="accountData.accountForNewUser.autoRemove" aria-label="autoremove"></md-switch></div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="accountData.accountForNewUser.autoRemove" aria-label="autoremove"></md-switch>
+                        </div>
                     </div>
                 </md-list-item>
             </md-list>
@@ -81,7 +89,9 @@
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
                         <div flex="75" translate>自定义新用户可用服务器</div>
-                        <div flex layout="row" layout-align="end center"><md-switch ng-model="setServerForNewUser" aria-label="serverForNewUser"></md-switch></div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="setServerForNewUser" aria-label="serverForNewUser"></md-switch>
+                        </div>
                     </div>
                 </md-list-item>
                 <md-list-item ng-show="setServerForNewUser">
@@ -112,16 +122,18 @@
                     </div>
                 </md-list-item>
             </md-list>
-            <md-divider ></md-divider>
+            <md-divider></md-divider>
             <md-list>
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
                         <div flex="75" translate>随机分配端口号</div>
-                        <div flex layout="row" layout-align="end center"><md-switch ng-model="accountData.port.random" aria-label="isRandomPort"></md-switch></div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="accountData.port.random" aria-label="isRandomPort"></md-switch>
+                        </div>
                     </div>
                 </md-list-item>
             </md-list>
-            <md-divider ></md-divider>
+            <md-divider></md-divider>
             <md-list>
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
@@ -150,7 +162,9 @@
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
                         <div flex="75" translate>开放注册</div>
-                        <div flex layout="row" layout-align="end center"><md-switch ng-model="accountData.signUp.isEnable" aria-label="signUp"></md-switch></div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="accountData.signUp.isEnable" aria-label="signUp"></md-switch>
+                        </div>
                     </div>
                 </md-list-item>
             </md-list>
@@ -159,7 +173,9 @@
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row" layout-align="space-between center">
                         <div flex="75" translate>开启订阅功能</div>
-                        <div flex layout="row" layout-align="end center"><md-switch ng-model="accountData.subscribe" aria-label="subscribe"></md-switch></div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="accountData.subscribe" aria-label="subscribe"></md-switch>
+                        </div>
                     </div>
                 </md-list-item>
             </md-list>

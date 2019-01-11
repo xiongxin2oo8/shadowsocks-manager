@@ -35,7 +35,7 @@
                     </div>
                     <div flex="20" flex-xs="40" style="text-align: right;">
                         <span style="font-size: 0.9em; color: #555" ng-if="card.usedTime != null && card.usedTime !== NaN">{{ card.usedTime | timeago }}<br></span>
-                        <span style="font-size: 0.9em; color: #000">
+                        <span style="font-size: 0.9em; color: #000" ng-click="copy($event)" ngclipboard data-clipboard-text="{{ card.password}}" ngclipboard-success="toast(e);" >
                             卡号 {{ card.id }}
                         </span>
                     </div>
