@@ -1,18 +1,22 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('account');
+const cluster = require('cluster');
+const process = require('process');
+const redis = appRequire('init/redis').redis;
 const knex = appRequire('init/knex').knex;
 const flow = appRequire('plugins/flowSaver/flow');
 const manager = appRequire('services/manager');
 const config = appRequire('services/config').all();
+const cron = appRequire('init/cron');
+const emailPlugin = appRequire('plugins/email/index');
+const moment = require('moment');
+
 let acConfig = {};
 if (config.plugins.account_checker && config.plugins.account_checker.use) {
   acConfig = config.plugins.account_checker;
 }
 const sleepTime = 150;
 const accountFlow = appRequire('plugins/account/accountFlow');
-const cron = appRequire('init/cron');
-const emailPlugin = appRequire('plugins/email/index');
-const moment = require('moment');
 
 //记录错误次数
 var error_count = [];
@@ -346,6 +350,7 @@ var ser_list = [];
   if (acConfig.isNotMaster) { return; }
   let time = 67;
   while (true) {
+    if (!isMainWorker()) { await sleep(30000); continue; }
     const start = Date.now();
     try {
       await sleep(sleepTime);
@@ -438,13 +443,20 @@ cron.minute(() => {
       })
     });
 
-    logger.info('check account');
-    const start = Date.now();
-    let accounts = [];
     let server_not = [];
     error_count.map((v, i) => {
       if (v > 9) server_not.push(i);
     })
+
+    logger.info('check account');
+    await sleep(randomInt(2000));
+    const start = Date.now();
+    let accounts = [];
+    const redis = appRequire('init/redis').redis;
+    const keys = await redis.keys('CheckAccount:*');
+    const ids = keys.length === 0 ? [] : (await redis.mget(keys)).map(m => JSON.parse(m)).reduce((a, b) => {
+      return b ? [...a, ...b] : a;
+    }, []);
 
     console.log('不检查服务器：', server_not);
     try {
@@ -460,6 +472,7 @@ cron.minute(() => {
         .whereNotNull('checkTime')
         .where('nextCheckTime', '<', Date.now())
         .whereNotIn('serverId', server_not)
+        .whereNotIn('id', ids)
         .orderBy('nextCheckTime', 'asc')
         .limit(acConfig.limit || 600)
         .offset(acConfig.offset || 0);;
@@ -467,19 +480,28 @@ cron.minute(() => {
       accounts = [...accounts, ...datas];
       if (datas.length < 30) {
         accounts = [...accounts, ...(await knex('account_flow').select()
+          .whereNotIn('id', ids)
+          .whereNotIn('id', accounts.map(account => account.id))
+          .whereNotIn('serverId', server_not)
           .where('nextCheckTime', '>', Date.now())
           .orderBy('nextCheckTime', 'asc').limit(30 - datas.length))];
       }
     } catch (err) { console.log('line-448', err); }
     try {
       const datas = await knex('account_flow').select()
-      .orderBy('updateTime', 'desc').where('checkTime', '<', Date.now() - 60000)
-      .limit(acConfig.updateTimeLimit || 15)
-      .offset(acConfig.updateTimeOffset || 0);
+        .whereNotIn('id', ids)
+        .whereNotIn('id', accounts.map(account => account.id))
+        .whereNotIn('serverId', server_not)
+        .orderBy('updateTime', 'desc').where('checkTime', '<', Date.now() - 60000)
+        .limit(acConfig.updateTimeLimit || 15)
+        .offset(acConfig.updateTimeOffset || 0);
       accounts = [...accounts, ...datas];
     } catch (err) { logger.error(err); }
     try {
       datas = await knex('account_flow').select()
+        .whereNotIn('id', ids)
+        .whereNotIn('id', accounts.map(account => account.id))
+        .whereNotIn('serverId', server_not)
         .orderByRaw('rand()').limit(5);
       accounts = [...accounts, ...datas];
     } catch (err) { }
@@ -512,6 +534,7 @@ cron.minute(() => {
         }));
       }
       if (accounts.length) {
+        await redis.set(`CheckAccount:${ process.uptime() }:${ cluster.worker.id }`, JSON.stringify(accounts.map(account => account.id)), 'EX', 45);
         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
         if (accounts.length < 30) {
           await sleep((30 - accounts.length) * 1000);

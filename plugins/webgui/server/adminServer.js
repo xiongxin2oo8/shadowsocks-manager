@@ -54,7 +54,7 @@ exports.addServer = async (req, res) => {
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
     const result = await req.getValidationResult();
-    if (!result.isEmpty()) { return Promise.reject('Invalid Body'); }
+    if(!result.isEmpty()) { return Promise.reject(result.array()); }
     const type = req.body.type;
     const isWG = type === 'WireGuard';
     const name = req.body.name;

@@ -207,7 +207,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           encryption: 'chacha20',
           password: subscribeAccount.account.password,
           traffic_used: ((flowInfo[0] || 10) / 1000000000).toFixed(2),
-          traffic_total: accountInfo.type == 1 || config.plugins.webgui.hideFlow ? 10000 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
+          traffic_total: accountInfo.type == 1 || config.plugins.webgui.hideFlow ? 1000 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
           expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
         };
         let servers = subscribeAccount.server.map((s, index) => {

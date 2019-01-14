@@ -40,6 +40,7 @@ const generateFlow = async (type) => {
       time = recent.time + interval;
     }
     if (Date.now() - time < interval) {
+      console.log(Date.now() - time, time, interval);
       return;
     }
     let sum = await knex('saveFlow')
