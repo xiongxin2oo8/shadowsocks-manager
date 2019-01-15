@@ -4,10 +4,10 @@ const cluster = require('cluster');
 const process = require('process');
 const redis = appRequire('init/redis').redis;
 const knex = appRequire('init/knex').knex;
+const cron = appRequire('init/cron');
 const flow = appRequire('plugins/flowSaver/flow');
 const manager = appRequire('services/manager');
 const config = appRequire('services/config').all();
-const cron = appRequire('init/cron');
 const emailPlugin = appRequire('plugins/email/index');
 const moment = require('moment');
 
@@ -346,11 +346,9 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
 };
 
 var ser_list = [];
-(async () => {
-  if (acConfig.isNotMaster) { return; }
-  let time = 67;
-  while (true) {
-    if (!isMainWorker()) { await sleep(30000); continue; }
+let time = 67;
+cron.loop(
+  async () => {
     const start = Date.now();
     try {
       await sleep(sleepTime);
@@ -398,10 +396,7 @@ var ser_list = [];
         await accountFlow.add(id);
       }
       console.log('结束：', new Date())
-      // for (let account of accounts) {
-      //   await sleep(sleepTime);
-      //   await accountFlow.add(account.id);
-      // }
+
       const end = Date.now();
       if (end - start <= time * 1000) {
         await sleep(time * 1000 - (end - start));
@@ -414,13 +409,15 @@ var ser_list = [];
         await sleep(time * 1000 - (end - start));
       }
     }
-  }
-})();
+  },
+  'AccountCheckerDeleteExtraPorts',
+  360,
+);
 
 cron.minute(() => {
   logger.info('重置错误次数');
   error_count = [];
-}, 10);
+},'reset_error', 10);
 
 (async () => {
   while (true) {
@@ -534,7 +531,7 @@ cron.minute(() => {
         }));
       }
       if (accounts.length) {
-        await redis.set(`CheckAccount:${ process.uptime() }:${ cluster.worker.id }`, JSON.stringify(accounts.map(account => account.id)), 'EX', 45);
+        await redis.set(`CheckAccount:${process.uptime()}:${cluster.worker.id}`, JSON.stringify(accounts.map(account => account.id)), 'EX', 45);
         logger.info(`check ${accounts.length} accounts, ${Date.now() - start} ms, begin at ${start}`);
         if (accounts.length < 30) {
           await sleep((30 - accounts.length) * 1000);
@@ -607,4 +604,4 @@ const remind = async () => {
 cron.cron(() => {
   logger.info('每天10点执行');
   remind();
-}, '2 10 * * *');
+}, 'Remind', '2 10 * * *', 24 * 3600);

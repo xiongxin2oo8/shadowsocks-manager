@@ -182,7 +182,7 @@ const checkPort = async () => {
 checkPort();
 cron.minute(() => {
   checkPort();
-}, 1);
+}, 'FreeAccountCheckPort', 1);
 
 const path = require('path');
 const express = require('express');
