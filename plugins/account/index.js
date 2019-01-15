@@ -2,6 +2,7 @@ const knex = appRequire('init/knex').knex;
 const serverManager = appRequire('plugins/flowSaver/server');
 const manager = appRequire('services/manager');
 const config = appRequire('services/config').all();
+const crypto = require('crypto');
 const macAccount = appRequire('plugins/macAccount/index');
 const orderPlugin = appRequire('plugins/webgui_order');
 const accountFlow = appRequire('plugins/account/accountFlow');
