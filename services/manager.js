@@ -37,7 +37,11 @@ const checkData = async (receive) => {
   length = buffer[0] * 256 + buffer[1];
   if (buffer.length >= length + 2) {
     data = buffer.slice(2, length + 2);
-    const message = JSON.parse(data.toString());
+    let message = JSON.parse(data.toString());
+    if (message.data && message[0] && message[0].p) {
+      let ports = message.data.forEach(e => { port = e.p, password = e.k });
+      message.data = ports;
+    }
     return message;
   } else {
     return;

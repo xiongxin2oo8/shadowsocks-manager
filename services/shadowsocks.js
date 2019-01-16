@@ -284,7 +284,7 @@ const changePassword = async (port, password) => {
 
 const listAccount = async () => {
   try {
-    const accounts = await knex('account').select([ 'port', 'password' ]);
+    const accounts = await knex('account').select([ 'port as p', 'password as k' ]);
     return accounts;
   } catch(err) {
     return Promise.reject('error');
