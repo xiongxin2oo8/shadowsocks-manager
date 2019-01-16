@@ -1,6 +1,5 @@
 const log4js = require('log4js');
 const logger = log4js.getLogger('system');
-//appRequire('init/checkip');
 const dns = require('dns');
 const net = require('net');
 const crypto = require('crypto');
@@ -38,8 +37,11 @@ const checkData = async (receive) => {
   if (buffer.length >= length + 2) {
     data = buffer.slice(2, length + 2);
     let message = JSON.parse(data.toString());
-    if (message.data && message[0] && message[0].p) {
-      let ports = message.data.forEach(e => { port = e.p, password = e.k });
+    if (message.data && message.data[0] && message.data[0].p) {
+      let ports = [];
+      for (let item of message.data) {
+        ports.push({ port: item.p, password: item.k })
+      }
       message.data = ports;
     }
     return message;
