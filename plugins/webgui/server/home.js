@@ -494,7 +494,7 @@ exports.wallpaper = async (req, res) => {
   let rand = Math.floor(Math.random() * 10);
   let url = `http://cn.bing.com/HPImageArchive.aspx?format=js&idx=${rand}&n=1`
   let imgurl = await request({ url, timeout: 10 * 1000 }).then(success => {
-    return 'https://cn.bing.com/' + JSON.parse(success).images[0].url;
+    return 'https://cn.bing.com/' + JSON.parse(success).images[0].url;//可以修改分辨率  .replace('1920x1080', '1366x768') 1280x720
   })
   res.redirect(302, imgurl);
 }

@@ -449,7 +449,6 @@ cron.minute(() => {
     await sleep(randomInt(2000));
     const start = Date.now();
     let accounts = [];
-    const redis = appRequire('init/redis').redis;
     const keys = await redis.keys('CheckAccount:*');
     const ids = keys.length === 0 ? [] : (await redis.mget(keys)).map(m => JSON.parse(m)).reduce((a, b) => {
       return b ? [...a, ...b] : a;
