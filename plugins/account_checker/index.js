@@ -364,43 +364,57 @@ cron.loop(
         await deleteExtraPorts(server);
       }
       await sleep(sleepTime);
-      console.log('开始：', new Date())
-      const data_account_flow = await knex('account_flow').select();
-      const data_account_plugin = await knex('account_plugin').select();
-      console.log('数量1', data_account_flow.length, data_account_plugin.length);
-      var acc_ser = [];
-      for (let i = 0; i < data_account_plugin.length; i++) {
-        let item = data_account_plugin[i];
-        let server = [];
-        if (item.server) {
-          server = JSON.parse(item.server).map(s => {
-            return `${item.id},${s}`;
-          })
-        }
-        acc_ser = acc_ser.concat(server)
-      }
-      console.log('数量2', acc_ser.length);
-      for (let i = 0; i < data_account_flow.length; i++) {
-        let item = data_account_flow[i];
-        let index = acc_ser.indexOf(`${item.accountId},${item.serverId}`)
-        if (index != -1)
-          acc_ser.splice(index, 1)
-      }
-      console.log('数量3', acc_ser.length);
-      let ids = [];
-      for (let i = 0; i < acc_ser.length; i++) {
-        let id = acc_ser[i].split(',')[0]
-        if (ids.indexOf(id) < 0) {
-          ids.push(id);
-        }
-      }
 
-      console.log('数量4', ids.length, ids.length > 0 ? ids[0] : 0);
-      for (let id of ids) {
+      const accounts = await knex('account_plugin').select([
+        'account_plugin.id as id'
+      ]).crossJoin('server')
+      .leftJoin('account_flow', function () {
+        this
+        .on('account_flow.serverId', 'server.id')
+        .on('account_flow.accountId', 'account_plugin.id');
+      }).whereNull('account_flow.id');
+      for(const account of accounts) {
         await sleep(sleepTime);
-        await accountFlow.add(id);
+        await accountFlow.add(account.id);
       }
-      console.log('结束：', new Date())
+            
+      // console.log('开始：', new Date())
+      // const data_account_flow = await knex('account_flow').select();
+      // const data_account_plugin = await knex('account_plugin').select();
+      // console.log('数量1', data_account_flow.length, data_account_plugin.length);
+      // var acc_ser = [];
+      // for (let i = 0; i < data_account_plugin.length; i++) {
+      //   let item = data_account_plugin[i];
+      //   let server = [];
+      //   if (item.server) {
+      //     server = JSON.parse(item.server).map(s => {
+      //       return `${item.id},${s}`;
+      //     })
+      //   }
+      //   acc_ser = acc_ser.concat(server)
+      // }
+      // console.log('数量2', acc_ser.length);
+      // for (let i = 0; i < data_account_flow.length; i++) {
+      //   let item = data_account_flow[i];
+      //   let index = acc_ser.indexOf(`${item.accountId},${item.serverId}`)
+      //   if (index != -1)
+      //     acc_ser.splice(index, 1)
+      // }
+      // console.log('数量3', acc_ser.length);
+      // let ids = [];
+      // for (let i = 0; i < acc_ser.length; i++) {
+      //   let id = acc_ser[i].split(',')[0]
+      //   if (ids.indexOf(id) < 0) {
+      //     ids.push(id);
+      //   }
+      // }
+
+      // console.log('数量4', ids.length, ids.length > 0 ? ids[0] : 0);
+      // for (let id of ids) {
+      //   await sleep(sleepTime);
+      //   await accountFlow.add(id);
+      // }
+      // console.log('结束：', new Date())
 
       const end = Date.now();
       if (end - start <= time * 1000) {

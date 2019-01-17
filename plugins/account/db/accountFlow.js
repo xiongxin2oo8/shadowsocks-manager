@@ -1,18 +1,22 @@
 const knex = appRequire('init/knex').knex;
 const tableName = 'account_flow';
 
-const createTable = async() => {
+const createTable = async () => {
   const exist = await knex.schema.hasTable(tableName);
-  if(exist) {
+  if (exist) {
     const hasCheckFlowTime = await knex.schema.hasColumn(tableName, 'checkFlowTime');
-    if(!hasCheckFlowTime) {
-      await knex.schema.table(tableName, function(table) {
+    if (!hasCheckFlowTime) {
+      await knex.schema.table(tableName, function (table) {
         table.bigInteger('checkFlowTime').defaultTo(Date.now());
       });
     }
+    await knex.schema.alterTable(tableName, function (table) {
+      //添加索引
+      table.index(['accountId', 'serverId']);
+    })
     return;
   }
-  return knex.schema.createTable(tableName, function(table) {
+  return knex.schema.createTable(tableName, function (table) {
     table.increments('id');
     table.integer('serverId');
     table.integer('accountId');
@@ -23,6 +27,8 @@ const createTable = async() => {
     table.bigInteger('autobanTime');
     table.bigInteger('flow').defaultTo(0);
     table.string('status').defaultTo('checked');
+    //添加索引
+    table.index(['accountId', 'serverId']);
   });
 };
 
