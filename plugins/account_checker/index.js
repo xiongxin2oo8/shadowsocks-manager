@@ -32,10 +32,10 @@ const randomInt = max => {
   return Math.ceil(Math.random() * max % max);
 };
 
-const modifyAccountFlow = async (serverId, accountId, time) => {
+const modifyAccountFlow = async (serverId, accountId, nextCheckTime) => {
   await knex('account_flow').update({
     checkTime: Date.now(),
-    nextCheckTime: Date.now() + time,
+    nextCheckTime,
   }).where({ serverId, accountId });
 };
 
@@ -77,6 +77,7 @@ const hasServer = (server, account) => {
   if (!account.server) { return true; }
   const serverList = JSON.parse(account.server);
   if (serverList.indexOf(server.id) >= 0) { return true; }
+  modifyAccountFlow(server.id, account.id, Date.now() + 24 * 3600 * 100);
   return false;
 };
 
@@ -90,19 +91,23 @@ const isExpired = (server, account) => {
     const data = JSON.parse(account.data);
     const expireTime = data.create + data.limit * timePeriod;
     account.expireTime = expireTime;
+    let nextCheckTime = data.create;
+    while(nextCheckTime <= Date.now()) {
+      nextCheckTime += timePeriod;
+    }
     if (expireTime <= Date.now() || data.create >= Date.now()) {
-      const nextCheckTime = 10 * 60 * 1000 + randomInt(300000);
       if (account.active && account.autoRemove && expireTime + account.autoRemoveDelay < Date.now()) {
-        modifyAccountFlow(server.id, account.id, nextCheckTime > account.autoRemoveDelay ? account.autoRemoveDelay : nextCheckTime);
         knex('account_plugin').delete().where({ id: account.id }).then();
-      } else {
-        modifyAccountFlow(server.id, account.id, nextCheckTime);
+      } else if(account.active && account.autoRemove && expireTime + account.autoRemoveDelay >= Date.now()) {
+        modifyAccountFlow(server.id, account.id, expireTime + account.autoRemoveDelay);
       }
       return true;
     } else {
+      modifyAccountFlow(server.id, account.id, nextCheckTime);
       return false;
     }
   } else {
+    modifyAccountFlow(server.id, account.id, Date.now() + 24 * 3600 * 100);
     return false;
   }
 };
@@ -130,7 +135,8 @@ const isOverFlow = async (server, account) => {
       await knex('account_flow').update({
         flow,
         checkTime: Date.now(),
-        nextCheckTime: Date.now() + Math.ceil(time),
+        // nextCheckTime: Date.now() + Math.ceil(time),
+        checkFlowTime: Date.now(),
       }).where({ id: exists.id });
     }
   };
@@ -306,7 +312,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
 
     // 检查账号是否包含该服务器
     if (!hasServer(serverInfo, accountInfo)) {
-      await modifyAccountFlow(serverInfo.id, accountInfo.id, 60 * 60 * 1000 + randomInt(30 * 60 * 1000));
+      // await modifyAccountFlow(serverInfo.id, accountInfo.id, 20 * 60 * 1000 + randomInt(30000));
       exists && deletePort(serverInfo, accountInfo);
       return;
     }
@@ -357,7 +363,6 @@ cron.loop(
         await sleep(1000);
         await deleteExtraPorts(server);
       }
-      //await sendOptions(del_list);
       await sleep(sleepTime);
       console.log('开始：', new Date())
       const data_account_flow = await knex('account_flow').select();
@@ -470,26 +475,20 @@ cron.minute(() => {
         .whereNotIn('serverId', server_not)
         .whereNotIn('id', ids)
         .orderBy('nextCheckTime', 'asc')
-        .limit(acConfig.limit || 600)
+        .limit(acConfig.limit || 400)
         .offset(acConfig.offset || 0);;
       console.log(`服务器端口数: ${datas.length}`);
       accounts = [...accounts, ...datas];
-      if (datas.length < 30) {
-        accounts = [...accounts, ...(await knex('account_flow').select()
-          .whereNotIn('id', ids)
-          .whereNotIn('id', accounts.map(account => account.id))
-          .whereNotIn('serverId', server_not)
-          .where('nextCheckTime', '>', Date.now())
-          .orderBy('nextCheckTime', 'asc').limit(30 - datas.length))];
-      }
     } catch (err) { console.log('line-448', err); }
     try {
       const datas = await knex('account_flow').select()
         .whereNotIn('id', ids)
         .whereNotIn('id', accounts.map(account => account.id))
         .whereNotIn('serverId', server_not)
-        .orderBy('updateTime', 'desc').where('checkTime', '<', Date.now() - 60000)
-        .limit(acConfig.updateTimeLimit || 15)
+        .where('updateTime', '>', Date.now() - 8 * 60 * 1000)
+        .where('checkFlowTime', '<', Date.now() - 10 * 60 * 1000)
+        .orderBy('updateTime', 'desc')
+        .limit(acConfig.updateTimeLimit || 400)
         .offset(acConfig.updateTimeOffset || 0);
       accounts = [...accounts, ...datas];
     } catch (err) { logger.error(err); }
@@ -498,12 +497,14 @@ cron.minute(() => {
         .whereNotIn('id', ids)
         .whereNotIn('id', accounts.map(account => account.id))
         .whereNotIn('serverId', server_not)
-        .orderByRaw('rand()').limit(5);
+        .orderByRaw('rand()').limit(accounts.length < 30 ? 35 - accounts.length : 5);
       accounts = [...accounts, ...datas];
     } catch (err) { }
     try {
       datas = await knex('account_flow').select()
-        .orderByRaw('random()').limit(5);
+      .whereNotIn('id', ids)
+      .whereNotIn('id', accounts.map(account => account.id))
+      .orderByRaw('random()').limit(accounts.length < 30 ? 35 - accounts.length : 5);
       accounts = [...accounts, ...datas];
     } catch (err) { }
 
