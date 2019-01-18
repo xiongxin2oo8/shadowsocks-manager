@@ -159,7 +159,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       $scope.setTitle('服务器');
       $scope.setMenuButton('arrow_back', 'admin.server');
       const serverId = $stateParams.serverId;
-      if(!$localStorage.admin.serverPortFilter) {
+      if (!$localStorage.admin.serverPortFilter) {
         $localStorage.admin.serverPortFilter = {
           value: 'all',
         };
@@ -371,11 +371,11 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       $scope.matchPort = (account, searchStr) => {
         let filter = true;
         let search = true;
-        if($scope.accountFilter.value === 'all') {
+        if ($scope.accountFilter.value === 'all') {
           filter = true;
-        } else if($scope.accountFilter.value === 'white') {
+        } else if ($scope.accountFilter.value === 'white') {
           filter = account.exists;
-        } else if($scope.accountFilter.value === 'red') {
+        } else if ($scope.accountFilter.value === 'red') {
           filter = !account.exists;
         } else {
           filter = $scope.onlineAccount.includes(account.id);
@@ -406,6 +406,20 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
 
       //   }, 500);
       // });
+      let serverIds = [ serverId ];
+      $http.get('/api/admin/server').then(success => {
+        serverIds = success.data.map(s => s.id);
+      });
+      $scope.nextServer = () => {
+        const currentIndex = serverIds.indexOf(+serverId);
+        const nextServerId = serverIds[(currentIndex + 1) % serverIds.length];
+        $state.go('admin.serverPage', { serverId: nextServerId });
+      };
+      $scope.prevServer = () => {
+        const currentIndex = serverIds.indexOf(+serverId);
+        const prevServerId = serverIds[(currentIndex - 1 + serverIds.length) % serverIds.length];
+        $state.go('admin.serverPage', { serverId: prevServerId });
+      };
     }
   ])
   .controller('AdminAddServerController', ['$scope', '$state', '$stateParams', '$http', 'alertDialog', '$filter',
