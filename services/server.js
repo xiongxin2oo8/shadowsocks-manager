@@ -58,36 +58,13 @@ const receiveCommand = async (data, code) => {
       return shadowsocks.getVersion();
     } else if (message.command === 'ip') {
       return shadowsocks.getClientIp(message.port);
-    } else if (message.command === 'batch_options') {
-
-      const start = new Date();
-      var list = message.list || [];
+    } else if (message.command === 'portstatus') {
       let ports = (await shadowsocks.listAccount()).map(a => a.port);
-      list.forEach((item, index) => {
-        if (item.command === 'add') {
-          const port = +item.port;
-          const password = item.password;
-          if (ports.indexOf(item.port) == -1) {
-            console.log('添加端口：', port, password);
-            shadowsocks.addAccount(port, password);
-          } else {
-            console.log('端口已存在：', port, password);
-          }
-        } else if (item.command === 'del') {
-          const port = +item.port;
-          if (ports.indexOf(item.port) > -1) {
-            console.log('删除端口：', port);
-            shadowsocks.removeAccount(port);
-          } else {
-            console.log('端口不存在：', port);
-          }
-        }
-      })
-      let count = list.length;
-      let result = { count }
-      console.log(`请求结束，用时：${new Date() - start}ms`, result);
-      //return shadowsocks.getVersion();
-      return result;
+      if (ports.indexOf(item.port) == -1) {
+        return { 's': 0 }
+      } else {
+        return { 's': 1 }
+      }
     } else {
       return Promise.reject('invalid command');
     }
@@ -110,9 +87,9 @@ const checkData = (receive) => {
   let length = 0;
   let data;
   let code;
-  if(buffer.length < 2) { return; }
+  if (buffer.length < 2) { return; }
   length = buffer[0] * 256 + buffer[1];
-  if(buffer.length >= length + 2) {
+  if (buffer.length >= length + 2) {
     data = buffer.slice(2, length - 2);
     code = buffer.slice(length - 2);
     // receive.data = buffer.slice(length + 2, buffer.length);
@@ -128,7 +105,7 @@ const checkData = (receive) => {
     }).catch(err => {
       logger.error(err);
       let code = -1;
-      if(err === 'invalid command') { code = 1; }
+      if (err === 'invalid command') { code = 1; }
       receive.socket.end(pack({ code }));
       // receive.socket.close();
     });
@@ -166,5 +143,5 @@ server.listen({
   port,
   host,
 }, () => {
-  logger.info(`server listen on ${ host }:${ port }`);
+  logger.info(`server listen on ${host}:${port}`);
 });

@@ -70,6 +70,7 @@ const sendMessage = (data, options) => {
       data: Buffer.from(''),
       socket: client,
     };
+    let s=data;
     client.on('data', data => {
       receiveData(receive, data).then(message => {
         if (!message) {
