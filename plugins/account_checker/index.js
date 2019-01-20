@@ -139,6 +139,14 @@ const isOverFlow = async (server, account) => {
       }).where({ id: exists.id });
     }
   };
+  const writeFlowForOtherServer = async (serverId, accountId, flow) => {
+    await knex('account_flow').update({
+      flow,
+      checkFlowTime: Date.now(),
+    }).where({
+      serverId
+    }).whereNotIn('accountId', [ accountId ]);
+  };
   if (account.type >= 2 && account.type <= 5) {
     let timePeriod = 0;
     if (account.type === 2) { timePeriod = 7 * 86400 * 1000; }
