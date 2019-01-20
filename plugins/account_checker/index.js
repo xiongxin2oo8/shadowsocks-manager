@@ -454,7 +454,7 @@ cron.minute(() => {
 }, 'reset_error', 10);
 
 (async () => {
-  const serverNumber = await knex('server').select(['id']).then(s => s.length);
+  const serverNumber = 0;//await knex('server').select(['id']).then(s => s.length);
   const accountNumber = await knex('account_plugin').select(['id']).then(s => s.length);
 
   var servers = [];
