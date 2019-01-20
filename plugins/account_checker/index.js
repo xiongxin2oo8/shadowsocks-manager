@@ -448,6 +448,26 @@ cron.minute(() => {
 (async () => {
   const serverNumber = await knex('server').select(['id']).then(s => s.length);
   const accountNumber = await knex('account_plugin').select(['id']).then(s => s.length);
+
+  var servers = [];
+  await knex('server').then(res => {
+    res.map(s => {
+      servers[s.id] = s;
+      ser_list[s.id] = {
+        host: s.host,
+        port: s.port,
+        password: s.password
+      };
+    })
+  });
+
+  var account_plugin = [];
+  await knex('account_plugin').then(res => {
+    res.forEach((item, index) => {
+      account_plugin[item.id] = item;
+    })
+  });
+
   if (serverNumber * accountNumber > 300) {
     while (true) {
       const accountLeft = await redis.lpop('CheckAccountQueue');
@@ -494,34 +514,15 @@ cron.minute(() => {
       if (accountLeft) {
         const serverId = +accountLeft.split(':')[0];
         const accountId = +accountLeft.split(':')[1];
-        await checkAccount(serverId, accountId).catch();
+        await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
       }
       if (accountRight) {
         const serverId = +accountRight.split(':')[0];
         const accountId = +accountRight.split(':')[1];
-        await checkAccount(serverId, accountId).catch();
+        await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
       }
     }
   } else {
-    var servers = [];
-    await knex('server').then(res => {
-      res.map(s => {
-        servers[s.id] = s;
-        ser_list[s.id] = {
-          host: s.host,
-          port: s.port,
-          password: s.password
-        };
-      })
-    });
-
-    var account_plugin = [];
-    await knex('account_plugin').then(res => {
-      res.forEach((item, index) => {
-        account_plugin[item.id] = item;
-      })
-    });
-
     let server_not = [];
     error_count.map((v, i) => {
       if (v > 9) server_not.push(i);
