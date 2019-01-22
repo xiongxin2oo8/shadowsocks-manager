@@ -361,7 +361,7 @@ const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
 };
 
 var ser_list = [];
-let time = 67;
+let time = 120;
 cron.loop(
   async () => {
     const start = Date.now();
@@ -375,61 +375,23 @@ cron.loop(
       await sleep(sleepTime);
 
       const accounts = await knex('account_plugin').select([
-        'account_plugin.id as id'
-      ]).crossJoin('server')
-        .leftJoin('account_flow', function () {
-          this
-            .on('account_flow.serverId', 'server.id')
-            .on('account_flow.accountId', 'account_plugin.id');
-        }).whereNull('account_flow.id');
+        'account_plugin.id as id',
+      ])
+        .count('account_flow.serverId as count')
+        .leftOuterJoin('account_flow', 'account_flow.accountId', 'account_plugin.id')
+        .groupBy('account_plugin.id')
+        .having('count', '<', servers.length);
+
       for (const account of accounts) {
         await sleep(sleepTime);
         await accountFlow.add(account.id);
       }
 
-      // console.log('开始：', new Date())
-      // const data_account_flow = await knex('account_flow').select();
-      // const data_account_plugin = await knex('account_plugin').select();
-      // console.log('数量1', data_account_flow.length, data_account_plugin.length);
-      // var acc_ser = [];
-      // for (let i = 0; i < data_account_plugin.length; i++) {
-      //   let item = data_account_plugin[i];
-      //   let server = [];
-      //   if (item.server) {
-      //     server = JSON.parse(item.server).map(s => {
-      //       return `${item.id},${s}`;
-      //     })
-      //   }
-      //   acc_ser = acc_ser.concat(server)
-      // }
-      // console.log('数量2', acc_ser.length);
-      // for (let i = 0; i < data_account_flow.length; i++) {
-      //   let item = data_account_flow[i];
-      //   let index = acc_ser.indexOf(`${item.accountId},${item.serverId}`)
-      //   if (index != -1)
-      //     acc_ser.splice(index, 1)
-      // }
-      // console.log('数量3', acc_ser.length);
-      // let ids = [];
-      // for (let i = 0; i < acc_ser.length; i++) {
-      //   let id = acc_ser[i].split(',')[0]
-      //   if (ids.indexOf(id) < 0) {
-      //     ids.push(id);
-      //   }
-      // }
-
-      // console.log('数量4', ids.length, ids.length > 0 ? ids[0] : 0);
-      // for (let id of ids) {
-      //   await sleep(sleepTime);
-      //   await accountFlow.add(id);
-      // }
-      // console.log('结束：', new Date())
-
       const end = Date.now();
       if (end - start <= time * 1000) {
         await sleep(time * 1000 - (end - start));
       }
-      if (time <= 300) { time += 10; }
+      if (time <= 600) { time += 10; }
     } catch (err) {
       logger.error(err);
       const end = Date.now();
@@ -454,9 +416,107 @@ cron.minute(() => {
 }, 'reset_error', 10);
 
 (async () => {
-  // const serverNumber = await knex('server').select(['id']).then(s => s.length);
-  // const accountNumber = await knex('account_plugin').select(['id']).then(s => s.length);
-  while (true) {
+  const serverNumber = await knex('server').select(['id']).then(s => s.length);
+  const accountNumber = await knex('account_plugin').select(['id']).then(s => s.length);
+
+  if (serverNumber * accountNumber > 300) {
+    while (true) {
+      //服务器
+      var servers = [];
+      await knex('server').then(res => {
+        res.map(s => {
+          servers[s.id] = s;
+        })
+      });
+      //账号
+      var account_plugin = [];
+      await knex('account_plugin').then(res => {
+        res.forEach((item, index) => {
+          account_plugin[item.id] = item;
+        })
+      });
+      //不检查的服务器
+      let server_not = [];
+      error_count.map((v, i) => {
+        if (v > 9) server_not.push(i);
+      })
+      console.log('不检查服务器：', server_not);
+      //第一个
+      const accountLeft = await redis.lpop('CheckAccountQueue');
+      //最后一个
+      const accountRight = await redis.rpop('CheckAccountQueue');
+      //总数
+      const queueLength = await redis.llen('CheckAccountQueue');
+      if (!accountLeft || queueLength < 10) {
+        let accounts = [];
+        //优先检查新账号数
+        try {
+          const datas = await knex('account_flow').select()
+            .whereNull('checkTime')
+            .whereNotIn('serverId', server_not);
+          console.log(`新账号数: ${datas.length}`);
+          accounts = [...accounts, ...datas];
+        } catch (err) { console.log('line-434', err); }
+        try {
+          const datas = await knex('account_flow').select()
+            .whereNotNull('checkTime')
+            .where('nextCheckTime', '<', Date.now())
+            .whereNotIn('serverId', server_not)
+            .orderBy('nextCheckTime', 'asc')
+            .limit(50)
+            .offset(0);
+          accounts = [...accounts, ...datas];
+        } catch (err) {
+          logger.error(err);
+        }
+        try {
+          const datas = await knex('account_flow').select()
+            .where('updateTime', '>', Date.now() - 8 * 60 * 1000)
+            .where('checkFlowTime', '<', Date.now() - 10 * 60 * 1000)
+            .whereNotIn('serverId', server_not)
+            .whereNotIn('id', accounts.map(account => account.id))
+            .orderBy('updateTime', 'desc')
+            .limit(50)
+            .offset(0);
+          accounts = [...accounts, ...datas];
+        } catch (err) { logger.error(err); }
+        try {
+          datas = await knex('account_flow').select()
+            .whereNotIn('serverId', server_not)
+            .whereNotIn('id', accounts.map(account => account.id))
+            .orderByRaw('rand()').limit(accounts.length < 30 ? 35 - accounts.length : 5);
+          accounts = [...accounts, ...datas];
+        } catch (err) { }
+        try {
+          datas = await knex('account_flow').select()
+            .whereNotIn('serverId', server_not)
+            .whereNotIn('id', accounts.map(account => account.id))
+            .orderByRaw('random()').limit(accounts.length < 30 ? 35 - accounts.length : 5);
+          accounts = [...accounts, ...datas];
+        } catch (err) { }
+        logger.info(`Add [${accounts.length}] elements to queue`);
+        await redis.lpush('CheckAccountQueue', accounts.map(m => `${m.serverId}:${m.accountId}`));
+        console.log(`需要检查账号数:${accounts.length},暂停5秒`);
+        await sleep(5000);
+      }
+      error_count[account.serverId] = error_count[account.serverId] || 0;
+      if (accountLeft) {
+        const serverId = +accountLeft.split(':')[0];
+        const accountId = +accountLeft.split(':')[1];
+        //如果请求同一个服务器10次出错，10分钟内不再请求这个服务器
+        if (error_count[serverId] < 10) {
+          await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
+        }
+      }
+      if (accountRight) {
+        const serverId = +accountRight.split(':')[0];
+        const accountId = +accountRight.split(':')[1];
+        if (error_count[serverId] < 10) {
+          await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
+        }
+      }
+    }
+  } else {
     var servers = [];
     await knex('server').then(res => {
       res.map(s => {
@@ -475,62 +535,6 @@ cron.minute(() => {
         account_plugin[item.id] = item;
       })
     });
-
-    // if (serverNumber * accountNumber > 300) {
-    //   while (true) {
-    //     const accountLeft = await redis.lpop('CheckAccountQueue');
-    //     const accountRight = await redis.rpop('CheckAccountQueue');
-    //     const queueLength = await redis.llen('CheckAccountQueue');
-    //     if (!accountLeft || queueLength < 10) {
-    //       let accounts = [];
-    //       try {
-    //         const datas = await knex('account_flow').select()
-    //           .where('nextCheckTime', '<', Date.now())
-    //           .orderBy('nextCheckTime', 'desc')
-    //           .limit(50)
-    //           .offset(0);
-    //         accounts = [...accounts, ...datas];
-    //       } catch (err) {
-    //         logger.error(err);
-    //       }
-    //       try {
-    //         const datas = await knex('account_flow').select()
-    //           .where('updateTime', '>', Date.now() - 8 * 60 * 1000)
-    //           .where('checkFlowTime', '<', Date.now() - 10 * 60 * 1000)
-    //           .whereNotIn('id', accounts.map(account => account.id))
-    //           .orderBy('updateTime', 'desc')
-    //           .limit(50)
-    //           .offset(0);
-    //         accounts = [...accounts, ...datas];
-    //       } catch (err) { logger.error(err); }
-    //       try {
-    //         datas = await knex('account_flow').select()
-    //           .whereNotIn('id', accounts.map(account => account.id))
-    //           .orderByRaw('rand()').limit(accounts.length < 30 ? 35 - accounts.length : 5);
-    //         accounts = [...accounts, ...datas];
-    //       } catch (err) { }
-    //       try {
-    //         datas = await knex('account_flow').select()
-    //           .whereNotIn('id', accounts.map(account => account.id))
-    //           .orderByRaw('random()').limit(accounts.length < 30 ? 35 - accounts.length : 5);
-    //         accounts = [...accounts, ...datas];
-    //       } catch (err) { }
-    //       logger.info(`Add [${accounts.length}] elements to queue`);
-    //       await redis.lpush('CheckAccountQueue', accounts.map(m => `${m.serverId}:${m.accountId}`));
-    //       await sleep(5000);
-    //     }
-    //     if (accountLeft) {
-    //       const serverId = +accountLeft.split(':')[0];
-    //       const accountId = +accountLeft.split(':')[1];
-    //       await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
-    //     }
-    //     if (accountRight) {
-    //       const serverId = +accountRight.split(':')[0];
-    //       const accountId = +accountRight.split(':')[1];
-    //       await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
-    //     }
-    //   }
-    // } else {
     let server_not = [];
     error_count.map((v, i) => {
       if (v > 9) server_not.push(i);

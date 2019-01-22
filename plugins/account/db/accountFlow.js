@@ -10,10 +10,10 @@ const createTable = async () => {
         table.bigInteger('checkFlowTime').defaultTo(Date.now());
       });
     }
-    await knex.schema.alterTable(tableName, function (table) {
-      //添加索引
-      table.index(['accountId', 'serverId']);
-    })
+    // await knex.schema.alterTable(tableName, function (table) {
+    //   //添加索引
+    //   table.index(['accountId', 'serverId']);
+    // })
     return;
   }
   return knex.schema.createTable(tableName, function (table) {
@@ -27,8 +27,8 @@ const createTable = async () => {
     table.bigInteger('autobanTime');
     table.bigInteger('flow').defaultTo(0);
     table.string('status').defaultTo('checked');
-    //添加索引
-    table.index(['accountId', 'serverId']);
+    // //添加索引
+    // table.index(['accountId', 'serverId']);
   });
 };
 
