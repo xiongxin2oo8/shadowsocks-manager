@@ -17,7 +17,7 @@ const menu = [
     message: 'What do you want?',
     choices: ['Delete port', 'Change password', 'Back'],
     when: function (answers) {
-      if(answers.port === 'Back') {
+      if (answers.port === 'Back') {
         return Promise.resolve();
       } else {
         return answers;
@@ -31,7 +31,7 @@ const password = {
   name: 'password',
   message: 'Enter password:',
   validate: function (value) {
-    if(value === '') {
+    if (value === '') {
       return 'You can not set an empty password.';
     } else {
       return true;
@@ -42,13 +42,25 @@ const password = {
 const listPort = async () => {
   try {
     console.log('cli/menu/listPort');
+    // const result = await manager.send({
+    //   command: 'list',
+    // }, index.getManagerAddress());
+    // menu[0].choices = [];
+    // result.forEach(f => {
+    //   const name = (f.port + '     ').substr(0, 5) + ', ' + f.password;
+    //   const value = f.port;
+    //   menu[0].choices.push({
+    //     name,
+    //     value,
+    //   });
+    // });
     const result = await manager.send({
-      command: 'list',
+      command: 'portlist',
     }, index.getManagerAddress());
     menu[0].choices = [];
-    result.forEach(f => {
-      const name = (f.port + '     ').substr(0, 5) + ', ' + f.password;
-      const value = f.port;
+    result.forEach(p => {
+      const name = (p + '     ').substr(0, 5);
+      const value = p;
       menu[0].choices.push({
         name,
         value,
@@ -58,7 +70,7 @@ const listPort = async () => {
       name: 'Back', value: 'Back'
     });
     return;
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     return Promise.reject(err);
   }
@@ -68,7 +80,7 @@ const list = async () => {
   try {
     await listPort();
     const selectPort = await inquirer.prompt(menu);
-    if(selectPort.act === 'Delete port') {
+    if (selectPort.act === 'Delete port') {
       await manager.send({
         command: 'del',
         port: selectPort.port,
@@ -85,7 +97,7 @@ const list = async () => {
     } else if (selectPort.act === 'Back') {
       return;
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     return Promise.reject(err);
   }

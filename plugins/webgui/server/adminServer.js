@@ -24,7 +24,7 @@ exports.getOneServer = (req, res) => {
       result = success[0];
       if (noPort) { return; }
       return manager.send({
-        command: 'list',
+        command: 'portlist',
       }, {
           host: success[0].host,
           port: success[0].port,

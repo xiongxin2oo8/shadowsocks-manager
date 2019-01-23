@@ -58,13 +58,13 @@ const receiveCommand = async (data, code) => {
       return shadowsocks.getVersion();
     } else if (message.command === 'ip') {
       return shadowsocks.getClientIp(message.port);
-    } else if (message.command === 'portstatus') {
+    } else if (message.command === 'portlist') {//端口列表，只返回端口,不包含密码
       let ports = (await shadowsocks.listAccount()).map(a => a.port);
-      if (ports.indexOf(item.port) == -1) {
-        return { 's': 0 }
-      } else {
-        return { 's': 1 }
-      }
+      return ports;
+    } else if (message.command === 'getport') {//获得一个端口的信息
+      const port = +message.port;
+      let account = await shadowsocks.getAccount(port);
+      return account;
     } else {
       return Promise.reject('invalid command');
     }

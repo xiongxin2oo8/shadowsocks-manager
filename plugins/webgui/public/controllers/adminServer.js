@@ -171,9 +171,14 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server = success.data;
           $scope.currentPorts = {};
           $scope.server.ports.forEach(f => {
-            $scope.currentPorts[f.port] = {
-              port: f.port,
-              password: f.password,
+            // $scope.currentPorts[f.port] = {
+            //   port: f.port,
+            //   password: f.password,
+            //   exists: true,
+            // };
+            $scope.currentPorts[f] = {
+              port: f,
+              password: '',
               exists: true,
             };
           });
@@ -510,7 +515,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         'camellia-128-cfb',
         'aes-256-gcm',
         'aes-192-gcm',
-        'aes-128-gcm',        
+        'aes-128-gcm',
         'rc4-md5',
         'bf-cfb',
         'salsa20',

@@ -7,7 +7,7 @@ const logger = log4js.getLogger('telegram');
 
 const list = (message) => {
   manager.send({
-    command: 'list'
+    command: 'portlist'
   }, managerAddress.get()).then(ports => {
     let str = '';
     if(ports.length === 0) {

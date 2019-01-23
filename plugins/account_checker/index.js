@@ -41,11 +41,16 @@ const modifyAccountFlow = async (serverId, accountId, nextCheckTime) => {
 const portList = {};
 const updatePorts = async server => {
   if (!portList[server.id] || Date.now() - portList[server.id].update >= 35 * 1000) {
-    const ports = (await manager.send({ command: 'list' }, {
+    // const ports = (await manager.send({ command: 'list' }, {
+    //   host: server.host,
+    //   port: server.port,
+    //   password: server.password,
+    // })).map(m => m.port);
+    const ports = (await manager.send({ command: 'portlist' }, {
       host: server.host,
       port: server.port,
       password: server.password,
-    })).map(m => m.port);
+    }));
     portList[server.id] = {
       ports,
       update: Date.now(),
@@ -55,11 +60,6 @@ const updatePorts = async server => {
 };
 
 const isPortExists = async (server, account) => {
-  // const ports = (await manager.send({ command: 'list' }, {
-  //   host: server.host,
-  //   port: server.port,
-  //   password: server.password,
-  // })).map(m => m.port);
   const ports = await updatePorts(server);
   if (ports.includes(server.shift + account.port)) {
     return true;
@@ -196,11 +196,6 @@ const isOverFlow = async (server, account) => {
     const flowWithFlowPacks = flowPacks.reduce((a, b) => {
       return { flow: a.flow + b.flow };
     }, { flow: data.flow }).flow;
-
-    // let nextCheckTime = (flowWithFlowPacks - sumFlow) / 60000000 * 60 * 1000 / server.scale;
-    // if(nextCheckTime >= account.expireTime - Date.now() && account.expireTime - Date.now() > 0) { nextCheckTime = account.expireTime - Date.now(); }
-    // if(nextCheckTime <= 0) { nextCheckTime = 600 * 1000; }
-    // if(nextCheckTime >= 12 * 60 * 60 * 1000) { nextCheckTime = 12 * 60 * 60 * 1000; }
     await writeFlow(server.id, account.id, realFlow);
     if (account.multiServerFlow && sumFlow < flowWithFlowPacks) {
       await writeFlowForOtherServer(server.id, account.id, realFlow);
@@ -279,7 +274,22 @@ const addPort = async (server, account) => {
 };
 const deleteExtraPorts = async serverInfo => {
   try {
-    const currentPorts = await manager.send({ command: 'list' }, {
+    // const currentPorts = await manager.send({ command: 'list' }, {
+    //   host: serverInfo.host,
+    //   port: serverInfo.port,
+    //   password: serverInfo.password,
+    // });
+    // const accounts = await knex('account_plugin').where({});
+    // const accountObj = {};
+    // accounts.forEach(account => {
+    //   accountObj[account.port] = account;
+    // });
+    // for (const p of currentPorts) {
+    //   if (accountObj[p.port - serverInfo.shift]) { continue; }
+    //   await sleep(sleepTime);
+    //   deletePort(serverInfo, { port: p.port - serverInfo.shift });
+    // }
+    const currentPorts = await manager.send({ command: 'portlist' }, {
       host: serverInfo.host,
       port: serverInfo.port,
       password: serverInfo.password,
@@ -290,9 +300,9 @@ const deleteExtraPorts = async serverInfo => {
       accountObj[account.port] = account;
     });
     for (const p of currentPorts) {
-      if (accountObj[p.port - serverInfo.shift]) { continue; }
+      if (accountObj[p - serverInfo.shift]) { continue; }
       await sleep(sleepTime);
-      deletePort(serverInfo, { port: p.port - serverInfo.shift });
+      deletePort(serverInfo, { port: p - serverInfo.shift });
     }
   } catch (err) {
     logger.error(err);
@@ -460,7 +470,7 @@ cron.minute(() => {
             .where('nextCheckTime', '<', Date.now())
             .whereNotIn('serverId', server_not)
             .orderBy('nextCheckTime', 'asc')
-            .limit(50)
+            .limit(200)
             .offset(0);
           accounts = [...accounts, ...datas];
         } catch (err) {
@@ -564,8 +574,8 @@ cron.minute(() => {
           .whereNotIn('serverId', server_not)
           .whereNotIn('id', ids)
           .orderBy('nextCheckTime', 'asc')
-          .limit(acConfig.limit || 400)
-          .offset(acConfig.offset || 0);;
+          .limit(400)
+          .offset(0);;
         console.log(`服务器端口数: ${datas.length}`);
         accounts = [...accounts, ...datas];
       } catch (err) { console.log('line-448', err); }
@@ -577,8 +587,8 @@ cron.minute(() => {
           .where('updateTime', '>', Date.now() - 8 * 60 * 1000)
           .where('checkFlowTime', '<', Date.now() - 10 * 60 * 1000)
           .orderBy('updateTime', 'desc')
-          .limit(acConfig.updateTimeLimit || 400)
-          .offset(acConfig.updateTimeOffset || 0);
+          .limit(400)
+          .offset(0);
         accounts = [...accounts, ...datas];
       } catch (err) { logger.error(err); }
       try {
