@@ -42,30 +42,30 @@ const password = {
 const listPort = async () => {
   try {
     console.log('cli/menu/listPort');
-    // const result = await manager.send({
-    //   command: 'list',
-    // }, index.getManagerAddress());
-    // menu[0].choices = [];
-    // result.forEach(f => {
-    //   const name = (f.port + '     ').substr(0, 5) + ', ' + f.password;
-    //   const value = f.port;
-    //   menu[0].choices.push({
-    //     name,
-    //     value,
-    //   });
-    // });
     const result = await manager.send({
-      command: 'portlist',
+      command: 'list',
     }, index.getManagerAddress());
     menu[0].choices = [];
-    result.forEach(p => {
-      const name = (p + '     ').substr(0, 5);
-      const value = p;
+    result.forEach(f => {
+      const name = (f.port + '     ').substr(0, 5) + ', ' + f.password;
+      const value = f.port;
       menu[0].choices.push({
         name,
         value,
       });
     });
+    // const result = await manager.send({
+    //   command: 'portlist',
+    // }, index.getManagerAddress());
+    // menu[0].choices = [];
+    // result.forEach(p => {
+    //   const name = (p + '     ').substr(0, 5);
+    //   const value = p;
+    //   menu[0].choices.push({
+    //     name,
+    //     value,
+    //   });
+    // });
     menu[0].choices.push({
       name: 'Back', value: 'Back'
     });

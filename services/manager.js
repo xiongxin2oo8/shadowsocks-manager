@@ -51,7 +51,8 @@ const checkData = async (receive) => {
 };
 
 const sendMessage = (data, options) => {
-  //console.log('data', data, options)
+  console.log('data', data, options)
+  let data1=data;
   if (options && options.host) {
     options.host = options.host.split(':')[0];
   }
@@ -78,6 +79,7 @@ const sendMessage = (data, options) => {
         } else if (message.code === 0) {
           resolve(message.data);
         } else {
+          console.log(data1)
           reject(new Error(`ssmgr[s] return an error code [${options.host || host}:${options.port || port}]`));
           logger.error('line-75', data, message);
         }
