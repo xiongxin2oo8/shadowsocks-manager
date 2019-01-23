@@ -51,8 +51,7 @@ const checkData = async (receive) => {
 };
 
 const sendMessage = (data, options) => {
-  console.log('data', data, options)
-  let data1=data;
+  //console.log('data', data, options)
   if (options && options.host) {
     options.host = options.host.split(':')[0];
   }
@@ -71,10 +70,8 @@ const sendMessage = (data, options) => {
       data: Buffer.from(''),
       socket: client,
     };
-    let s=data;
     client.on('data', data => {
       receiveData(receive, data).then(message => {
-        console.log(data1,message);
         if (!message) {
           // reject(new Error(`empty message from ssmgr[s] [${ options.host || host }:${ options.port || port }]`));
         } else if (message.code === 0) {

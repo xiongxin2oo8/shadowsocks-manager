@@ -51,7 +51,6 @@ const updatePorts = async server => {
       port: server.port,
       password: server.password,
     }));
-    console.log('index.port',ports);
     portList[server.id] = {
       ports,
       update: Date.now(),
@@ -471,7 +470,7 @@ cron.minute(() => {
             .where('nextCheckTime', '<', Date.now())
             .whereNotIn('serverId', server_not)
             .orderBy('nextCheckTime', 'asc')
-            .limit(200)
+            .limit(400)
             .offset(0);
           accounts = [...accounts, ...datas];
         } catch (err) {
