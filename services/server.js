@@ -59,7 +59,7 @@ const receiveCommand = async (data, code) => {
     } else if (message.command === 'ip') {
       return shadowsocks.getClientIp(message.port);
     } else if (message.command === 'portlist') {//端口列表，只返回端口,不包含密码
-      let ports = (await shadowsocks.listAccount()).map(a => a.port);
+      let ports = (await shadowsocks.listAccount()).map(a => a.p);
       return ports;
     } else if (message.command === 'getport') {//获得一个端口的信息
       const port = +message.port;

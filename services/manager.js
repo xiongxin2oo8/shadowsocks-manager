@@ -74,12 +74,12 @@ const sendMessage = (data, options) => {
     let s=data;
     client.on('data', data => {
       receiveData(receive, data).then(message => {
+        console.log(data1,message);
         if (!message) {
           // reject(new Error(`empty message from ssmgr[s] [${ options.host || host }:${ options.port || port }]`));
         } else if (message.code === 0) {
           resolve(message.data);
         } else {
-          console.log(data1)
           reject(new Error(`ssmgr[s] return an error code [${options.host || host}:${options.port || port}]`));
           logger.error('line-75', data, message);
         }

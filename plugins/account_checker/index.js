@@ -51,6 +51,7 @@ const updatePorts = async server => {
       port: server.port,
       password: server.password,
     }));
+    console.log('index.port',ports);
     portList[server.id] = {
       ports,
       update: Date.now(),
