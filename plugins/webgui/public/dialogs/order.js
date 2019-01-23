@@ -2,17 +2,17 @@ const app = angular.module('app');
 const window = require('window');
 const cdn = window.cdn || '';
 
-app.factory('orderDialog', [ '$mdDialog', '$state', ($mdDialog, $state) => {
+app.factory('orderDialog', ['$mdDialog', '$state', ($mdDialog, $state) => {
   const publicInfo = {};
   const hide = () => {
     return $mdDialog.hide()
-    .then(success => {
-      dialogPromise = null;
-      return;
-    }).catch(err => {
-      dialogPromise = null;
-      return;
-    });
+      .then(success => {
+        dialogPromise = null;
+        return;
+      }).catch(err => {
+        dialogPromise = null;
+        return;
+      });
   };
   publicInfo.hide = hide;
   const toUserPage = userId => {
@@ -20,22 +20,31 @@ app.factory('orderDialog', [ '$mdDialog', '$state', ($mdDialog, $state) => {
     $state.go('admin.userPage', { userId });
   };
   publicInfo.toUserPage = toUserPage;
+
+  const toAccount = accountId => {
+    if (accountId) {
+      hide();
+      $state.go('admin.accountPage', { accountId });
+    }
+  };
+  publicInfo.toAccount = toAccount;
+  
   let dialogPromise = null;
   const isDialogShow = () => {
-    if(dialogPromise && !dialogPromise.$$state.status) {
+    if (dialogPromise && !dialogPromise.$$state.status) {
       return true;
     }
     return false;
   };
   const dialog = {
-    templateUrl: `${ cdn }/public/views/dialog/order.html`,
+    templateUrl: `${cdn}/public/views/dialog/order.html`,
     escapeToClose: false,
     locals: { bind: publicInfo },
     bindToController: true,
-    controller: ['$scope', '$mdMedia', '$mdDialog', 'bind', function($scope, $mdMedia, $mdDialog, bind) {
+    controller: ['$scope', '$mdMedia', '$mdDialog', 'bind', function ($scope, $mdMedia, $mdDialog, bind) {
       $scope.publicInfo = bind;
       $scope.setDialogWidth = () => {
-        if($mdMedia('xs') || $mdMedia('sm')) {
+        if ($mdMedia('xs') || $mdMedia('sm')) {
           return {};
         }
         return { 'min-width': '400px' };
@@ -45,7 +54,7 @@ app.factory('orderDialog', [ '$mdDialog', '$state', ($mdDialog, $state) => {
     clickOutsideToClose: true,
   };
   const show = (order) => {
-    if(isDialogShow()) {
+    if (isDialogShow()) {
       return dialogPromise;
     }
     publicInfo.order = order;
@@ -57,7 +66,7 @@ app.factory('orderDialog', [ '$mdDialog', '$state', ($mdDialog, $state) => {
   };
 }]);
 
-app.factory('orderFilterDialog' , [ '$mdDialog', '$http', ($mdDialog, $http) => {
+app.factory('orderFilterDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
   const publicInfo = {};
   $http.get('/api/admin/group').then(success => {
     publicInfo.groups = success.data;
@@ -65,28 +74,28 @@ app.factory('orderFilterDialog' , [ '$mdDialog', '$http', ($mdDialog, $http) => 
   });
   const hide = () => {
     return $mdDialog.hide()
-    .then(success => {
-      dialogPromise = null;
-      return;
-    }).catch(err => {
-      dialogPromise = null;
-      return;
-    });
+      .then(success => {
+        dialogPromise = null;
+        return;
+      }).catch(err => {
+        dialogPromise = null;
+        return;
+      });
   };
   publicInfo.hide = hide;
   let dialogPromise = null;
   const isDialogShow = () => {
-    if(dialogPromise && !dialogPromise.$$state.status) {
+    if (dialogPromise && !dialogPromise.$$state.status) {
       return true;
     }
     return false;
   };
   const dialog = {
-    templateUrl: `${ cdn }/public/views/admin/orderFilterDialog.html`,
+    templateUrl: `${cdn}/public/views/admin/orderFilterDialog.html`,
     escapeToClose: false,
     locals: { bind: publicInfo },
     bindToController: true,
-    controller: ['$scope', '$mdDialog', '$localStorage', 'bind', function($scope, $mdDialog, $localStorage, bind) {
+    controller: ['$scope', '$mdDialog', '$localStorage', 'bind', function ($scope, $mdDialog, $localStorage, bind) {
       $scope.publicInfo = bind;
       $scope.orderFilter = $localStorage.admin.orderFilterSettings;
     }],
@@ -94,7 +103,7 @@ app.factory('orderFilterDialog' , [ '$mdDialog', '$http', ($mdDialog, $http) => 
   };
   const show = id => {
     publicInfo.id = id;
-    if(isDialogShow()) {
+    if (isDialogShow()) {
       return dialogPromise;
     }
     dialogPromise = $mdDialog.show(dialog);
