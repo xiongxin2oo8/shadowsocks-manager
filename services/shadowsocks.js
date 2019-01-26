@@ -147,8 +147,7 @@ const sendMessage = message => {
 
 const startUp = async () => {
   client.send(Buffer.from('ping'), port, host);
-  console.log('config.runShadowsocks', config.runShadowsocks, config.runShadowsocks === 'python');
-  if (config.runShadowsocks === 'python') {
+  if (config.runShadowsocks.split(':')[0] === 'python') {
     console.log('删除初始端口 65535')
     sendMessage(`remove: {"server_port": 65535}`);
   }
