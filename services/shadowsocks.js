@@ -147,13 +147,13 @@ const sendMessage = message => {
 
 const startUp = async () => {
   client.send(Buffer.from('ping'), port, host);
-  if (config.runShadowsocks.split(':')[0] === 'python') {
-    console.log('删除初始端口 65535')
-    sendMessage(`remove: {"server_port": 65535}`);
-  }
   const accounts = await knex('account').select(['port', 'password']);
   for (const account of accounts) {
     await sendMessage(`add: {"server_port": ${account.port}, "password": "${account.password}"}`);
+  }
+  if (config.runShadowsocks.split(':')[0] === 'python') {
+    console.log('删除初始端口 65535')
+    await sendMessage(`remove: {"server_port": 65535}`);
   }
 };
 
