@@ -50,7 +50,6 @@ if (typeof config.get('db') === 'object') {
   }
 }
 log.setFileAppenders(logName);
-
 if(program.run) {
   config.set('runShadowsocks', program.run);
 }
