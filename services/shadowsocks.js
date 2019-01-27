@@ -146,15 +146,15 @@ const sendMessage = message => {
 };
 
 const startUp = async () => {
-  client.send(Buffer.from('ping'), port, host);
-  const accounts = await knex('account').select(['port', 'password']);
-  for (const account of accounts) {
-    await sendMessage(`add: {"server_port": ${account.port}, "password": "${account.password}"}`);
-  }
-  if (config.runShadowsocks.split(':')[0] === 'python') {
+  client.send(Buffer.from('ping'), port, host);  
+  if (config.runShadowsocks && config.runShadowsocks.split(':')[0] === 'python') {
     const port = config.shadowsocks.initport || 65535;
     console.log('删除初始端口', port)
     await sendMessage(`remove: {"server_port": ${port}}`);
+  }
+  const accounts = await knex('account').select(['port', 'password']);
+  for (const account of accounts) {
+    await sendMessage(`add: {"server_port": ${account.port}, "password": "${account.password}"}`);
   }
 };
 
