@@ -72,7 +72,7 @@ const edit = async accountId => {
   await Promise.all(servers.map(server => {
     return knex('account_flow').update({
       port: accountInfo.port + server.shift,
-      nextCheckTime: 0,//优先检查
+      nextCheckTime: 100,//优先检查
     }).where({
       serverId: server.id,
       accountId,
@@ -94,12 +94,12 @@ const server = async serverId => {
         serverId: server.id,
         accountId: account.id,
         port: account.port + server.shift,
-        nextCheckTime: 0,//优先检查
+        nextCheckTime: 200,//优先检查
       });
     } else {
       await knex('account_flow').update({
         port: account.port + server.shift,
-        nextCheckTime: 0,//优先检查
+        nextCheckTime: 300,//优先检查
       }).where({
         serverId: server.id,
         accountId: account.id,
