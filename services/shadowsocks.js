@@ -146,8 +146,8 @@ const sendMessage = message => {
 };
 
 const startUp = async () => {
-  client.send(Buffer.from('ping'), port, host);  
-  if (config.runShadowsocks && config.runShadowsocks.split(':')[0] === 'python') {
+  client.send(Buffer.from('ping'), port, host);
+  if (config.runShadowsocks && config.runShadowsocks.indexOf('python') >= 0) {
     const port = config.shadowsocks.initport || 65535;
     console.log('删除初始端口', port)
     await sendMessage(`remove: {"server_port": ${port}}`);

@@ -76,7 +76,7 @@ const hasServer = (server, account) => {
   if (!account.server) { return true; }
   const serverList = JSON.parse(account.server);
   if (serverList.indexOf(server.id) >= 0) { return true; }
-  modifyAccountFlow(server.id, account.id, Date.now() + 24 * 3600 * 100);
+  modifyAccountFlow(server.id, account.id, Date.now() + 24 * 3600 * 1000);
   return false;
 };
 
@@ -424,11 +424,11 @@ cron.loop(
   360,
 );
 
-cron.minute(async () => {
-  await knex('account_flow').delete()
-    .where('nextCheckTime', '<', Date.now() - 3 * 60 * 60 * 1000)
-    .orderBy('nextCheckTime', 'asc');
-}, 'DeleteInvalidAccountFlow', 30);
+// cron.minute(async () => {
+//   await knex('account_flow').delete()
+//     .where('nextCheckTime', '<', Date.now() - 3 * 60 * 60 * 1000)
+//     .orderBy('nextCheckTime', 'asc');
+// }, 'DeleteInvalidAccountFlow', 30);
 
 cron.minute(() => {
   logger.info('重置错误次数');
@@ -439,7 +439,7 @@ cron.minute(() => {
   const serverNumber = await knex('server').select(['id']).then(s => s.length);
   const accountNumber = await knex('account_plugin').select(['id']).then(s => s.length);
 
-  if (serverNumber * accountNumber > 0) {
+  if (serverNumber * accountNumber > 300) {
     while (true) {
       //服务器
       var servers = [];

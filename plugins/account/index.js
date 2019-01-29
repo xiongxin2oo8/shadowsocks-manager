@@ -187,7 +187,7 @@ const editAccount = async (id, options) => {
     }
   }
   await knex('account_plugin').update(update).where({ id });
-  await await accountFlow.edit(id);
+  await accountFlow.edit(id);
   return;
 };
 
@@ -874,9 +874,9 @@ const getAccountAndPaging = async (opt) => {
     .orderBy('account_plugin.port', 'ASC')
     .where(where);
 
-  if(!filter.hasUser && filter.noUser) {
+  if (!filter.hasUser && filter.noUser) {
     account = await account.whereNull('user.id');
-  } else if(filter.hasUser && !filter.noUser) {
+  } else if (filter.hasUser && !filter.noUser) {
     account = await account.whereNotNull('user.id');
   } else {
     account = await account;

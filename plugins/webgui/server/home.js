@@ -269,6 +269,7 @@ exports.status = async (req, res) => {
     let email;
     let subscribe;
     let multiAccount;
+    let simple;
     let hideFlow;
     if (status) {
       email = (await knex('user').select(['email']).where({ id }).then(s => s[0])).email;
@@ -290,6 +291,12 @@ exports.status = async (req, res) => {
         success[0].value = JSON.parse(success[0].value);
         return success[0].value;
       })).subscribe;
+      simple = (await knex('webguiSetting').select().where({
+        key: 'account',
+      }).then(success => {
+        success[0].value = JSON.parse(success[0].value);
+        return success[0].value;
+      })).simple;
     }
     if (status === 'normal') {
       knex('user').update({ lastLogin: Date.now() }).where({ id }).then();
@@ -316,9 +323,10 @@ exports.status = async (req, res) => {
       multiAccount,
       title,
       hideFlow,
+      simple,
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     delete req.session.user;
     delete req.session.type;
     return res.status(403).end();
