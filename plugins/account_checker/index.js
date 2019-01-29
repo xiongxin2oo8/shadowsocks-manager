@@ -439,7 +439,7 @@ cron.minute(() => {
   const serverNumber = await knex('server').select(['id']).then(s => s.length);
   const accountNumber = await knex('account_plugin').select(['id']).then(s => s.length);
 
-  if (serverNumber * accountNumber > 300) {
+  if (serverNumber * accountNumber > 0) {
     while (true) {
       //服务器
       var servers = [];
