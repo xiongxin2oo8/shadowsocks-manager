@@ -463,9 +463,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         monthflow: 0,
         resetday: 1
       };
-      $scope.server.monthflow = $filter('flowStr2Num')($scope.server.monthflowStr);
       $scope.confirm = () => {
         alertDialog.loading();
+        $scope.server.monthflow = $filter('flowStr2Num')($scope.server.monthflowStr);
         $http.post('/api/admin/server', {
           type: $scope.server.type,
           name: $scope.server.name,

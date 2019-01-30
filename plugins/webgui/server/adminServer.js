@@ -54,7 +54,7 @@ exports.addServer = async (req, res) => {
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
     const result = await req.getValidationResult();
-    if(!result.isEmpty()) { return Promise.reject(result.array()); }
+    if (!result.isEmpty()) { return Promise.reject(result.array()); }
     const type = req.body.type;
     const isWG = type === 'WireGuard';
     const name = req.body.name;
@@ -102,7 +102,7 @@ exports.addServer = async (req, res) => {
 };
 
 exports.editServer = async (req, res) => {
-  try {    
+  try {
     req.checkBody('type', 'Invalid type').notEmpty();
     req.checkBody('name', 'Invalid name').notEmpty();
     req.checkBody('address', 'Invalid address').notEmpty();
@@ -168,10 +168,10 @@ exports.editServer = async (req, res) => {
 exports.deleteServer = (req, res) => {
   const serverId = req.params.serverId;
   serverManager.del(serverId)
-  .then(success => {
-    res.send('success');
-  }).catch(err => {
-    console.log(err);
-    res.status(403).end();
-  });
+    .then(success => {
+      res.send('success');
+    }).catch(err => {
+      console.log(err);
+      res.status(403).end();
+    });
 };

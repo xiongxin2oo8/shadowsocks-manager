@@ -828,7 +828,6 @@ const editMultiAccounts = async (orderId, update) => {
       //如果指定了服务器
       //该账号已经包含的的服务器
       let servers = await knex('account_flow').select('serverId').where({ accountId: account.id }).then(res => res.map(s => s.serverId));
-      console.log('servers', servers)
       for (let serverId of servers) {
         //只更新订单中不包含的服务器
         if (updateData.server.indexOf(serverId) == -1) {
