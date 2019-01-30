@@ -66,7 +66,7 @@ const pwd = async (accountId, password) => {
   });
 };
 
-const edit = async accountId => {  
+const edit = async accountId => {
   const servers = await knex('server').select();
   const accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
   await Promise.all(servers.map(server => {
@@ -113,7 +113,7 @@ const updateFlow = async (serverId, accountId, flow) => {
     serverId,
     accountId,
   }).then(success => success[0]);
-  if(!exists) { return; }
+  if (!exists) { return; }
   await knex('account_flow').update({
     flow: exists.flow + flow,
     updateTime: Date.now(),
