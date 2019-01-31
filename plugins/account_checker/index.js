@@ -518,7 +518,6 @@ cron.minute(() => {
           try {
             datas = await knex('account_flow').select()
               .whereNotIn('id', accounts.map(account => account.id))
-              .whereNotIn('id', [1706])
               .whereNotIn('serverId', server_not)
               .orderByRaw('rand()').limit(accounts.length < 30 ? 35 - accounts.length : 5);
             accounts = [...accounts, ...datas];
