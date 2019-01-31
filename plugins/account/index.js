@@ -841,7 +841,7 @@ const editMultiAccounts = async (orderId, update) => {
       }
     } else {
       //如果没有指定服务器，账号下每个服务器都检查一遍
-      await accountFlow.edit(account.id);
+      //await accountFlow.edit(account.id);
     }
     await sleep(500);
   }

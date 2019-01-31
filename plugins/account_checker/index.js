@@ -38,14 +38,9 @@ const modifyAccountFlow = async (serverId, accountId, nextCheckTime) => {
   }).where({ serverId, accountId });
 };
 
-const portList = {};
+var portList = {};
 const updatePorts = async server => {
-  if (!portList[server.id] || Date.now() - portList[server.id].update >= 35 * 1000) {
-    // const ports = (await manager.send({ command: 'list' }, {
-    //   host: server.host,
-    //   port: server.port,
-    //   password: server.password,
-    // })).map(m => m.port);
+  if (!portList[server.id] || Date.now() - portList[server.id].update >= 120 * 1000) {
     const ports = (await manager.send({ command: 'portlist' }, {
       host: server.host,
       port: server.port,
@@ -227,6 +222,11 @@ const deletePort = (server, account) => {
       host: server.host,
       port: server.port,
       password: server.password,
+    }).then(c => {
+      let index = portList[server.id].ports.indexOf(c.port);
+      if (index > -1) {
+        portList[server.id].ports.splice(index, 1)
+      }
     }).catch();
 };
 const runCommand = async cmd => {
@@ -268,6 +268,11 @@ const addPort = async (server, account) => {
         host: server.host,
         port: server.port,
         password: server.password,
+      }).then(c => {
+        let index = portList[server.id].ports.indexOf(c.port);
+        if (index == -1) {
+          portList[server.id].ports.push(c.port);
+        }
       }).catch();
 
   } else {
@@ -280,6 +285,11 @@ const addPort = async (server, account) => {
         host: server.host,
         port: server.port,
         password: server.password,
+      }).then(c => {
+        let index = portList[server.id].ports.indexOf(c.port);
+        if (index == -1) {
+          portList[server.id].ports.push(c.port);
+        }
       }).catch();
   }
 };
@@ -427,7 +437,7 @@ cron.loop(
 // cron.minute(async () => {
 //   await knex('account_flow').delete()
 //     .where('nextCheckTime', '<', Date.now() - 3 * 60 * 60 * 1000)
-//     .orderBy('nextCheckTime', 'asc');
+//     .where('nextCheckTime', '>', 10000)
 // }, 'DeleteInvalidAccountFlow', 30);
 
 cron.minute(() => {
@@ -466,7 +476,7 @@ cron.minute(() => {
       const accountRight = await redis.rpop('CheckAccount:Queue');
       //总数
       const queueLength = await redis.llen('CheckAccount:Queue');
-      if (!accountLeft || queueLength < 10) {
+      if (!accountLeft || queueLength < 1) {
         const mark = await redis.setnx('CheckAccount:Mark', 1);
         if (mark) {
           redis.expire('CheckAccount:Mark', 5);
@@ -486,7 +496,7 @@ cron.minute(() => {
               .where('nextCheckTime', '<', Date.now())
               .whereNotIn('serverId', server_not)
               .orderBy('nextCheckTime', 'asc')
-              .limit(400)
+              .limit(600)
               .offset(0);
             accounts = [...accounts, ...datas];
           } catch (err) {
@@ -520,8 +530,8 @@ cron.minute(() => {
           logger.info(`Add [${accounts.length}] elements to queue`);
           await redis.lpush('CheckAccount:Queue', accounts.map(m => `${m.serverId}:${m.accountId}`));
           redis.del('CheckAccount:Mark');
-          console.log(`需要检查账号 ${accounts.length} 个，暂停 5 秒`);
-          await sleep(5000);
+          console.log(`需要检查账号 ${accounts.length} 个，暂停 10 秒`);
+          await sleep(10000);
         };
       }
       if (accountLeft) {
