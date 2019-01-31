@@ -53,7 +53,10 @@ exports.getAccount = async (req, res) => {
           account.publicKey = account.key;
         }
       }
-      await accountFlow.edit(account.id);
+      //账号太多不修改
+      if (accounts.length < 100) {
+        await accountFlow.edit(account.id);
+      }
     }
     res.send(accounts);
   } catch (err) {
