@@ -451,7 +451,7 @@ cron.minute(() => {
   const serverNumber = await knex('server').select(['id']).then(s => s.length);
   const accountNumber = await knex('account_plugin').select(['id']).then(s => s.length);
 
-  if (serverNumber * accountNumber > 300) {
+  if (serverNumber * accountNumber > 0) {
     while (true) {
       //服务器
       var servers = [];
@@ -530,7 +530,9 @@ cron.minute(() => {
             accounts = [...accounts, ...datas];
           } catch (err) { }
           logger.info(`Add [${accounts.length}] elements to queue`);
-          await redis.lpush('CheckAccount:Queue', accounts.map(m => `${m.serverId}:${m.accountId}`));
+          if (accounts.length > 0) {
+            await redis.lpush('CheckAccount:Queue', accounts.map(m => `${m.serverId}:${m.accountId}`));
+          }
           redis.del('CheckAccount:Mark');
           console.log(`需要检查账号 ${accounts.length} 个，暂停 10 秒`);
           await sleep(10000);
