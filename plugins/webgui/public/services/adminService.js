@@ -10,31 +10,33 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
     const pageSize = opt.pageSize || 20;
     const group = opt.hasOwnProperty('group') ? opt.group : -1;
     const type = [];
-    for(const i in opt.type) {
-      if(opt.type[i]) { type.push(i); }
+    for (const i in opt.type) {
+      if (opt.type[i]) { type.push(i); }
     };
-    return $http.get('/api/admin/user', { params: {
-      search,
-      sort,
-      page,
-      pageSize,
-      group,
-      type,
-    } }).then(success => success.data);
+    return $http.get('/api/admin/user', {
+      params: {
+        search,
+        sort,
+        page,
+        pageSize,
+        group,
+        type,
+      }
+    }).then(success => success.data);
   };
   const getOrder = (payType, opt = {}) => {
-    if(payType === 'Paypal') {
+    if (payType === 'Paypal') {
       opt.filter = opt.filter.map(m => {
-        if(m === 'CREATE') return 'created';
-        if(m === 'TRADE_SUCCESS') return 'approved';
-        if(m === 'FINISH') return 'finish';
+        if (m === 'CREATE') return 'created';
+        if (m === 'TRADE_SUCCESS') return 'approved';
+        if (m === 'FINISH') return 'finish';
       }).filter(f => f);
     }
     let url;
-    if(payType === '支付宝') { url = '/api/admin/alipay'; }
-    if(payType === 'Paypal') { url = '/api/admin/paypal'; }
-    if(payType === '充值码') { url = '/api/admin/giftcard'; }
-    if(payType === '邀请码') { url = '/api/admin/refOrder'; }
+    if (payType === '支付宝') { url = '/api/admin/alipay'; }
+    if (payType === 'Paypal') { url = '/api/admin/paypal'; }
+    if (payType === '充值码') { url = '/api/admin/giftcard'; }
+    if (payType === '邀请码') { url = '/api/admin/refOrder'; }
     const search = opt.search || '';
     const filter = opt.filter || '';
     // const sort = opt.sort || 'alipay.createTime_desc';
@@ -45,13 +47,13 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
 
   const getCsvOrder = (payType, opt = {}) => {
     let url;
-    if(payType === '支付宝') { url = '/api/admin/alipay/csv'; }
-    if(payType === 'Paypal') { url = '/api/admin/paypal/csv'; }
-    if(payType === '充值码') { url = '/api/admin/giftcard/csv'; }
-    if(payType === '邀请码') { url = '/api/admin/refOrder/csv'; }
+    if (payType === '支付宝') { url = '/api/admin/alipay/csv'; }
+    if (payType === 'Paypal') { url = '/api/admin/paypal/csv'; }
+    if (payType === '充值码') { url = '/api/admin/giftcard/csv'; }
+    if (payType === '邀请码') { url = '/api/admin/refOrder/csv'; }
     let downloadUrl = url + '?';
-    for(const o in opt) {
-      if(Array.isArray(opt[o])) {
+    for (const o in opt) {
+      if (Array.isArray(opt[o])) {
         opt[o].forEach(f => {
           downloadUrl += (o + '=' + f + '&');
         });
@@ -61,7 +63,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
     }
     window.open(downloadUrl, '_blank');
   };
-  
+
   const getServer = status => {
     return $http.get('/api/admin/server', {
       params: {
@@ -72,7 +74,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
 
   let accountPromise = null;
   const getAccount = () => {
-    if(accountPromise && !accountPromise.$$state.status) {
+    if (accountPromise && !accountPromise.$$state.status) {
       return accountPromise;
     }
     accountPromise = $http.get('/api/admin/account').then(success => success.data);
@@ -81,7 +83,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
 
   let macAccountPromise = null;
   const getMacAccount = () => {
-    if(macAccountPromise && !macAccountPromise.$$state.status) {
+    if (macAccountPromise && !macAccountPromise.$$state.status) {
       return macAccountPromise;
     }
     macAccountPromise = $http.get('/api/admin/macAccount').then(success => success.data);
@@ -125,7 +127,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
 
   let serverFlowLastHourPromise = {};
   const getServerFlowLastHour = serverId => {
-    if(serverFlowLastHourPromise[serverId] && !serverFlowLastHourPromise[serverId].$$state.status) {
+    if (serverFlowLastHourPromise[serverId] && !serverFlowLastHourPromise[serverId].$$state.status) {
       return serverFlowLastHourPromise[serverId];
     }
     serverFlowLastHourPromise[serverId] = $http.get('/api/admin/flow/' + serverId + '/lastHour').then(success => {
@@ -143,7 +145,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
 
   let indexInfoPromise = null;
   const getIndexInfo = () => {
-    if(indexInfoPromise && !indexInfoPromise.$$state.status) {
+    if (indexInfoPromise && !indexInfoPromise.$$state.status) {
       return indexInfoPromise;
     }
     indexInfoPromise = $q.all([
@@ -198,37 +200,37 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       };
     });
   };
-  
+
   const getChartData = (serverId, type, time, doNotPreload) => {
     let queryTime;
-    if(type === 'hour') {
+    if (type === 'hour') {
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 3600000, true); }, 500);
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 2 * 3600000, true); }, 600);
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 3 * 3600000, true); }, 700);
       queryTime = moment(time).minute(0).second(0).millisecond(0).toDate().getTime();
     }
-    if(type === 'day') {
+    if (type === 'day') {
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 24 * 3600000, true); }, 500);
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 2 * 24 * 3600000, true); }, 600);
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 3 * 24 * 3600000, true); }, 700);
       queryTime = moment(time).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
     }
-    if(type === 'week') {
+    if (type === 'week') {
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 7 * 24 * 3600000, true); }, 500);
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 2 * 7 * 24 * 3600000, true); }, 600);
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 3 * 7 * 24 * 3600000, true); }, 700);
       queryTime = moment(time).day(0).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
     }
-    const id = `getChartData:${ serverId }:${ type }:${ queryTime }`;
+    const id = `getChartData:${serverId}:${type}:${queryTime}`;
     const promise = () => {
       return $q.all([
-        $http.get(`/api/admin/flow/${ serverId }`, {
+        $http.get(`/api/admin/flow/${serverId}`, {
           params: {
             type,
             time: queryTime,
           }
         }),
-        $http.get(`/api/admin/flow/${ serverId }/user`, {
+        $http.get(`/api/admin/flow/${serverId}/user`, {
           params: {
             type,
             time: queryTime,
@@ -241,35 +243,35 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
 
   const getAccountChartData = (serverId, accountId, type, time, doNotPreload) => {
     let queryTime;
-    if(type === 'hour') {
+    if (type === 'hour') {
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 3600000, true);
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 2 * 3600000, true);
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 3 * 3600000, true);
       queryTime = moment(time).minute(0).second(0).millisecond(0).toDate().getTime();
     }
-    if(type === 'day') {
+    if (type === 'day') {
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 24 * 3600000, true);
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 2 * 24 * 3600000, true);
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 3 * 24 * 3600000, true);
       queryTime = moment(time).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
     }
-    if(type === 'week') {
+    if (type === 'week') {
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 7 * 24 * 3600000, true);
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 2 * 7 * 24 * 3600000, true);
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 3 * 7 * 24 * 3600000, true);
       queryTime = moment(time).day(0).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
     }
-    const id = `getAccountChartData:${ serverId }:${ accountId }:${ type }:${ queryTime }`;
+    const id = `getAccountChartData:${serverId}:${accountId}:${type}:${queryTime}`;
     const promise = () => {
       return $q.all([
-        $http.get(`/api/admin/flow/${ serverId }`, {
+        $http.get(`/api/admin/flow/${serverId}`, {
           params: {
             accountId,
             type,
             time: time,
           }
         }),
-        $http.get(`/api/admin/flow/account/${ accountId }`, {
+        $http.get(`/api/admin/flow/account/${accountId}`, {
           params: {
             type,
             time: time,
@@ -281,11 +283,11 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
   };
 
   const getServerPortData = (serverId, accountId) => {
-    const id = `getServerPortData:${ serverId }:${ accountId }:`;
+    const id = `getServerPortData:${serverId}:${accountId}:`;
     const promise = () => {
       return $q.all([
-        $http.get(`/api/admin/flow/${ serverId }/${ accountId }`),
-        $http.get(`/api/admin/flow/${ serverId }/${ accountId }/lastConnect`)
+        $http.get(`/api/admin/flow/${serverId}/${accountId}`),
+        $http.get(`/api/admin/flow/${serverId}/${accountId}/lastConnect`)
       ]).then(success => {
         return {
           serverPortFlow: success[0].data[0],
@@ -297,13 +299,13 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
   };
 
   const getUserPortLastConnect = accountId => {
-    return $http.get(`/api/admin/user/${ accountId }/lastConnect`).then(success => success.data);
+    return $http.get(`/api/admin/user/${accountId}/lastConnect`).then(success => success.data);
   };
 
   const getIpInfo = ip => {
-    const id = `getIpInfo:${ ip }`;
+    const id = `getIpInfo:${ip}`;
     const promise = () => {
-      const url = `/api/admin/account/ip/${ ip }`;
+      const url = `/api/admin/account/ip/${ip}`;
       return $http.get(url).then(success => success.data);
     };
     return preload.get(id, promise, 300 * 1000);

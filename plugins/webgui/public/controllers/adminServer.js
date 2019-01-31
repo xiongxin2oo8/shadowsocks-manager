@@ -240,7 +240,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       const flowLabel = {
         hour: ['0', '', '', '15', '', '', '30', '', '', '45', '', ''],
         day: ['0', '', '', '', '', '', '6', '', '', '', '', '', '12', '', '', '', '', '', '18', '', '', '', '', '',],
-        week: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+        week: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
       };
       const scaleLabel = (number) => {
         if (number < 1) {
@@ -326,7 +326,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.time = moment(flowTime[$scope.flowType]).format('YYYY-MM-DD');
         }
         if ($scope.flowType === 'week') {
-          $scope.time = moment(flowTime[$scope.flowType]).day(0).format('YYYY-MM-DD') + ' / ' + moment(flowTime[$scope.flowType]).day(6).format('YYYY-MM-DD');
+          $scope.time = moment(flowTime[$scope.flowType]).day(1).format('YYYY-MM-DD') + ' / ' + moment(flowTime[$scope.flowType]).day(7).format('YYYY-MM-DD');
         }
       };
       $scope.getChartData();
@@ -347,7 +347,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         if ($mdMedia('xs')) {
           return {
             line: [320, 170],
-            pie: [180, 170],
+            pie: [205, 190],
           };
         } else if ($mdMedia('sm')) {
           return {

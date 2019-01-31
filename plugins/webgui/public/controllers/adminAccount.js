@@ -243,7 +243,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       const flowLabel = {
         hour: ['0', '', '', '15', '', '', '30', '', '', '45', '', ''],
         day: ['0', '', '', '', '', '', '6', '', '', '', '', '', '12', '', '', '', '', '', '18', '', '', '', '', '',],
-        week: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+        week: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
       };
       const scaleLabel = (number) => {
         if (number < 1) {
@@ -327,7 +327,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
           $scope.time = moment(flowTime[$scope.flowType.value]).format('YYYY-MM-DD');
         }
         if ($scope.flowType.value === 'week') {
-          $scope.time = moment(flowTime[$scope.flowType.value]).day(0).format('YYYY-MM-DD') + ' / ' + moment(flowTime[$scope.flowType.value]).day(6).format('YYYY-MM-DD');
+          $scope.time = moment(flowTime[$scope.flowType.value]).day(1).format('YYYY-MM-DD') + ' / ' + moment(flowTime[$scope.flowType.value]).day(7).format('YYYY-MM-DD');
         }
       };
       $scope.changeFlowTime = (serverId, number) => {
