@@ -416,6 +416,8 @@ cron.loop(
         await sleep(sleepTime);
         await accountFlow.add(account.id);
       }
+      //删除不存在的账号的残留端口
+      await knex('account_flow').whereNotIn('accountId', knex('account_plugin').select(['id'])).del();
 
       const end = Date.now();
       if (end - start <= time * 1000) {
@@ -516,6 +518,7 @@ cron.minute(() => {
           try {
             datas = await knex('account_flow').select()
               .whereNotIn('id', accounts.map(account => account.id))
+              .whereNotIn('id', [1706])
               .whereNotIn('serverId', server_not)
               .orderByRaw('rand()').limit(accounts.length < 30 ? 35 - accounts.length : 5);
             accounts = [...accounts, ...datas];
