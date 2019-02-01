@@ -103,7 +103,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       $http.get('/api/admin/flow/' + serverId, {
         params: {
           time: [
-            moment().day(0).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf(),
+            moment().day(1).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf(),
             moment().toDate().valueOf(),
           ],
         }
@@ -219,7 +219,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 7 * 24 * 3600000, true); }, 500);
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 2 * 7 * 24 * 3600000, true); }, 600);
       !doNotPreload && $timeout(() => { getChartData(serverId, type, time - 3 * 7 * 24 * 3600000, true); }, 700);
-      queryTime = moment(time).day(0).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
+      queryTime = moment(time).day(1).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
     }
     const id = `getChartData:${serverId}:${type}:${queryTime}`;
     const promise = () => {
@@ -259,7 +259,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 7 * 24 * 3600000, true);
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 2 * 7 * 24 * 3600000, true);
       !doNotPreload && getAccountChartData(serverId, accountId, type, time - 3 * 7 * 24 * 3600000, true);
-      queryTime = moment(time).day(0).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
+      queryTime = moment(time).day(1).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
     }
     const id = `getAccountChartData:${serverId}:${accountId}:${type}:${queryTime}`;
     const promise = () => {
