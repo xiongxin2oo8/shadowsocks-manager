@@ -23,8 +23,8 @@ exports.getServerFlow = (req, res) => {
       i++;
     }
   } else if (type === 'week') {
-    let i = 0;
-    while (i < 8) {
+    let i = 1;
+    while (i <= 8) {
       timeArray.push(moment(+time).day(i).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf());
       i++;
     }
