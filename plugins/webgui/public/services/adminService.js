@@ -91,6 +91,13 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
   };
 
   const getServerFlow = serverId => {
+    let weekday = 0;
+    let day = moment.day();
+    if (day == 0) {
+      weekday = moment().day(-6).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf();
+    } else {
+      weekday = moment().day(1).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf();
+    }
     return $q.all([
       $http.get('/api/admin/flow/' + serverId, {
         params: {
@@ -103,7 +110,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       $http.get('/api/admin/flow/' + serverId, {
         params: {
           time: [
-            moment().day(1).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf(),
+            weekday,
             moment().toDate().valueOf(),
           ],
         }

@@ -15,7 +15,8 @@ let acConfig = {};
 if (config.plugins.account_checker && config.plugins.account_checker.use) {
   acConfig = config.plugins.account_checker;
 }
-const sleepTime = 150;
+const speed = acConfig.speed || 5;
+const sleepTime = 100;
 const accountFlow = appRequire('plugins/account/accountFlow');
 
 //记录错误次数
@@ -542,17 +543,25 @@ cron.minute(() => {
         const serverId = +accountLeft.split(':')[0];
         const accountId = +accountLeft.split(':')[1];
         error_count[serverId] = error_count[serverId] || 0;
+        const start = Date.now();
         //如果请求同一个服务器10次出错，10分钟内不再请求这个服务器
         if (error_count[serverId] < 10) {
           await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
+          if (Date.now() - start < (1000 / speed)) {
+            await sleep(1000 / speed - (Date.now() - start));
+          }
         }
       }
       if (accountRight) {
         const serverId = +accountRight.split(':')[0];
         const accountId = +accountRight.split(':')[1];
         error_count[serverId] = error_count[serverId] || 0;
+        const start = Date.now();
         if (error_count[serverId] < 10) {
           await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
+          if (Date.now() - start < (1000 / speed)) {
+            await sleep(1000 / speed - (Date.now() - start));
+          }
         }
       }
     }
