@@ -92,7 +92,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
 
   const getServerFlow = serverId => {
     let weekday = 0;
-    let day = moment.day();
+    let day = moment().day();
     if (day == 0) {
       weekday = moment().day(-6).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf();
     } else {
