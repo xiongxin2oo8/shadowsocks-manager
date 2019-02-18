@@ -232,10 +232,19 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       };
 
       $scope.flowType = 'day';
+      //星期从周一开始
+      const weektime = () => {
+        let date = Date.now();
+        let day = moment().day();
+        if (day == 0) {
+          date = moment().day(-7);
+        }
+        return date;
+      }
       const flowTime = {
         hour: Date.now(),
         day: Date.now(),
-        week: Date.now(),
+        week: weektime(),
       };
       const flowLabel = {
         hour: ['0', '', '', '15', '', '', '30', '', '', '45', '', ''],

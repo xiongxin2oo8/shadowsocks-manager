@@ -499,7 +499,7 @@ cron.minute(() => {
               .where('nextCheckTime', '<', Date.now())
               .whereNotIn('serverId', server_not)
               .orderBy('nextCheckTime', 'asc')
-              .limit(600)
+              .limit(1000)
               .offset(0);
             accounts = [...accounts, ...datas];
           } catch (err) {

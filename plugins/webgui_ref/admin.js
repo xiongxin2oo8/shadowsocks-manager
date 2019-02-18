@@ -14,9 +14,10 @@ const getRefCode = async () => {
   return code;
 };
 
-const getRefCodeAndPaging = async (opt) => {
+const getRefCodeAndPaging = async opt => {
   const page = opt.page || 1;
   const pageSize = opt.pageSize || 20;
+  const search = opt.search;
   const invalidCode = await knex('webgui_ref_code').select([
     'webgui_ref_code.id as id',
   ])
@@ -37,6 +38,11 @@ const getRefCodeAndPaging = async (opt) => {
   .leftJoin('user', 'webgui_ref_code.sourceUserId', 'user.id')
   .whereNotNull('user.id')
   .groupBy('webgui_ref_code.id');
+
+  if(search) {
+    count = count.where('webgui_ref_code.code', 'like', `%${ search }%`);
+    code = code.where('webgui_ref_code.code', 'like', `%${ search }%`);
+  }
   
   count = await count.count('id as count').then(success => success[0].count);
   code = await code.orderBy('webgui_ref_code.visit', 'DESC').limit(pageSize).offset((page - 1) * pageSize);
