@@ -331,12 +331,14 @@ const deleteExtraPorts = async serverInfo => {
   }
 };
 
-const checkAccount = async (serverInfo, serverId, accountInfo, accountId) => {
+const checkAccount = async (serverId,accountId) => {
   try {
+    const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
     if (!serverInfo) {
       await knex('account_flow').delete().where({ serverId });
       return;
     }
+    const accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
     if (!accountInfo) {
       await knex('account_flow').delete().where({ serverId: serverInfo.id, accountId });
       return;
@@ -454,20 +456,6 @@ cron.minute(() => {
 
   if (serverNumber * accountNumber > 300) {
     while (true) {
-      //服务器
-      var servers = [];
-      await knex('server').then(res => {
-        res.map(s => {
-          servers[s.id] = s;
-        })
-      });
-      //账号
-      var account_plugin = [];
-      await knex('account_plugin').then(res => {
-        res.forEach((item, index) => {
-          account_plugin[item.id] = item;
-        })
-      });
       //不检查的服务器
       let server_not = [];
       error_count.map((v, i) => {
@@ -546,7 +534,7 @@ cron.minute(() => {
         const start = Date.now();
         //如果请求同一个服务器10次出错，10分钟内不再请求这个服务器
         if (error_count[serverId] < 10) {
-          await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
+          await checkAccount(serverId, accountId).catch();
           if (Date.now() - start < (1000 / speed)) {
             await sleep(1000 / speed - (Date.now() - start));
           }
@@ -558,7 +546,7 @@ cron.minute(() => {
         error_count[serverId] = error_count[serverId] || 0;
         const start = Date.now();
         if (error_count[serverId] < 10) {
-          await checkAccount(servers[serverId], serverId, account_plugin[accountId], accountId).catch();
+          await checkAccount(serverId, accountId).catch();
           if (Date.now() - start < (1000 / speed)) {
             await sleep(1000 / speed - (Date.now() - start));
           }
@@ -567,24 +555,7 @@ cron.minute(() => {
     }
   } else {
     while (true) {
-      var servers = [];
-      await knex('server').then(res => {
-        res.map(s => {
-          servers[s.id] = s;
-          ser_list[s.id] = {
-            host: s.host,
-            port: s.port,
-            password: s.password
-          };
-        })
-      });
-
-      var account_plugin = [];
-      await knex('account_plugin').then(res => {
-        res.forEach((item, index) => {
-          account_plugin[item.id] = item;
-        })
-      });
+      
       let server_not = [];
       error_count.map((v, i) => {
         if (v > 9) server_not.push(i);
@@ -655,7 +626,7 @@ cron.minute(() => {
             const start = Date.now();
             error_count[account.serverId] = error_count[account.serverId] || 0;
             if (error_count[account.serverId] < 10)
-              await checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
+              await checkAccount(account.serverId, account.accountId).catch();;
             const time = 60 * 1000 / accounts.length - (Date.now() - start);
             await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
           }
@@ -665,7 +636,7 @@ cron.minute(() => {
               //如果请求同一个服务器5次出错，5分钟内不再请求这个服务器，虽然不是同步的
               error_count[account.serverId] = error_count[account.serverId] || 0;
               if (error_count[account.serverId] < 10) {
-                return checkAccount(servers[account.serverId], account.serverId, account_plugin[account.accountId], account.accountId).catch();;
+                return checkAccount(account.serverId, account.accountId).catch();;
               }
             });
           }));
