@@ -249,7 +249,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           clashConfig.Proxy = subscribeAccount.server.map(server => {
             return {
               cipher: server.method,
-              name: server.subscribeName || server.name,
+              name: server.subscribeName || server.comment || server.name,
               password: subscribeAccount.account.password,
               port: subscribeAccount.account.port + server.shift,
               server: server.host,
@@ -260,7 +260,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             name: 'Proxy',
             type: 'select',
             proxies: subscribeAccount.server.map(server => {
-              return server.subscribeName || server.name;
+              return server.subscribeName || server.comment || server.name;
             }),
           };
           return res.send(yaml.safeDump(clashConfig));

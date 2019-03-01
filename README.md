@@ -90,10 +90,13 @@ ssserver -m aes-256-cfb -p 12345 -k abcedf --manager-address 127.0.0.1:6001
 
   shadowsocks:
     address: 127.0.0.1:6001
+    initport: 65534
   manager:
     address: 0.0.0.0:4001
     password: '123456'
   db: 'ss.sqlite'
+
+  initport 参数选填，为一个服务器多个s端而配置
   ```
 
   If you want to use MySQL, the `db` must like this:
