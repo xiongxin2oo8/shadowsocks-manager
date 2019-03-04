@@ -173,7 +173,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!isSubscribeOn) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       for (const s of subscribeAccount.server) {
-        s.comment = s.isGfw ? '[被墙]' : '' + s.comment;
+        s.comment = (s.status != -1 && s.isGfw) ? '[被墙]' : '' + s.comment;
         s.host = await getAddress(s.host, +resolveIp);
       }
       const baseSetting = await knex('webguiSetting').where({
