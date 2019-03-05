@@ -173,7 +173,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!isSubscribeOn) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       for (const s of subscribeAccount.server) {
-        s.comment = (s.status != -1 && s.isGfw) ? '[被墙]' : '' + s.comment;
+        s.comment = ((s.status != -1 && s.isGfw) ? '[被墙]' : '') + s.comment;
         s.host = await getAddress(s.host, +resolveIp);
       }
       const baseSetting = await knex('webguiSetting').where({
@@ -267,13 +267,15 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           };
           return res.send(yaml.safeDump(clashConfig));
         }
+        const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm'];
         result = subscribeAccount.server.map(s => {
           if (type === 'shadowrocket') {
             return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
           } else if (type === 'potatso') {
             return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
           } else if (type === 'ssr') {
-            return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+            let index = method.indexOf(s.method);
+            return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64((index == -1 ? '' : '[不支持SSR]') + s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
           }
         }).join('\r\n');
         return res.send(Buffer.from(result).toString('base64'));

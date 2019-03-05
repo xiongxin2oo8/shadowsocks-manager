@@ -355,13 +355,18 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
         }
       };
+      const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm'];
       $scope.SSRAddress = (server, account) => {
+        let index = method.indexOf(server.method);
+        if (index != -1) {
+          return "";
+        }
         let str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment));
         return str;
       };
       const config = configManager.getConfig();
       $scope.shadowrocket = subscribe => {
-        let base64 = urlsafeBase64(`${config.site}/api/user/account/subscribe/${subscribe}?type=shadowrocket&ip=0${config.hideFlow?'':'&flow=1'}`);
+        let base64 = urlsafeBase64(`${config.site}/api/user/account/subscribe/${subscribe}?type=shadowrocket&ip=0${config.hideFlow ? '' : '&flow=1'}`);
         let remarks = base64Encode(config.site.split('//')[1] || config.site);//config.title
         let str = `shadowrocket://add/sub://${base64}?remarks=${remarks}`;
         return str;
