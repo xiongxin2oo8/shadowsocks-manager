@@ -122,26 +122,25 @@ const isMacAddress = str => {
 
 const getAddress = (address, ip) => {
   let myAddress = address;
-  const hosts = address.split(':');
   if (address.indexOf(':') >= 0) {
+    const hosts = address.split(':');
     const number = Math.ceil(Math.random() * (hosts.length - 1));
     myAddress = hosts[number];
   }
   if (!ip) {
     return Promise.resolve(myAddress);
   }
-  return Promise.resolve(hosts[0]);
-  // if (net.isIP(myAddress)) {
-  //   return Promise.resolve(myAddress);
-  // }
-  // return new Promise((resolve, reject) => {
-  //   dns.lookup(myAddress, (err, myAddress, family) => {
-  //     if (err) {
-  //       return reject(err);
-  //     }
-  //     return resolve(myAddress);
-  //   });
-  // });
+  if (net.isIP(myAddress)) {
+    return Promise.resolve(myAddress);
+  }
+  return new Promise((resolve, reject) => {
+    dns.lookup(myAddress, (err, myAddress, family) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(myAddress);
+    });
+  });
 };
 
 const urlsafeBase64 = str => {

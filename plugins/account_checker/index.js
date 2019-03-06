@@ -386,7 +386,7 @@ const checkAccount = async (serverId, accountId) => {
     let count = error_count[serverId] || 0;
     error_count[serverId] = count + 1;
     //掉线提醒
-    if (error_count[serverId] == 10) {
+    if (error_count[serverId] == 5) {
       isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
     }
     console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId);
@@ -395,7 +395,6 @@ const checkAccount = async (serverId, accountId) => {
   }
 };
 
-var ser_list = [];
 let time = 120;
 cron.loop(
   async () => {
