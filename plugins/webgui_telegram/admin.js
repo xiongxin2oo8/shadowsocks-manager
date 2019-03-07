@@ -54,9 +54,9 @@ const day_push = async () => {
     .orderBy('server.comment')
     .whereBetween('time', [begin_time, end_time])
     .then(success => {
-      allflow = success.map(item => {
-        return item.flow;
-      }).sum();
+      for (let item in success) {
+        allflow += item.flow;
+      }
       return success.map(item => {
         return `${item.name} 账号数:${item.count} 总流量:${flowNumber(item.flow)}`;
       }).join('\n')
@@ -69,10 +69,10 @@ const day_push = async () => {
     .where('status', 'FINISH')
     .then(success => success[0]);
   await push(`主人，晚上好！`);
-  await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人登录了网站`);
   await push(`截止目前，共有账号数 ${total_info.count} 个`);
-  await push(`今天，共有 ${today_info.count} 个账号使用服务`);
-  await push(`各服务器使用情况(${flowNumber(allflow)})：\n${server_info}`);
+  await push(`今天共注册了 ${newuser} 个新用户，共有 ${login} 个人登录了网站`);
+  await push(`今天共有 ${today_info.count} 个账号使用了 ${flowNumber(allflow)} 流量`);
+  await push(`各服务器使用情况：\n${server_info}`);
   await push(`今天共产生 ${pay_info.count} 个订单，共筹得 ${(pay_info.amount || 0).toFixed(2)} 元`);
 }
 cron.cron(() => {

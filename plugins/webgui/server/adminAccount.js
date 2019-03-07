@@ -266,7 +266,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           };
           return res.send(yaml.safeDump(clashConfig));
         }
-        const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm'];
+        const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm','xchacha20-ietf-poly1305'];
         result = subscribeAccount.server.map(s => {
           if (type === 'shadowrocket') {
             return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
