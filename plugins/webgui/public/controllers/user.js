@@ -355,7 +355,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
         }
       };
-      const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm','xchacha20-ietf-poly1305'];
+      const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
       $scope.SSRAddress = (server, account) => {
         let index = method.indexOf(server.method);
         if (index != -1) {
@@ -513,6 +513,9 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.toMac = () => {
         $state.go('user.macAddress');
       };
+      $scope.toConnType = () => {
+        $state.go('user.connType');
+      };
     }
   ])
   .controller('UserChangePasswordController', ['$scope', '$state', 'userApi', 'alertDialog', '$http', '$localStorage',
@@ -604,5 +607,66 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         });
       };
       getMacAccount();
+    }
+  ])
+  .controller('ConnTypeController', ['$scope', '$state', 'userApi', 'alertDialog', '$http', '$localStorage',
+    ($scope, $state, userApi, alertDialog, $http, $localStorage) => {
+      $scope.setTitle('连接方式');
+      $scope.setMenuButton('arrow_back', 'user.settings');
+      $scope.typeList = ['SS', 'SSR'];
+      $scope.protocolList = ['auth_chain_a', 'auth_aes128_md5', 'auth_aes128_sha1'];
+      $scope.obfsList = ['http_simple', 'http_post', 'tls1.2_ticket_auth'];
+      $scope.methods = [
+        'aes-256-cfb',
+        'aes-192-cfb',
+        'aes-128-cfb',
+        'aes-256-ctr',
+        'aes-192-ctr',
+        'aes-128-ctr',
+        'camellia-256-cfb',
+        'camellia-192-cfb',
+        'camellia-128-cfb',
+        'rc4-md5',
+        'bf-cfb',
+        'salsa20',
+        'chacha20',
+        'chacha20-ietf'
+      ];
+      $scope.$watch('data.account', () => {
+        if($scope.accounts){
+          let item = $scope.accounts.find(x => x.id == $scope.data.account);
+          init(item);
+        }        
+      });
+      const init=(item)=>{
+        $scope.data = {
+          account: item.id,
+          connType: item.connType || "SS",
+          method: item.method || 'chacha20-ietf',
+          protocol: item.protocol || 'auth_aes128_md5',
+          protocol_param: item.protocol_param,
+          obfs: item.obfs || 'http_simple',
+          obfs_param: item.obfs_param || 'download.windowsupdate.com'
+        };
+      }
+      userApi.getUserAccount().then(success => {
+        $scope.accounts = success.account;
+        if (success.account.length > 0) {
+          let item = success.account[0];
+          init(item);
+        }
+        $scope.isUserLoading = false;
+      });
+      $scope.confirm = () => {
+        alertDialog.loading();
+        $http.put('/api/user/setConnType/' + $scope.data.account, $scope.data).then(success => {
+          alertDialog.show(`设置成功，请使用${$scope.data.connType}客户端连接`, '确定')
+            .then(() => {
+
+            })
+        }).catch(err => {
+          alertDialog.show('设置失败', '确定');
+        });
+      };
     }
   ]);

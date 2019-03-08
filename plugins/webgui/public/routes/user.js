@@ -56,6 +56,11 @@ app.config(['$stateProvider', $stateProvider => {
       url: '/macAddress',
       controller: 'UserMacAddressController',
       templateUrl: `${ cdn }/public/views/user/macAddress.html`,
+    })    
+    .state('user.connType', {
+      url: '/connType',
+      controller: 'ConnTypeController',
+      templateUrl: `${ cdn }/public/views/user/connType.html`,
     })
     ;
   }])

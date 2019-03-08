@@ -1,5 +1,6 @@
 const user = appRequire('plugins/user/index');
 const account = appRequire('plugins/account/index');
+const accountFlow = appRequire('plugins/account/accountFlow');
 const flow = appRequire('plugins/flowSaver/flow');
 const knex = appRequire('init/knex').knex;
 const emailPlugin = appRequire('plugins/email/index');
@@ -16,7 +17,6 @@ const crypto = require('crypto');
 const flowPack = appRequire('plugins/webgui_order/flowPack');
 const alipayPlugin = appRequire('plugins/alipay/index');
 const macAccountPlugin = appRequire('plugins/macAccount/index');
-const accountFlow = appRequire('plugins/account/accountFlow');
 
 const alipay = appRequire('plugins/alipay/index');
 
@@ -678,3 +678,37 @@ exports.addMacAccount = async (req, res) => {
     res.status(403).end();
   }
 };
+exports.setConnType = async (req, res) => {
+  const accountId = req.params.accountId;
+  const connType = req.body.connType;
+  const method = req.body.method;
+  const protocol = req.body.protocol;
+  const protocol_param = req.body.protocol_param;
+  const obfs = req.body.obfs;
+  const obfs_param = req.body.obfs_param;
+  const isUserHasTheAccount = (accountId) => {
+    return account.getAccount({ userId: req.session.user, id: accountId }).then(success => {
+      if (success.length) {
+        return;
+      }
+      return Promise.reject();
+    });
+  };
+  await isUserHasTheAccount(accountId).then(() => {
+    return account.setConnType({
+      accountId,
+      connType,
+      method,
+      protocol,
+      protocol_param,
+      obfs,
+      obfs_param,
+    })
+  }).then(success => {
+    return res.send('success');
+  }).catch(err => {
+    console.log(err);
+    res.status(403).end();
+  });;
+};
+

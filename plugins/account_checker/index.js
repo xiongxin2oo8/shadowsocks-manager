@@ -95,7 +95,7 @@ const isExpired = (server, account) => {
         knex('account_plugin').delete().where({ id: account.id }).then();
       } else if (account.active && account.autoRemove && expireTime + account.autoRemoveDelay >= Date.now()) {
         modifyAccountFlow(server.id, account.id, expireTime + account.autoRemoveDelay);
-      } else if(account.active && !account.autoRemove) {
+      } else if (account.active && !account.autoRemove) {
         modifyAccountFlow(server.id, account.id, Date.now() + randomInt(7 * 24 * 3600 * 1000));
       }
       return true;
@@ -232,6 +232,10 @@ const deletePort = (server, account) => {
       }
     }).catch();
 };
+//设置SSR为不可用
+const deletePortSSR = async (server, account) => {
+  await knex('ssr_user').update('enable', 0).where({ serverId: server.id, accountId: account.id });
+};
 const runCommand = async cmd => {
   const exec = require('child_process').exec;
   return new Promise((resolve, reject) => {
@@ -296,23 +300,33 @@ const addPort = async (server, account) => {
       }).catch();
   }
 };
+const addPortSSR = async (server, account) => {
+  const ssr = await knex('ssr_user').where({ serverId: server.id, accountId: account.id }).then(s => s[0]);
+  //如果已存在，设置为可用
+  if (ssr) {
+    await knex('ssr_user').update('enable', 1).where({ serverId: server.id, accountId: account.id });
+  } else {
+    await knex('ssr_user').insert({
+      passwd: account.password,
+      t: 0,
+      u: 0,
+      d: 0,
+      transfer_enable: 1000 * 1000 * 1000 * 500,//500G
+      accountId: account.id,
+      serverId: server.id,
+      port: server.shift + account.port,
+      switch: 1,
+      enable: 1,
+      method: account.method,
+      protocol: account.protocol,
+      protocol_param: account.protocol_param,
+      obfs: account.obfs,
+      obfs_param: account.obfs_param
+    });
+  }
+};
 const deleteExtraPorts = async serverInfo => {
   try {
-    // const currentPorts = await manager.send({ command: 'list' }, {
-    //   host: serverInfo.host,
-    //   port: serverInfo.port,
-    //   password: serverInfo.password,
-    // });
-    // const accounts = await knex('account_plugin').where({});
-    // const accountObj = {};
-    // accounts.forEach(account => {
-    //   accountObj[account.port] = account;
-    // });
-    // for (const p of currentPorts) {
-    //   if (accountObj[p.port - serverInfo.shift]) { continue; }
-    //   await sleep(sleepTime);
-    //   deletePort(serverInfo, { port: p.port - serverInfo.shift });
-    // }
     const currentPorts = await manager.send({ command: 'portlist' }, {
       host: serverInfo.host,
       port: serverInfo.port,
@@ -345,12 +359,16 @@ const checkAccount = async (serverId, accountId) => {
       await knex('account_flow').delete().where({ serverId: serverInfo.id, accountId });
       return;
     }
+
     // 检查当前端口是否存在
     const exists = await isPortExists(serverInfo, accountInfo);
+    // 是否配置了SSR
+    const ssr_exists = await knex('ssr_user').where({ serverId: serverInfo.id, accountId: accountInfo.id, enable: 1 }).then(s => s[0]);
 
     // 检查账号是否激活
     if (!isAccountActive(serverInfo, accountInfo)) {
       exists && deletePort(serverInfo, accountInfo);
+      ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
 
@@ -358,28 +376,35 @@ const checkAccount = async (serverId, accountId) => {
     if (!hasServer(serverInfo, accountInfo)) {
       // await modifyAccountFlow(serverInfo.id, accountInfo.id, 20 * 60 * 1000 + randomInt(30000));
       exists && deletePort(serverInfo, accountInfo);
+      ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否过期
     if (isExpired(serverInfo, accountInfo)) {
       exists && deletePort(serverInfo, accountInfo);
+      ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否被ban
     if (await isBaned(serverInfo, accountInfo)) {
       exists && deletePort(serverInfo, accountInfo);
+      ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否超流量
     if (await isOverFlow(serverInfo, accountInfo)) {
       exists && deletePort(serverInfo, accountInfo);
+      ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
-
-    !exists && addPort(serverInfo, accountInfo);
+    if (accountInfo.connType == "SSR") {
+      !ssr_exists && addPortSSR(serverInfo, accountInfo);
+    } else {
+      !exists && addPort(serverInfo, accountInfo);
+    }
 
   } catch (err) {
     //if (err.toString().toLowerCase().indexOf('timeout') > -1) {

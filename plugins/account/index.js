@@ -108,6 +108,12 @@ const getAccount = async (options = {}) => {
     'account_plugin.active',
     'user.id as userId',
     'user.email as user',
+    'account_plugin.connType as connType',
+    'account_plugin.method as method',
+    'account_plugin.protocol as protocol',
+    'account_plugin.protocol_param as protocol_param',
+    'account_plugin.obfs as obfs',
+    'account_plugin.obfs_param as obfs_param'
   ])
     .leftJoin('user', 'user.id', 'account_plugin.userId')
     .where(where)
@@ -993,6 +999,19 @@ const getAccountAndPaging = async (opt) => {
     account: result,
   };
 };
+//设置连接方式
+const setConnType = async (options) => {
+  const accountInfo = await getAccount({ id: options.accountId }).then(s => s[0]);
+  await knex('account_plugin').update({
+    connType: options.connType,
+    method: options.method,
+    protocol: options.protocol,
+    protocol_param: options.protocol_param,
+    obfs: options.obfs,
+    obfs_param: options.obfs_param
+  }).where({ id: accountInfo.id });
+  await accountFlow.edit(accountInfo.id);
+};
 
 exports.addAccount = addAccount;
 exports.getAccount = getAccount;
@@ -1011,6 +1030,7 @@ exports.addAccountTime = addAccountTime;
 
 exports.banAccount = banAccount;
 exports.getBanAccount = getBanAccount;
+exports.setConnType = setConnType;
 
 exports.getAccountForSubscribe = getAccountForSubscribe;
 
