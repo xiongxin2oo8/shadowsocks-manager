@@ -1,0 +1,100 @@
+<div>
+    <md-card>
+        <md-card-content ng-hide="accounts">
+            <div flex layout="row" layout-align="center center">
+                <md-progress-circular md-mode="indeterminate" class="md-accent"></md-progress-circular>
+            </div>
+        </md-card-content>
+        <md-card-content ng-show="accounts">
+            <md-list>
+                <md-list-item>
+                    <div class="md-list-item-text" style="width: 100%;" layout="row"
+                        layout-align="space-between center">
+                        <div flex="50" translate>账号</div>
+                        <div flex="50" layout="row" layout-align="end center">
+                            <md-select ng-model="data.account" aria-label="data.account">
+                                <md-option ng-repeat="account in accounts" value="{{account.id}}" translate>
+                                    {{ account.port }}
+                                </md-option>
+                            </md-select>
+                        </div>
+                    </div>
+                </md-list-item>
+            </md-list>
+            <md-divider></md-divider>
+            <md-list>
+                <md-list-item>
+                    <div class="md-list-item-text" style="width: 100%;" layout="row"
+                        layout-align="space-between center">
+                        <div flex="50" translate>连接方式</div>
+                        <div flex="50" layout="row" layout-align="end center">
+                            <md-select ng-model="data.connType" aria-label="data.connType">
+                                <md-option ng-repeat="type in typeList" value="{{type}}">{{ type }}
+                                </md-option>
+                            </md-select>
+                        </div>
+                    </div>
+                </md-list-item>
+            </md-list>
+            <md-divider></md-divider>
+            <md-list ng-if="data.connType=='SSR'">
+                <md-list-item>
+                    <div class="md-list-item-text" style="width: 100%;" layout="row"
+                        layout-align="space-between center">
+                        <div flex="40" translate>加密方式</div>
+                        <div flex="60" layout="row" layout-align="end center">
+                            <md-select ng-model="data.method" aria-label="data.method">
+                                <md-option ng-repeat="m in methods" value="{{m}}">{{ m }}
+                                </md-option>
+                            </md-select>
+                        </div>
+                    </div>
+                </md-list-item>
+                <md-list-item>
+                    <div class="md-list-item-text" style="width: 100%;" layout="row"
+                        layout-align="space-between center">
+                        <div flex="20" translate>协议</div>
+                        <div flex="80" layout="row" layout-align="end center">
+                            <md-select ng-model="data.protocol" aria-label="data.protocol">
+                                <md-option ng-repeat="protocol in protocolList" value="{{protocol}}">{{ protocol }}
+                                </md-option>
+                            </md-select>
+                        </div>
+                    </div>
+                </md-list-item>
+                <md-list-item>
+                    <md-input-container class="md-block" style="width: 100%;">
+                        <label>协议参数</label>
+                        <input type="string" name="protocol_param" ng-model="data.protocol_param">
+                    </md-input-container>
+                </md-list-item>
+                <md-list-item>
+                    <div class="md-list-item-text" style="width: 100%;" layout="row"
+                        layout-align="space-between center">
+                        <div flex="20" translate>混淆</div>
+                        <div flex="80" layout="row" layout-align="end center">
+                            <md-select ng-model="data.obfs" aria-label="data.obfs">
+                                <md-option ng-repeat="obfs in obfsList" value="{{obfs}}">{{ obfs }}
+                                </md-option>
+                            </md-select>
+                        </div>
+                    </div>
+                </md-list-item>
+                <md-list-item>
+                    <md-input-container class="md-block" style="width: 100%;">
+                        <label>混淆参数</label>
+                        <input type="string" required name="obfs_param" ng-model="data.obfs_param">
+                    </md-input-container>
+                </md-list-item>
+            </md-list>
+        </md-card-content>
+
+        <div flex layout="row" layout-align="center start">
+            <div flex="10" flex-gt-sm="30"></div>
+            <div layout="row" flex layout-align="space-around center">
+                <md-button class="md-raised md-primary" ng-disabled="data.connType=='SSR'&&!data.obfs_param"
+                    ng-click="confirm()" translate>确认</md-button>
+            </div>
+            <div flex="10" flex-gt-sm="30"></div>
+        </div>
+</div>
