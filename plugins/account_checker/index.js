@@ -364,7 +364,12 @@ const checkAccount = async (serverId, accountId) => {
     const exists = await isPortExists(serverInfo, accountInfo);
     // 是否配置了SSR
     const ssr_exists = await knex('ssr_user').where({ serverId: serverInfo.id, accountId: accountInfo.id, enable: 1 }).then(s => s[0]);
-
+    if (accountInfo.connType == 'SSR' && exists) {
+      deletePort(serverInfo, accountInfo);
+    }
+    if (accountInfo.connType != 'SSR' && ssr_exists) {
+      deletePortSSR(serverInfo, accountInfo);
+    }
     // 检查账号是否激活
     if (!isAccountActive(serverInfo, accountInfo)) {
       exists && deletePort(serverInfo, accountInfo);
