@@ -286,7 +286,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
         if (accountInfo.connType == "SSR") {
           result = subscribeAccount.server.map(s => {
-            return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':' + accountInfo.protocol + ':' + s.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=' + urlsafeBase64(accountInfo.obfs_param) + '&protoparam=' + urlsafeBase64(accountInfo.protocol_param) + '&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+            return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':' + accountInfo.protocol + ':' + s.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=' + (!accountInfo.obfs_param || urlsafeBase64(accountInfo.obfs_param)) + '&protoparam=' + (!accountInfo.protocol_param||urlsafeBase64(accountInfo.protocol_param)) + '&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
           }).join('\r\n');
         } else {
           result = subscribeAccount.server.map(s => {
