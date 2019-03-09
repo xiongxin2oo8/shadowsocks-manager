@@ -1,4 +1,20 @@
 <div>
+    <div flex="100" ng-if="!accounts">
+        <md-card>
+            <md-card-content>
+                <div style="margin-top: 30px; margin-bottom: 30px;" translate>目前该用户没有分配账号，请联系管理员处理</div>
+                <div ng-show="config.alipay || config.paypal || config.giftcard" ng-click="createOrder()"
+                    style="margin-bottom: 30px;">{{
+                            '或' | translate }}
+                    <span>
+                        <md-button class="md-primary">{{ '点击这里' | translate }}</md-button>
+                    </span>
+                    {{ '付款立即开通帐号' | translate }}</div>
+                <div style="text-align:left;color:#c3c3c3;font-size: 14px;">提示：账号到期7天后就会被删除，需要付款重新分配帐号。<span
+                        style="color:red">支付成功后，将于三分钟内开通，请不要捉急。</span></div>
+            </md-card-content>
+        </md-card>
+    </div>
     <md-card>
         <md-card-content ng-hide="accounts">
             <div flex layout="row" layout-align="center center">

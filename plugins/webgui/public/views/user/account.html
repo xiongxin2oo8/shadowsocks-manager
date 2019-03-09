@@ -1,17 +1,21 @@
-<div ng-if="accountResult.length>0" style="font-size: 0.8em; color: #555;position:fixed;padding: 3px;text-align: center;width: 100%;background-color: #FAFAFA;z-index: 2">共
+<div ng-if="accountResult.length>0"
+    style="font-size: 0.8em; color: #555;position:fixed;padding: 3px;text-align: center;width: 100%;background-color: #FAFAFA;z-index: 2">
+    共
     {{accountResult.length}} 条，显示 {{accountList.length}} 条</div>
 <div layout="row" layout-xs="column" style="margin-top:20px" layout-wrap>
     <div flex="100" ng-if="account && !account.length && !isUserLoading">
         <md-card>
             <md-card-content>
                 <div style="margin-top: 30px; margin-bottom: 30px;" translate>目前该用户没有分配账号，请联系管理员处理</div>
-                <div ng-show="config.alipay || config.paypal || config.giftcard" ng-click="createOrder()" style="margin-bottom: 30px;">{{
+                <div ng-show="config.alipay || config.paypal || config.giftcard" ng-click="createOrder()"
+                    style="margin-bottom: 30px;">{{
                     '或' | translate }}
                     <span>
                         <md-button class="md-primary">{{ '点击这里' | translate }}</md-button>
                     </span>
                     {{ '付款立即开通帐号' | translate }}</div>
-                <div style="text-align:left;color:#c3c3c3;font-size: 14px;">提示：账号到期7天后就会被删除，需要付款重新分配帐号。<span style="color:red">支付成功后，将于三分钟内开通，请不要捉急。</span></div>
+                <div style="text-align:left;color:#c3c3c3;font-size: 14px;">提示：账号到期7天后就会被删除，需要付款重新分配帐号。<span
+                        style="color:red">支付成功后，将于三分钟内开通，请不要捉急。</span></div>
             </md-card-content>
         </md-card>
     </div>
@@ -20,13 +24,15 @@
             <div style="position: absolute; background: rgba(255, 255, 255, 0.75); width: 100%; height: 100%; z-index: 1;"
                 ng-if="a.active === 0">
                 <div style="width: 100%; height: 100%;" layout="row" layout-align="center center">
-                    <md-button class="md-raised md-warn" ng-click="activeAccount(a)"><span style="font-size: 1.5em; margin: 10px;">激活账号</span></md-button>
+                    <md-button class="md-raised md-warn" ng-click="activeAccount(a)"><span
+                            style="font-size: 1.5em; margin: 10px;">激活账号</span></md-button>
                 </div>
             </div>
             <md-card-header ng-style="isBlur(a)" style="padding-bottom:0">
                 <md-card-header-text>
-                    <span class="md-title">{{a.port}}
-                        <span ng-if='!isAccountOutOfDate(a)' style="color:green">&nbsp;(共{{a.serverList.length}}个节点可用)</span>
+                    <span class="md-title">{{a.port}}[{{a.connType||'SS'}}]
+                        <span ng-if='!isAccountOutOfDate(a)'
+                            style="color:green">&nbsp;(共{{a.serverList.length}}个节点可用)</span>
                         <span ng-if='isAccountOutOfDate(a)' style="color: #a33;">&nbsp;{{ '已过期' | translate }}</span>
                         <!-- ng-show="isAccountOutOfDate(a)" -->
                     </span>
@@ -34,7 +40,8 @@
             </md-card-header>
             <md-card-content ng-style="isBlur(a)">
                 <md-tabs md-selected="0" md-border-bottom md-autoselect md-dynamic-height>
-                    <md-tab ng-repeat="server in a.serverList track by server.id" label="{{server.name}}" md-on-select="getServerPortData(a, server.id)">
+                    <md-tab ng-repeat="server in a.serverList track by server.id" label="{{server.name}}"
+                        md-on-select="getServerPortData(a, server.id)">
                     </md-tab>
                 </md-tabs>
                 <div layout="row" layout-align="center center" layout-wrap>
@@ -72,14 +79,18 @@
                             <md-list-item ng-show="isWG(a.serverInfo) && !config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>公钥：</div>
-                                    <div flex="60" style="text-align:right; overflow: hidden; text-overflow: ellipsis; color: #666; font-size: 0.8em;">{{a.publicKey}}</div>
+                                    <div flex="60"
+                                        style="text-align:right; overflow: hidden; text-overflow: ellipsis; color: #666; font-size: 0.8em;">
+                                        {{a.publicKey}}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-show="isWG(a.serverInfo) && !config.simple"></md-divider>
                             <md-list-item ng-show="isWG(a.serverInfo) && !config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '私钥：' | translate }}</div>
-                                    <div flex="60" style="text-align:right; overflow: hidden; text-overflow: ellipsis; color: #666; font-size: 0.8em;">{{a.privateKey}}</div>
+                                    <div flex="60"
+                                        style="text-align:right; overflow: hidden; text-overflow: ellipsis; color: #666; font-size: 0.8em;">
+                                        {{a.privateKey}}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-show="isWG(a.serverInfo) && !config.simple"></md-divider>
@@ -89,7 +100,8 @@
                                     <div flex="60" style="text-align:right">
                                         <span ng-if="a.type === 1">{{ '不限量' | translate }}</span>
                                         <span ng-if="a.type >=2 && a.type <= 5">
-                                            <span ng-style="a.isFlowOutOfLimit[a.serverInfo.id] ? {color: '#a33'} : {color: '#333'}">{{
+                                            <span
+                                                ng-style="a.isFlowOutOfLimit[a.serverInfo.id] ? {color: '#a33'} : {color: '#333'}">{{
                                                 a.serverPortFlow | flow }}
                                             </span> / {{ a.data.flow + a.data.flowPack |
                                             flow }}</span>
@@ -111,7 +123,8 @@
                                     <div flex="60" style="text-align:right">
                                         <span ng-if="a.type === 1">{{ '无' | translate }}</span>
                                         <span ng-if="a.type >=2 && a.type <= 5"><span style="font-size: 0.9em;">{{a.data.from
-                                                | date : 'yyyy-MM-dd HH:mm'}}</span><br><span style="font-size: 0.9em;">{{a.data.to
+                                                | date : 'yyyy-MM-dd HH:mm'}}</span><br><span
+                                                style="font-size: 0.9em;">{{a.data.to
                                                 | date : 'yyyy-MM-dd HH:mm'}}</span>
                                         </span>
                                     </div>
@@ -140,7 +153,8 @@
                                     <div flex="60" style="text-align:right">
                                         <span ng-if="a.lastConnect" style="font-size: 0.9em;">{{a.lastConnect |
                                             date :
-                                            'yyyy-MM-dd HH:mm'}}<span><br><span ng-if="a.lastConnect" style="font-size: 0.9em;">{{
+                                            'yyyy-MM-dd HH:mm'}}<span><br><span ng-if="a.lastConnect"
+                                                    style="font-size: 0.9em;">{{
                                                     a.lastConnect | timeago | translateTime }}</span>
 
                                     </div>
@@ -156,8 +170,8 @@
                             <md-divider></md-divider>
                         </md-list>
                     </div>
-                    <div flex flex-xs="100" layout="row" layout-align-xs="center center" layout-align-gt-xs="space-between center"
-                        ng-hide="config.simple">
+                    <div flex flex-xs="100" layout="row" layout-align-xs="center center"
+                        layout-align-gt-xs="space-between center" ng-hide="config.simple">
                         <div hide-xs></div>
                         <div ng-hide="isWG(a.serverInfo)" layout="column" layout-align-xs="center center">
                             <qr ng-if="a.serverInfo" ng-click="showQrcodeDialog(a.serverInfo, a)" size="getQrCodeSize()"
@@ -168,12 +182,14 @@
                         <div ng-show="isWG(a.serverInfo)" ng-click="showWireGuard(a.serverInfo, a)" layout="column"
                             layout-align-xs="center center" style="background-color: #eee;">
 
-                            <qr size="getQrCodeSize()" layout-margin text="createQrCode(a.serverInfo, a)" image="true"></qr>
+                            <qr size="getQrCodeSize()" layout-margin text="createQrCode(a.serverInfo, a)" image="true">
+                            </qr>
                             <md-button class="md-primary">显示WireGuard配置</md-button>
                         </div>
                         <div hide-xs></div>
                     </div>
-                    <div style="text-align:left;color:#c3c3c3;font-size: 14px;line-height: 20px" ng-hide="config.simple">提示：
+                    <div style="text-align:left;color:#c3c3c3;font-size: 14px;line-height: 20px"
+                        ng-hide="config.simple">提示：
                         <span style='color:green;font-weight: 600'>推荐使用订阅批量导入节点</span>，
                         <span>否则请</span>
                         <span style='color:red;'>点击/扫描二维码(极度不推荐)</span>
@@ -182,32 +198,38 @@
                     </div>
                 </div>
                 <div class="btns" style="display: flex;justify-content: center;flex-wrap: wrap;">
-                    <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary" ng-click="showChangePasswordDialog(a.id, a.password)">{{
+                    <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary"
+                        ng-click="showChangePasswordDialog(a.id, a.password)">{{
                         '修改密码' |
                         translate }}</md-button>
-                    <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary" ng-show="config.alipay || config.paypal || config.giftcard"
-                        ng-if="a.type >= 2 && a.type <= 5" ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
-                    <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary" ng-click="subscribe(a.id)"
-                        ng-if="config.subscribe">{{
+                    <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary"
+                        ng-show="config.alipay || config.paypal || config.giftcard" ng-if="a.type >= 2 && a.type <= 5"
+                        ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
+                    <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary"
+                        ng-click="subscribe(a.id)" ng-if="config.subscribe">{{
                         '订阅' | translate }}({{'推荐' | translate }})</md-button>
                     <md-button style="margin:6px 0;" class="md-primary" ng-if="config.subscribe">
-                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;" href="{{shadowrocket(a.subscribe)}}">Shadowrocket({{'一键订阅'
+                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;"
+                            href="{{shadowrocket(a.subscribe)}}">Shadowrocket({{'一键订阅'
                             | translate }})</a></md-button>
                 </div>
             </md-card-content>
         </md-card>
     </div>
-    <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" in-view="view($inview)" ng-if="accountResult.length && !isUserPageFinish">
+    <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" in-view="view($inview)"
+        ng-if="accountResult.length && !isUserPageFinish">
         <md-card>
             <md-card-content>
                 <div layout="row" layout-align="center center">
-                    <md-progress-circular md-mode="indeterminate" class="md-hue-2" md-diameter="20px"></md-progress-circular>
+                    <md-progress-circular md-mode="indeterminate" class="md-hue-2" md-diameter="20px">
+                    </md-progress-circular>
                 </div>
             </md-card-content>
         </md-card>
     </div>
 </div>
-<div layout-fill layout="row" layout-align="center center" in-view="view($inview)" ng-if="!accountResult.length && !isUserPageFinish">
+<div layout-fill layout="row" layout-align="center center" in-view="view($inview)"
+    ng-if="!accountResult.length && !isUserPageFinish">
     <div flex style="height: 180px;"></div>
     <div flex layout="row" layout-align="center center">
         <md-progress-circular md-mode="indeterminate" class="md-accent"></md-progress-circular>
