@@ -53,7 +53,7 @@ const day_push = async () => {
     .orderBy('server.comment')
     .whereBetween('time', [begin_time, end_time])
     .then(success => {
-      let allflow = '';
+      let allflow = 0;
       for (let item in success) {
         allflow += item.flow;
       }
