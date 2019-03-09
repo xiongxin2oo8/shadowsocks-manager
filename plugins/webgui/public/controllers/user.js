@@ -612,6 +612,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
   .controller('ConnTypeController', ['$scope', '$state', 'userApi', 'alertDialog', '$http', '$localStorage',
     ($scope, $state, userApi, alertDialog, $http, $localStorage) => {
       $scope.setTitle('连接方式');
+      $scope.initloading = true;
       $scope.setMenuButton('arrow_back', 'user.settings');
       $scope.typeList = ['SS', 'SSR'];
       $scope.protocolList = ['auth_chain_a', 'auth_aes128_md5', 'auth_aes128_sha1'];
@@ -633,12 +634,12 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         'chacha20-ietf'
       ];
       $scope.$watch('data.account', () => {
-        if($scope.accounts){
+        if ($scope.accounts) {
           let item = $scope.accounts.find(x => x.id == $scope.data.account);
           init(item);
-        }        
+        }
       });
-      const init=(item)=>{
+      const init = (item) => {
         $scope.data = {
           account: item.id,
           connType: item.connType || "SS",
@@ -650,6 +651,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         };
       }
       userApi.getUserAccount().then(success => {
+        $scope.initloading = false;
         $scope.accounts = success.account;
         if (success.account.length > 0) {
           let item = success.account[0];
