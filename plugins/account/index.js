@@ -1010,6 +1010,20 @@ const setConnType = async (options) => {
     obfs: options.obfs,
     obfs_param: options.obfs_param
   }).where({ id: accountInfo.id });
+  if (options.connType == "SSR") {
+    await knex('ssr_user').update({
+      enable: 1,
+      method: options.method,
+      protocol: options.protocol,
+      protocol_param: options.protocol_param,
+      obfs: options.obfs,
+      obfs_param: options.obfs_param
+    }).where({ id: accountInfo.id });
+  } else {
+    await knex('ssr_user').update({
+      enable: 0
+    }).where({ id: accountInfo.id });
+  }
   await accountFlow.edit(accountInfo.id);
 };
 

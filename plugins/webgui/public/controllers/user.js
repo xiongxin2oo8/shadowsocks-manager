@@ -351,6 +351,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
             `Endpoint = ${server.host}:${server.wgPort}`,
             `AllowedIPs = 0.0.0.0/0`,
           ].join('\n');
+        } else if (account.connType == "SSR") {
+          return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (!account.obfs_param || urlsafeBase64(account.obfs_param)) + '&protoparam=' + (!account.protocol_param || urlsafeBase64(account.protocol_param)) + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
         } else {
           return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
         }
@@ -459,8 +461,11 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         }
       };
       $scope.showQrcodeDialog = (server, account) => {
-        const ssAddress = $scope.createQrCode(server, account);
-        const ssrAddress = $scope.SSRAddress(server, account);
+        let ssAddress = $scope.createQrCode(server, account);
+        let ssrAddress = $scope.SSRAddress(server, account);
+        if (account.connType == "SSR") {
+          ssAddress = '';
+        }
         qrcodeDialog.show(server.name, ssAddress, ssrAddress);
       };
       $scope.cycleStyle = account => {
@@ -662,7 +667,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.confirm = () => {
         alertDialog.loading();
         $http.put('/api/user/setConnType/' + $scope.data.account, $scope.data).then(success => {
-          alertDialog.show(`设置成功，请使用${$scope.data.connType}客户端连接`, '确定')
+          alertDialog.show(`设置成功，请重新添加订阅后使用${$scope.data.connType}客户端连接`, '确定')
             .then(() => {
 
             })

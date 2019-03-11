@@ -55,7 +55,7 @@ const day_push = async () => {
     .then(success => {
       let allflow = 0;
       for (let item in success) {
-        allflow += item.flow;
+        allflow += item.flow || 0;
       }
       let list = success.map(item => {
         return `${item.name} 账号数:${item.count} 总流量:${flowNumber(item.flow)}`;
@@ -71,7 +71,7 @@ const day_push = async () => {
     .then(success => success[0]);
   let msg = `主人，晚上好！`;
   msg += `\n截止目前，共有账号数 ${total_info.count} 个`;
-  msg += `\n今天,`;
+  msg += `\n今天:`;
   msg += `\n共注册了 ${newuser} 个新用户`;
   msg += `\n共有 ${login} 个人登录了网站`;
   msg += `\n共产生 ${pay_info.count} 个订单，筹得 ${(pay_info.amount || 0).toFixed(2)} 元`;

@@ -286,17 +286,17 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
         if (accountInfo.connType == "SSR") {
           result = subscribeAccount.server.map(s => {
-            return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':' + accountInfo.protocol + ':' + s.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=' + (!accountInfo.obfs_param || urlsafeBase64(accountInfo.obfs_param)) + '&protoparam=' + (!accountInfo.protocol_param||urlsafeBase64(accountInfo.protocol_param)) + '&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+            return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (!accountInfo.obfs_param || urlsafeBase64(accountInfo.obfs_param)) + '&protoparam=' + (!accountInfo.protocol_param||urlsafeBase64(accountInfo.protocol_param)) + '&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
           }).join('\r\n');
         } else {
           result = subscribeAccount.server.map(s => {
             if (type === 'shadowrocket') {
-              return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
+              return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
             } else if (type === 'potatso') {
-              return 'ss://' + Buffer.from(s.method + ':' + subscribeAccount.account.password + '@' + s.host + ':' + (subscribeAccount.account.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
+              return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
             } else if (type === 'ssr') {
               let index = method.indexOf(s.method);
-              return 'ssr://' + urlsafeBase64(s.host + ':' + (subscribeAccount.account.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(subscribeAccount.account.password) + '/?obfsparam=&remarks=' + urlsafeBase64((index == -1 ? '' : '[不支持SSR]') + s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(accountInfo.password) + '/?obfsparam=&remarks=' + urlsafeBase64((index == -1 ? '' : '[不支持SSR]') + s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
             }
           }).join('\r\n');
         }

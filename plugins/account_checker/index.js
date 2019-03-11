@@ -460,7 +460,15 @@ cron.loop(
         await accountFlow.add(account.id);
       }
       //删除不存在的账号的残留端口
-      await knex('account_flow').whereNotIn('accountId', knex('account_plugin').select(['id'])).del();
+      await knex('account_flow')
+        .whereNotIn('accountId', knex('account_plugin').select(['id']))
+        .orWhereNotIn('serverId', knex('server').select(['id']))
+        .del();
+
+      await knex('ssr_user')
+        .whereNotIn('accountId', knex('account_plugin').select(['id']))
+        .orWhereNotIn('serverId', knex('server').select(['id']))
+        .del();
 
       const end = Date.now();
       if (end - start <= time * 1000) {

@@ -5,8 +5,8 @@
                 style="text-align:center;font-size:16px;display: -webkit-box;word-break: break-all;-webkit-box-orient: vertical;-webkit-line-clamp: 1; overflow: hidden;text-overflow: ellipsis">
                 {{publicInfo.serverName }}</div>
             <div layout="column" layout-align="center center" style="margin-top:10px">
-                <a ng-href="{{ publicInfo.ssAddress}}">
-                    <qr layout-margin text="publicInfo.ssAddress" image="true"></qr>
+                <a ng-href="{{ publicInfo.ssAddress || publicInfo.ssrAddress}}">
+                    <qr layout-margin text="publicInfo.ssAddress || publicInfo.ssrAddress" image="true"></qr>
                     <script>
                         $(function () {
                             $('qr img').css('width', '90%');
@@ -22,7 +22,7 @@
                 <div>
                     <md-button class="md-primary" ngclipboard data-clipboard-text="{{ publicInfo.ssAddress}}"
                         ngclipboard-success="toast(e);">
-                        复制SS链接
+                        {{ publicInfo.ssAddress?"复制SS链接":"不支持SS" }}
                     </md-button>
                 </div>
                 <div>

@@ -3,7 +3,7 @@ const window = require('window');
 const cdn = window.cdn || '';
 
 app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
-  const publicInfo = { linkType: 'shadowrocket', ip: '0', flow: '0' };
+  const publicInfo = { linkType: 'shadowrocket', ip: '0', flow: '1' };
   const hide = () => {
     return $mdDialog.hide()
       .then(success => {
@@ -42,13 +42,22 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
       ];
       const config = configManager.getConfig();
       $scope.hideFlow = config.hideFlow;
-      $scope.changeLinkType = () => {
-        $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
-      };
       $scope.publicInfo.getSubscribe().then(success => {
+        if (success.data.connType == "SSR") {
+          $scope.publicInfo.types = [
+            'shadowrocket', 'ssr',
+          ];
+        } else {
+          // $scope.publicInfo.types = [
+          //   'shadowrocket', 'potatso', 'ssd', 'clash',
+          // ];
+        }
         $scope.publicInfo.token = success.data.subscribe;
         $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
       });
+      $scope.changeLinkType = () => {
+        $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
+      };
       $scope.publicInfo.updateLink = () => {
         $scope.publicInfo.updateSubscribe().then(success => {
           $scope.publicInfo.token = success.data.subscribe;

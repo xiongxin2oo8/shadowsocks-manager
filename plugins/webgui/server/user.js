@@ -54,7 +54,7 @@ exports.getAccount = async (req, res) => {
         }
       }
       //账号太多不修改
-      if (accounts.length < 100) {
+      if (accounts.length < 10) {
         await accountFlow.edit(account.id);
       }
     }
@@ -560,10 +560,11 @@ exports.getAccountSubscribe = async (req, res) => {
     const accountId = +req.params.accountId;
     const account = await knex('account_plugin').select([
       'id',
-      'subscribe'
+      'subscribe',
+      'connType'
     ]).where({
       id: accountId,
-      userId,
+      userId
     }).then(s => s[0]);
     if (!account.subscribe) {
       const subscribeToken = crypto.randomBytes(16).toString('hex');;
