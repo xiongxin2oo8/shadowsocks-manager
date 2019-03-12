@@ -46,7 +46,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       name: '订单',
       icon: 'attach_money',
       click: 'user.order',
-      hide: true,
+      hide: false,
     }, {
       name: '设置',
       icon: 'settings',
