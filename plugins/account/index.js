@@ -5,7 +5,12 @@ const crypto = require('crypto');
 const macAccount = appRequire('plugins/macAccount/index');
 const orderPlugin = appRequire('plugins/webgui_order');
 const accountFlow = appRequire('plugins/account/accountFlow');
+const config = appRequire('services/config').all();
 
+let isssr;
+if (config.plugins.ssr && config.plugins.ssr.use && config.plugins.ssr.default) {
+  isssr = true;
+}
 const runCommand = async cmd => {
   const exec = require('child_process').exec;
   return new Promise((resolve, reject) => {
@@ -42,6 +47,12 @@ const addAccount = async (type, options) => {
       server: options.server ? options.server : null,
       autoRemove: 0,
       key,
+      connType: isssr ? 'SSR' : 'SS',
+      method: 'chacha20-ietf',
+      protocol: 'auth_aes128_md5',
+      protocol_param: '',
+      obfs: 'http_simple',
+      obfs_param: 'download.windowsupdate.com',
     });
     await accountFlow.add(accountId);
     return accountId;
@@ -64,7 +75,13 @@ const addAccount = async (type, options) => {
       autoRemoveDelay: options.autoRemoveDelay || 0,
       multiServerFlow: options.multiServerFlow || 0,
       active: options.active,
-      key,
+      key,      
+      connType: isssr ? 'SSR' : 'SS',
+      method: 'chacha20-ietf',
+      protocol: 'auth_aes128_md5',
+      protocol_param: '',
+      obfs: 'http_simple',
+      obfs_param: 'download.windowsupdate.com',
     });
     await accountFlow.add(accountId);
     return accountId;
@@ -276,6 +293,9 @@ const changePassword = async (id, password) => {
   await knex('account_plugin').update({
     password,
   }).where({ id });
+  await knex('ssr_user').update({
+    passwd: password,
+  }).where({ accountId: id });
   await accountFlow.pwd(id, password);
   return;
 };

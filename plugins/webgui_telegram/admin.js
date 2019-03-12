@@ -55,7 +55,7 @@ const day_push = async () => {
     .then(success => {
       let allflow = 0;
       for (let item in success) {
-        allflow += item.flow || 0;
+        allflow += (item.flow || 0);
       }
       let list = success.map(item => {
         return `${item.name} 账号数:${item.count} 总流量:${flowNumber(item.flow)}`;
