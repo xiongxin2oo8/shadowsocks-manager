@@ -45,7 +45,7 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
       $scope.publicInfo.getSubscribe().then(success => {
         if (success.data.connType == "SSR") {
           $scope.publicInfo.types = [
-            'shadowrocket', 'ssr',
+            'ssr',
           ];
         } else {
           // $scope.publicInfo.types = [
