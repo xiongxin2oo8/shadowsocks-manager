@@ -42,15 +42,16 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
       ];
       const config = configManager.getConfig();
       $scope.hideFlow = config.hideFlow;
+      $scope.publicInfo.flow = 1;
       $scope.publicInfo.getSubscribe().then(success => {
         if (success.data.connType == "SSR") {
           $scope.publicInfo.types = [
             'ssr',
           ];
         } else {
-          // $scope.publicInfo.types = [
-          //   'shadowrocket', 'potatso', 'ssd', 'clash',
-          // ];
+          $scope.publicInfo.types = [
+            'shadowrocket', 'ssd', 'potatso', 'clash',
+          ];
         }
         $scope.publicInfo.token = success.data.subscribe;
         $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;

@@ -89,19 +89,22 @@
                                     <div flex="40">{{ '协议：' | translate }}</div>
                                     <div flex="60" style="text-align:right">{{a.protocol}}</div>
                                 </div>
-                            </md-list-item> <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'"></md-divider>
+                            </md-list-item>
+                            <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'"></md-divider>
                             <md-list-item ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '协议参数：' | translate }}</div>
                                     <div flex="60" style="text-align:right">{{a.protocol_param}}</div>
                                 </div>
-                            </md-list-item> <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'"></md-divider>
+                            </md-list-item>
+                            <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'"></md-divider>
                             <md-list-item ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '混淆：' | translate }}</div>
                                     <div flex="60" style="text-align:right">{{a.obfs}}</div>
                                 </div>
-                            </md-list-item> <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'"></md-divider>
+                            </md-list-item>
+                            <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'"></md-divider>
                             <md-list-item ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="30">{{ '混淆参数：' | translate }}</div>
@@ -246,6 +249,9 @@
                         <a class="md-primary" style="text-decoration:none;text-transform:capitalize;"
                             href="{{shadowrocket(a.subscribe)}}">Shadowrocket({{'一键订阅'
                             | translate }})</a></md-button>
+                    <md-button style="margin:6px 0;" class="md-primary">
+                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;"
+                           target="_blank" href="https://www.balala.ml/archives/help.html">使用教程</a></md-button>
                 </div>
             </md-card-content>
         </md-card>

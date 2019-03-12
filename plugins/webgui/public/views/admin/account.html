@@ -9,7 +9,7 @@
                     <div flex="30" ng-if="!a.mac">{{ a.port }}
                         <br>
                         <span style="font-size: 0.7em;">{{ a.data.expire?( (a.data.expire | timeago |
-                            translateTime)+' '+flowNumber(a.data.flow)):'无限' }}</span>
+                            translateTime)+' '+flowNumber(a.data.flow)):'无限' }}{{ a.connType?(' - '+a.connType):'' }}</span>
                     </div>
                     <div flex layout="row" layout-align="end center">
                         <span ng-if="!a.mac" style="color: #aaa; font-size: 0.8em; text-overflow: ellipsis; overflow: hidden;">{{a.user

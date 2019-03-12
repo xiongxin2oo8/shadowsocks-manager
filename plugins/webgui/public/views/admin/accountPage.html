@@ -3,7 +3,7 @@
         <md-card>
             <md-card-header>
                 <md-card-header-text>
-                    <span class="md-title">{{ account.port || '...' }}
+                    <span class="md-title">{{ account.port || '...' }} - {{ account.connType||'SS' }}
                         <span ng-if="account.active === 0" style="color: #a33;">未激活</span>
                     </span>
                     <span class="md-subhead" ng-click="toUserPage(account.userId)">{{ account.user || account.password
@@ -49,13 +49,50 @@
                                     <div flex="60" style="text-align:right">{{ account.password }}</div>
                                 </div>
                             </md-list-item>
-                            <md-divider ng-hide="isWG(server)"></md-divider>
-                            <md-list-item ng-hide="isWG(server)">
+                            <md-divider ng-hide="isWG(server) || account.connType=='SSR'"></md-divider>
+                            <md-list-item ng-hide="isWG(server) || account.connType=='SSR'">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>加密方式：</div>
                                     <div flex="60" style="text-align:right">{{ server.method }}</div>
                                 </div>
                             </md-list-item>
+
+                            <md-divider ng-hide="isWG(server) || account.connType!='SSR'"></md-divider>
+                            <md-list-item ng-hide="isWG(server) || account.connType!='SSR'">
+                                <div flex layout="row" layout-align="space-between center">
+                                    <div flex="40">{{ '加密方式：' | translate }}</div>
+                                    <div flex="60" style="text-align:right">{{account.method}}</div>
+                                </div>
+                            </md-list-item>
+                            <md-divider ng-hide="isWG(server) || account.connType!='SSR'"></md-divider>
+                            <md-list-item ng-hide="isWG(server) || account.connType!='SSR'">
+                                <div flex layout="row" layout-align="space-between center">
+                                    <div flex="40">{{ '协议：' | translate }}</div>
+                                    <div flex="60" style="text-align:right">{{account.protocol}}</div>
+                                </div>
+                            </md-list-item>
+                            <md-divider ng-hide="isWG(server) || account.connType!='SSR'"></md-divider>
+                            <md-list-item ng-hide="isWG(server) || account.connType!='SSR'">
+                                <div flex layout="row" layout-align="space-between center">
+                                    <div flex="40">{{ '协议参数：' | translate }}</div>
+                                    <div flex="60" style="text-align:right">{{account.protocol_param}}</div>
+                                </div>
+                            </md-list-item>
+                            <md-divider ng-hide="isWG(server) || account.connType!='SSR'"></md-divider>
+                            <md-list-item ng-hide="isWG(server) || account.connType!='SSR'">
+                                <div flex layout="row" layout-align="space-between center">
+                                    <div flex="40">{{ '混淆：' | translate }}</div>
+                                    <div flex="60" style="text-align:right">{{account.obfs}}</div>
+                                </div>
+                            </md-list-item>
+                            <md-divider ng-hide="isWG(server) || account.connType!='SSR'"></md-divider>
+                            <md-list-item ng-hide="isWG(server) || account.connType!='SSR'">
+                                <div flex layout="row" layout-align="space-between center">
+                                    <div flex="30">{{ '混淆参数：' | translate }}</div>
+                                    <div flex="70" style="text-align:right">{{account.obfs_param}}</div>
+                                </div>
+                            </md-list-item>
+
                             <md-divider ng-hide="isWG(server)"></md-divider>
                             <md-list-item ng-show="isWG(server)">
                                 <div flex layout="row" layout-align="space-between center">

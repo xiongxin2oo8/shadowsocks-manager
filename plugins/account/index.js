@@ -931,6 +931,7 @@ const getAccountAndPaging = async (opt) => {
     'account_plugin.autoRemoveDelay',
     'account_plugin.multiServerFlow',
     'account_plugin.active',
+    'account_plugin.connType',
     'user.id as userId',
     'user.email as user',
   ])
