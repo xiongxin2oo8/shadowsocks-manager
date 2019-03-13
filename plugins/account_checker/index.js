@@ -508,8 +508,9 @@ cron.minute(() => {
         //不检查的服务器
         let server_not = [];
         error_count.map((v, i) => {
-          if (v > 9) server_not.push(i);
+          if (v > 5) server_not.push(i);
         })
+        console.log(`不检查服务器：${server_not}`);
         //第一个
         const accountLeft = await redis.lpop('CheckAccount:Queue');
         //最后一个
@@ -594,7 +595,7 @@ cron.minute(() => {
           const accountId = +accountRight.split(':')[1];
           error_count[serverId] = error_count[serverId] || 0;
           const start = Date.now();
-          if (error_count[serverId] < 10) {
+          if (error_count[serverId] < 5) {
             await checkAccount(serverId, accountId).catch();
             if (Date.now() - start < (1000 / speed)) {
               await sleep(1000 / speed - (Date.now() - start));

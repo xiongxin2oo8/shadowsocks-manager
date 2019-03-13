@@ -672,7 +672,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.confirm = () => {
         alertDialog.loading();
         $http.put('/api/user/setConnType/' + $scope.data.account, $scope.data).then(success => {
-          alertDialog.show(`设置成功，请重新添加订阅后使用${$scope.data.connType}客户端连接`, '确定')
+          alertDialog.show(`设置成功，请重新添加订阅后等待两分钟，再使用${$scope.data.connType}客户端连接`, '确定')
             .then(() => {
 
             })
