@@ -235,8 +235,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         return str;
       };
       $scope.showQrcodeDialog = (server, account) => {
-        const ssAddress = $scope.createQrCode(server, account);
-        const ssrAddress = $scope.SSRAddress(server, account);
+        let ssAddress = $scope.createQrCode(server, account);
+        let ssrAddress = $scope.SSRAddress(server, account);
         if (account.connType == "SSR") {
           ssAddress = '';
         }
