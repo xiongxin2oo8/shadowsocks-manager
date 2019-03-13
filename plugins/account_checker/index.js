@@ -510,7 +510,6 @@ cron.minute(() => {
         error_count.map((v, i) => {
           if (v > 5) server_not.push(i);
         })
-        console.log(`不检查服务器：${server_not}`);
         //第一个
         const accountLeft = await redis.lpop('CheckAccount:Queue');
         //最后一个
