@@ -215,17 +215,31 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
             `Endpoint = ${server.host}:${server.wgPort}`,
             `AllowedIPs = 0.0.0.0/0`,
           ].join('\n');
+        } else if (account.connType == "SSR") {
+          return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
         } else {
-          return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment || '这里是备注');
+          return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
         }
       };
       $scope.SSRAddress = (server, account) => {
-        let str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment || '这里是备注'));
+        let str = '';
+        if (account.connType == "SSR") {
+          str = 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+        } else {
+          let index = method.indexOf(server.method);
+          if (index != -1) {
+            return "";
+          }
+          str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment));
+        }
         return str;
       };
       $scope.showQrcodeDialog = (server, account) => {
         const ssAddress = $scope.createQrCode(server, account);
         const ssrAddress = $scope.SSRAddress(server, account);
+        if (account.connType == "SSR") {
+          ssAddress = '';
+        }
         qrcodeDialog.show(server.name, ssAddress, ssrAddress);
       };
       $scope.editAccount = id => {
