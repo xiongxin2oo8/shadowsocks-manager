@@ -54,8 +54,8 @@ const day_push = async () => {
     .whereBetween('time', [begin_time, end_time])
     .then(success => {
       let allflow = 0;
-      for (let item in success) {
-        allflow += (item.flow || 0);
+      for (let item of success) {
+        allflow += item.flow || 0;
       }
       let list = success.map(item => {
         return `${item.name} 账号数:${item.count} 总流量:${flowNumber(item.flow)}`;

@@ -336,6 +336,7 @@ const getUserFinishOrder = async userId => {
     .leftJoin('account_plugin', 'account_plugin.id', 'alipay.account')
     .where({
       user: userId,
+      'alipay.status': 'FINISH',
     }).orderBy('createTime', 'DESC');
   orders = orders.map(order => {
     return {
