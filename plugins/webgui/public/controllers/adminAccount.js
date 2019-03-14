@@ -221,6 +221,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
           return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
         }
       };
+      const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
       $scope.SSRAddress = (server, account) => {
         let str = '';
         if (account.connType == "SSR") {
