@@ -38,7 +38,7 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
     controller: ['$scope', '$mdMedia', '$mdDialog', 'bind', 'configManager', '$mdToast', function ($scope, $mdMedia, $mdDialog, bind, configManager, $mdToast) {
       $scope.publicInfo = bind;
       $scope.publicInfo.types = [
-        'shadowrocket', 'potatso', 'ssr', 'ssd', 'clash',
+        'shadowrocket', 'ssr','ssd','potatso',  'clash',
       ];
       const config = configManager.getConfig();
       $scope.hideFlow = config.hideFlow;
@@ -49,9 +49,9 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
             'ssr',
           ];
         } else {
-          $scope.publicInfo.types = [
-            'shadowrocket', 'ssd', 'potatso', 'clash',
-          ];
+          // $scope.publicInfo.types = [
+          //   'shadowrocket', 'ssd', 'potatso', 'clash',
+          // ];
         }
         $scope.publicInfo.token = success.data.subscribe;
         $scope.publicInfo.subscribeLink = `${config.site}/api/user/account/subscribe/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
