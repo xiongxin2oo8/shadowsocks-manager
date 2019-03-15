@@ -38,7 +38,7 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
     controller: ['$scope', '$mdMedia', '$mdDialog', 'bind', 'configManager', '$mdToast', function ($scope, $mdMedia, $mdDialog, bind, configManager, $mdToast) {
       $scope.publicInfo = bind;
       $scope.publicInfo.types = [
-        'shadowrocket', 'ssr','ssd','potatso',  'clash',
+        'shadowrocket', 'ssr', 'ssd', 'potatso', 'clash',
       ];
       const config = configManager.getConfig();
       $scope.hideFlow = config.hideFlow;
