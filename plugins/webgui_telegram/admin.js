@@ -55,7 +55,6 @@ const day_push = async () => {
     .then(success => {
       let allflow = 0;
       let list = '';
-      success = success.sort((a, b) => a.flow > b.flow);
       for (let item of success) {
         allflow += item.flow || 0;
         list += `${item.name} 账号数:${item.count} 总流量:${flowNumber(item.flow)}\n`;
@@ -83,6 +82,6 @@ cron.cron(() => {
   if (isTelegram) {
     day_push();
   }
-}, 'day_push', '02 23 * * *', 24 * 3600);
+}, 'day_push', '30 22 * * *', 24 * 3600);
 
 exports.push = push;
