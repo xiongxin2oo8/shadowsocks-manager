@@ -259,6 +259,7 @@ exports.status = async (req, res) => {
     const id = req.session.user;
     const version = appRequire('package').version;
     const site = config.plugins.webgui.site;
+    const rss = config.plugins.webgui.rss;
     const skin = config.plugins.webgui.skin || 'default';
     let alipay;
     let paypal;
@@ -312,6 +313,7 @@ exports.status = async (req, res) => {
       themeAccent,
       browserColor,
       site,
+      rss,
       skin,
       alipay,
       paypal,
