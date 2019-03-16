@@ -47,17 +47,17 @@ const day_push = async () => {
   const server_info = await knex('saveFlow')
     .leftJoin('server', 'saveFlow.id', 'server.id')
     .countDistinct('saveFlow.accountId as count')
-    .sum('saveFlow.flow as flow')
+    .sum('saveFlow.flow as sumflow')
     .select('server.name')
     .groupBy('saveFlow.id')
-    .orderBy('server.comment')
     .whereBetween('time', [begin_time, end_time])
+    .orderBy('sumflow','desc')
     .then(success => {
       let allflow = 0;
       let list = '';
       for (let item of success) {
-        allflow += item.flow || 0;
-        list += `${item.name} 账号数:${item.count} 总流量:${flowNumber(item.flow)}\n`;
+        allflow += item.sumflow || 0;
+        list += `${item.name} 账号数:${item.count} 总流量:${flowNumber(item.sumflow)}\n`;
       }
       return { allflow: allflow, list: list }
     });
