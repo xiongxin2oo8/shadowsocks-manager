@@ -5,12 +5,7 @@ const crypto = require('crypto');
 const macAccount = appRequire('plugins/macAccount/index');
 const orderPlugin = appRequire('plugins/webgui_order');
 const accountFlow = appRequire('plugins/account/accountFlow');
-const config = appRequire('services/config').all();
 
-let isssr;
-if (config.plugins.ssr && config.plugins.ssr.use && config.plugins.ssr.default) {
-  isssr = true;
-}
 const runCommand = async cmd => {
   const exec = require('child_process').exec;
   return new Promise((resolve, reject) => {
@@ -35,6 +30,9 @@ const addAccount = async (type, options) => {
   if (type === 6 || type === 7) {
     type = 3;
   }
+  const connType = await knex('webguiSetting').where({
+    key: 'account'
+  }).then(s => s[0]).then(s => JSON.parse(s.value).connType || '');
   if (type === 1) {
     const [accountId] = await knex('account_plugin').insert({
       type,
@@ -47,7 +45,7 @@ const addAccount = async (type, options) => {
       server: options.server ? options.server : null,
       autoRemove: 0,
       key,
-      connType: isssr ? 'SSR' : 'SS',
+      connType: connType,
       method: 'chacha20-ietf',
       protocol: 'auth_aes128_md5',
       protocol_param: '',
@@ -75,8 +73,8 @@ const addAccount = async (type, options) => {
       autoRemoveDelay: options.autoRemoveDelay || 0,
       multiServerFlow: options.multiServerFlow || 0,
       active: options.active,
-      key,      
-      connType: isssr ? 'SSR' : 'SS',
+      key,
+      connType: connType,
       method: 'chacha20-ietf',
       protocol: 'auth_aes128_md5',
       protocol_param: '',
