@@ -337,6 +337,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         let time = flowTime[$scope.flowType.value];
         adminApi.getAccountChartData(serverId, $scope.accountId, $scope.flowType.value, time)
           .then(success => {
+            //此处有bug
             $scope.sumFlow = success[0].data.reduce((a, b) => {
               return a + b;
             }, 0);

@@ -524,6 +524,9 @@ const getAccountServerFlow = (accountId, timeArray) => {
     if (timeEnd - timeStart === 7 * 24 * 3600 * 1000 && Date.now() - timeEnd >= 3600 * 1000) {
       tableName = 'saveFlowDay';
     }
+    if (timeEnd - timeStart === 7 * 24 * 3600 * 1000 && Date.now() - timeEnd < 3600 * 1000) {
+      tableName = 'saveFlowHour';
+    }
     timeArray[1] -= 1;
   }
   return knex(tableName).sum(`${tableName}.flow as flow`).groupBy(`${tableName}.id`)
