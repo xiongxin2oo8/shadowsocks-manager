@@ -248,6 +248,7 @@ const splitTime = async (start, end) => {
   return time;
 };
 
+
 const getFlowFromSplitTime = async (serverId, accountId, start, end) => {
   const time = await splitTime(start, end);
   const sum = [];
@@ -348,6 +349,9 @@ const getServerFlow = async (serverId, timeArray) => {
 
 const getServerPortFlow = async (serverId, accountId, timeArray, isMultiServerFlow) => {
   const result = [];
+  isMultiServerFlow = await knex('account_plugin').select().where({
+    id: accountId,
+  }).then(success => { return success[0].multiServerFlow })
   timeArray.forEach((time, index) => {
     if (index === timeArray.length - 1) {
       return;

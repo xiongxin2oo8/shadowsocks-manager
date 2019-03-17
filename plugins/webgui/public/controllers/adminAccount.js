@@ -257,12 +257,12 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         if (day == 0) {
           date = moment().day(-7);
         }
-        return date;
+        return date.toDate().getTime();
       }
       const flowTime = {
         hour: Date.now(),
         day: Date.now(),
-        week: weektime(),
+        week:  weektime(),
       };
       const flowLabel = {
         hour: ['0', '', '', '15', '', '', '30', '', '', '45', '', ''],
@@ -334,7 +334,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         };
       };
       $scope.getChartData = serverId => {
-        adminApi.getAccountChartData(serverId, $scope.accountId, $scope.flowType.value, flowTime[$scope.flowType.value])
+        let time = flowTime[$scope.flowType.value];
+        adminApi.getAccountChartData(serverId, $scope.accountId, $scope.flowType.value, time)
           .then(success => {
             $scope.sumFlow = success[0].data.reduce((a, b) => {
               return a + b;
@@ -351,7 +352,11 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
           $scope.time = moment(flowTime[$scope.flowType.value]).format('YYYY-MM-DD');
         }
         if ($scope.flowType.value === 'week') {
-          $scope.time = moment(flowTime[$scope.flowType.value]).day(1).format('YYYY-MM-DD') + ' / ' + moment(flowTime[$scope.flowType.value]).day(7).format('YYYY-MM-DD');
+          let time = flowTime[$scope.flowType.value];
+          if (moment(time).day() == 0) {
+            time = moment(time).day(-7);
+          }
+          $scope.time = moment(time).day(1).format('YYYY-MM-DD') + ' / ' + moment(time).day(7).format('YYYY-MM-DD');
         }
       };
       $scope.changeFlowTime = (serverId, number) => {
