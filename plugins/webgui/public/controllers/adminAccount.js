@@ -353,9 +353,6 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         }
         if ($scope.flowType.value === 'week') {
           let time = flowTime[$scope.flowType.value];
-          if (moment(time).day() == 0) {
-            time = moment(time).day(-7);
-          }
           $scope.time = moment(time).day(1).format('YYYY-MM-DD') + ' / ' + moment(time).day(7).format('YYYY-MM-DD');
         }
       };
