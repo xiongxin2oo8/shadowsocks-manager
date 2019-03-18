@@ -244,7 +244,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         if (day == 0) {
           date = moment().day(-7);
         }
-        return date.toDate().getTime();
+        return date;
       }
       const flowTime = {
         hour: Date.now(),
