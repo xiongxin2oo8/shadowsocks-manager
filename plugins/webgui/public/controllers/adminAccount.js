@@ -257,7 +257,6 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         if (day == 0) {
           date = moment().day(-7);
         }
-        console.log('date',date);
         return date;
       }
       const flowTime = {
