@@ -617,6 +617,13 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           }
         });
       };
+      $scope.addMacAccount = () => {
+        addMacAccountDialog.show().then(() => {
+          getMacAccount();
+        }).catch(err => {
+          getMacAccount();
+        });
+      };
       getMacAccount();
     }
   ])
