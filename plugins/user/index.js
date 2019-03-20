@@ -185,22 +185,23 @@ const getUserAndPaging = async (opt = {}) => {
     .where('id', '>', 1)
     .whereIn('type', type);
 
-  let users = knex('user').select([
-    'user.id as id',
-    'user.username as username',
-    'user.email as email',
-    'user.telegram as telegram',
-    'user.password as password',
-    'user.type as type',
-    'user.createTime as createTime',
-    'user.lastLogin as lastLogin',
-    'user.resetPasswordId as resetPasswordId',
-    'user.resetPasswordTime as resetPasswordTime',
-    'account_plugin.port as port',
-    'user.comment as comment'
-  ]).leftJoin('account_plugin', 'user.id', 'account_plugin.userId')
+  let users = knex('user')
+    .select([
+      'user.id as id',
+      'user.username as username',
+      'user.email as email',
+      'user.telegram as telegram',
+      'user.password as password',
+      'user.type as type',
+      'user.createTime as createTime',
+      'user.lastLogin as lastLogin',
+      'user.resetPasswordId as resetPasswordId',
+      'user.resetPasswordTime as resetPasswordTime',
+      'user.comment as comment'
+    ])
+    .select(knex.raw('(select count(1) from account_plugin where account_plugin.userId=user.id) as port'))
     .where('user.id', '>', 1)
-    .whereIn('user.type', type).groupBy('user.id');
+    .whereIn('user.type', type);
 
   if (group >= 0) {
     count = count.where({ 'user.group': group });
