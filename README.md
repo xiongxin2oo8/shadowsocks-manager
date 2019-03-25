@@ -6,6 +6,8 @@
 [download-url]: https://npmjs.org/package/shadowsocks-manager
 [license-image]: https://img.shields.io/npm/l/shadowsocks-manager.svg
 
+[安装方法](https://www.balala.ml/archives/20.html)
+
 # shadowsocks-manager
 
 A shadowsocks manager tool for multi user and traffic control.  
