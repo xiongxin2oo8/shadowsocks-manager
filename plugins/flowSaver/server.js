@@ -130,7 +130,7 @@ const list = async (options = {}) => {
       } else {
         last = moment(moment().format('YYYY-MM') + '-' + (server.resetday < 10 ? '0' + server.resetday : server.resetday)).startOf('day').valueOf();
       }
-      server['useflow'] = await knex('saveFlowHour')
+      server['useflow'] = await knex('saveFlow')
         .sum(`flow as sumFlow`)
         .where({ id: server.id })
         .whereBetween(`time`, [last, now]).then(res => res[0].sumFlow || 0);

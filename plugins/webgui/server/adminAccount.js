@@ -248,7 +248,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             method: 'chacha20',
             host: '127.0.0.1',
             shift: 0,
-            comment: '使用流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
+            comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
           };
           subscribeAccount.server.unshift(insertExpire);
           subscribeAccount.server.unshift(insertFlow);
