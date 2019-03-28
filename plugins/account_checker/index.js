@@ -234,7 +234,8 @@ const deletePort = (server, account) => {
 };
 //设置SSR为不可用
 const deletePortSSR = async (server, account) => {
-  await knex('ssr_user').update('enable', 0).where({ serverId: server.id, accountId: account.id });
+  //await knex('ssr_user').update('enable', 0).where({ serverId: server.id, accountId: account.id });
+  await knex('ssr_user').delete().where({ serverId: server.id, accountId: account.id });
 };
 const runCommand = async cmd => {
   const exec = require('child_process').exec;
@@ -366,6 +367,9 @@ const checkAccount = async (serverId, accountId) => {
     const ssr_exists = await knex('ssr_user').where({ serverId: serverInfo.id, accountId: accountInfo.id, enable: 1 }).then(s => s[0]);
     if (accountInfo.connType == 'SSR' && exists) {
       deletePort(serverInfo, accountInfo);
+    }
+    if (ssr_exists.port != serverInfo.shift + accountInfo.port) {
+      deletePortSSR(serverInfo, accountInfo);
     }
     if (accountInfo.connType != 'SSR' && ssr_exists) {
       deletePortSSR(serverInfo, accountInfo);
