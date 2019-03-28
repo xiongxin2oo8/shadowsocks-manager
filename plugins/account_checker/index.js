@@ -370,6 +370,7 @@ const checkAccount = async (serverId, accountId) => {
     }
     if (ssr_exists && ssr_exists.port != (serverInfo.shift + accountInfo.port)) {
       deletePortSSR(serverInfo, accountInfo);
+      ssr_exists=null;
     }
     if (accountInfo.connType != 'SSR' && ssr_exists) {
       deletePortSSR(serverInfo, accountInfo);
