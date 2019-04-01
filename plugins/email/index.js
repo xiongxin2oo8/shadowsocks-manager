@@ -107,7 +107,7 @@ const sendMail = async (to, subject, text, options = {}) => {
         from: `"${config.plugins.email.name || ''}" <${config.plugins.email.email || config.plugins.email.username}>`,
         to,
         subject,
-        text,
+        html: text,
         replyTo: config.plugins.email.replyto
       }, (error, info) => {
         if (error) {

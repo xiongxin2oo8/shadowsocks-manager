@@ -370,7 +370,7 @@ const checkAccount = async (serverId, accountId) => {
     }
     if (ssr_exists && ssr_exists.port != (serverInfo.shift + accountInfo.port)) {
       deletePortSSR(serverInfo, accountInfo);
-      ssr_exists=null;
+      ssr_exists = null;
     }
     if (accountInfo.connType != 'SSR' && ssr_exists) {
       deletePortSSR(serverInfo, accountInfo);
@@ -588,7 +588,7 @@ cron.minute(() => {
           const start = Date.now();
           //如果请求同一个服务器10次出错，10分钟内不再请求这个服务器
           if (error_count[serverId] < 10) {
-            await checkAccount(serverId, accountId).catch();
+            await checkAccount(serverId, accountId).catch(err => {});
             if (Date.now() - start < (1000 / speed)) {
               await sleep(1000 / speed - (Date.now() - start));
             }
@@ -600,7 +600,7 @@ cron.minute(() => {
           error_count[serverId] = error_count[serverId] || 0;
           const start = Date.now();
           if (error_count[serverId] < 5) {
-            await checkAccount(serverId, accountId).catch();
+            await checkAccount(serverId, accountId).catch(err => {});
             if (Date.now() - start < (1000 / speed)) {
               await sleep(1000 / speed - (Date.now() - start));
             }
@@ -685,7 +685,7 @@ cron.minute(() => {
             const start = Date.now();
             error_count[account.serverId] = error_count[account.serverId] || 0;
             if (error_count[account.serverId] < 10)
-              await checkAccount(account.serverId, account.accountId).catch();;
+              await checkAccount(account.serverId, account.accountId).catch(err => {});;
             const time = 60 * 1000 / accounts.length - (Date.now() - start);
             await sleep((time <= 0 || time > sleepTime) ? sleepTime : time);
           }
@@ -695,7 +695,7 @@ cron.minute(() => {
               //如果请求同一个服务器5次出错，5分钟内不再请求这个服务器，虽然不是同步的
               error_count[account.serverId] = error_count[account.serverId] || 0;
               if (error_count[account.serverId] < 10) {
-                return checkAccount(account.serverId, account.accountId).catch();;
+                return checkAccount(account.serverId, account.accountId).catch(err => {});;
               }
             });
           }));
