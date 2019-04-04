@@ -400,11 +400,11 @@ const getIp = port => {
 
 const getClientIp = port => {
   clientIp = clientIp.filter(f => {
-    return Date.now() - f.time <= 15 * 60 * 1000;
+    return Date.now() - f.time <= 30 * 60 * 1000;
   });
   const result = [];
   clientIp.filter(f => {
-    return Date.now() - f.time <= 15 * 60 * 1000 && f.port === port;
+    return Date.now() - f.time <= 30 * 60 * 1000 && f.port === port;
   }).map(m => {
     return m.ip;
   }).forEach(f => {
