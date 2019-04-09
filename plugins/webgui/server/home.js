@@ -122,7 +122,7 @@ exports.signup = async (req, res) => {
             user: userId,
             orderId: orderInfo.id,
             port,
-            password: Math.random().toString().substr(2, 10),
+            password: Math.random().toString().substr(2, 4),
             time: Date.now(),
             limit: orderInfo.cycle,
             flow: orderInfo.flow,

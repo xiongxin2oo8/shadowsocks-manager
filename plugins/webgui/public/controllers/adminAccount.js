@@ -255,7 +255,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         let date = Date.now();
         let day = moment().day();
         if (day == 0) {
-          date = moment().day(-7);
+          date = moment().day(-7).valueOf();
         }
         return date;
       }
