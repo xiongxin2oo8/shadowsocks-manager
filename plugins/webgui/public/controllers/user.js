@@ -375,7 +375,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.shadowrocket = subscribe => {
         let rss = config.rss || `${config.site}/api/user/account/subscribe`;
         let base64 = urlsafeBase64(`${rss}/${subscribe}?type=shadowrocket&ip=0${config.hideFlow ? '' : '&flow=1'}`);
-        let remarks = base64Encode(config.site.split('//')[1] || config.site);//config.title
+        let remarks = base64Encode(config.site.split('//')[1] || config.site + '(左滑更新)');//config.title
         let str = `shadowrocket://add/sub://${base64}?remarks=${remarks}`;
         return str;
       }
