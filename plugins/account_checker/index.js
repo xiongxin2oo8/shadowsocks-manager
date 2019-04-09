@@ -541,7 +541,7 @@ cron.minute(() => {
                 .where('nextCheckTime', '<', Date.now())
                 .whereNotIn('serverId', server_not)
                 .orderBy('nextCheckTime', 'asc')
-                .limit(1000)
+                .limit(300)
                 .offset(0);
               accounts = [...accounts, ...datas];
             } catch (err) {
@@ -577,8 +577,8 @@ cron.minute(() => {
               await redis.lpush('CheckAccount:Queue', accounts.map(m => `${m.serverId}:${m.accountId}`));
             }
             redis.del('CheckAccount:Mark');
-            console.log(`需要检查账号 ${accounts.length} 个，暂停 5 秒`);
-            await sleep(5000);
+            console.log(`需要检查账号 ${accounts.length} 个，暂停 3 秒`);
+            await sleep(3000);
           };
         }
         if (accountLeft) {
