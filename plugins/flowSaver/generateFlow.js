@@ -102,7 +102,7 @@ cron.minute(async () => {
       .select('nextCheckTime')
       .where({ 'serverId': item.id, 'accountId': item.accountId })
       .then(success => success[0]);
-    if (account_flow.nextCheckTime - date > 5 * 60 * 1000) {
+    if (account_flow.nextCheckTime - date > 10 * 60 * 1000) {
       await knex('account_flow').update({
         nextCheckTime: Date.now()
       }).where({
@@ -111,7 +111,7 @@ cron.minute(async () => {
       });
     }
   }
-}, 'UpdateNextCheckTime', 2);
+}, 'UpdateNextCheckTime', 7);
 cron.minute(async () => {
   logger.info('每5分钟执行一次');
   generateFlow('5min');
