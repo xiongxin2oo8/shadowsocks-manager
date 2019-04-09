@@ -398,7 +398,12 @@ const getIp = port => {
   });
 };
 
-const getClientIp = port => {
+const getClientIp = port => {  
+  getIp(+port).then(ips => {
+    ips.forEach(ip => {
+      clientIp.push({ port: +port, time: Date.now(), ip });
+    });
+  });
   clientIp = clientIp.filter(f => {
     return Date.now() - f.time <= 30 * 60 * 1000;
   });
