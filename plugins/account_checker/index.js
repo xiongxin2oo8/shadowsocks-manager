@@ -443,14 +443,14 @@ cron.loop(
         await deleteExtraPorts(server);
       }
       await sleep(sleepTime);
-      if (servers.length * totalAccounts.length > 1000) {
-        const ids = await knex('account_flow')
-          .select(['id'])
-          .orderBy('id', 'ASC')
-          .limit(Math.ceil(servers.length * totalAccounts.length / 1000));
-        await knex('account_flow').delete()
-          .whereIn('id', ids.map(m => m.id));
-      }
+      // if (servers.length * totalAccounts.length > 1000) {
+      //   const ids = await knex('account_flow')
+      //     .select(['id'])
+      //     .orderBy('id', 'ASC')
+      //     .limit(Math.ceil(servers.length * totalAccounts.length / 1000));
+      //   await knex('account_flow').delete()
+      //     .whereIn('id', ids.map(m => m.id));
+      // }
 
       const accounts = await knex('account_plugin').select([
         'account_plugin.id as id',
