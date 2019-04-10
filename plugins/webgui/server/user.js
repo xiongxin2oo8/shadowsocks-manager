@@ -55,7 +55,8 @@ exports.getAccount = async (req, res) => {
       }
       //账号太多不修改
       if (accounts.length < 10) {
-        await accountFlow.edit(account.id);
+        //await accountFlow.edit(account.id);
+        await accountFlow.editForLogin(account.id);
       }
     }
     res.send(accounts);
@@ -323,12 +324,12 @@ exports.getNotice = async (req, res) => {
       'notice.group as group',
       'notice.autopop as autopop',
     ])
-    .innerJoin('notice_group', 'notice.id', 'notice_group.noticeId')
-    .innerJoin('user', 'user.group', 'notice_group.groupId')
-    .where('notice.group', '>', 0)
-    .where({ 'user.id': userId })
-    .groupBy('notice.id');
-    const notices = [...noticesWithoutGroup, ...noticesWithGroup ].sort((a, b) => b.time - a.time);
+      .innerJoin('notice_group', 'notice.id', 'notice_group.noticeId')
+      .innerJoin('user', 'user.group', 'notice_group.groupId')
+      .where('notice.group', '>', 0)
+      .where({ 'user.id': userId })
+      .groupBy('notice.id');
+    const notices = [...noticesWithoutGroup, ...noticesWithGroup].sort((a, b) => b.time - a.time);
     return res.send(notices);
   } catch (err) {
     console.log(err);

@@ -80,7 +80,15 @@ const edit = async accountId => {
   }));
   return;
 };
-
+const editForLogin = async accountId => {
+  return await knex('account_flow')
+    .update({
+      nextCheckTime: Date.now(),//100,//优先检查
+    })
+    .where({ accountId })
+    .whereNotNull('checkTime')
+    .where('checkTime', '<', Date.now() - 20 * 60 * 1000);
+};
 const server = async serverId => {
   const server = await knex('server').where({ id: serverId }).then(s => s[0]);
   const accounts = await knex('account_plugin').where({});
@@ -127,6 +135,7 @@ exports.add = add;
 exports.del = del;
 exports.pwd = pwd;
 exports.edit = edit;
+exports.editForLogin = editForLogin;
 exports.addServer = server;
 exports.editServer = server;
 exports.updateFlow = updateFlow;
