@@ -72,7 +72,7 @@ const edit = async accountId => {
   await Promise.all(servers.map(server => {
     return knex('account_flow').update({
       port: accountInfo.port + server.shift,
-      nextCheckTime: Date.now(),//100,//优先检查
+      nextCheckTime: 100,//优先检查
     }).where({
       serverId: server.id,
       accountId,
