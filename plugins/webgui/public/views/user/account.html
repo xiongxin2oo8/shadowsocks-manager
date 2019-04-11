@@ -200,8 +200,8 @@
                             <md-divider></md-divider>
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>备注：</div>
-                                    <div flex="60" style="text-align:right">{{ a.serverInfo.comment || '无' }}</div>
+                                    <div flex="20" translate>备注：</div>
+                                    <div flex="80" style="text-align:right">{{ a.serverInfo.comment || '无' }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
@@ -226,9 +226,10 @@
                         <div hide-xs></div>
                     </div>
                     <div style="text-align:left;color:#c3c3c3;font-size: 14px;line-height: 20px"
-                        ng-hide="config.simple">提示：
-                        <span style='color:green;font-weight: 600'>推荐使用订阅批量导入全部节点</span>，
-                        <span style='color:red;'>请勿扫码！</span>
+                        ng-hide="config.simple">
+                        <span style='color:green;font-weight: 600'>请使用订阅，一次就能导入全部节点</span>
+                        <br><br>
+                        <span style='color:red;'>请勿扫码！请勿手动添加！</span>
                         <br><br>
                         <span>不同地域，节点速度各不相同，每个节点都试试吧。</span>
                     </div>
