@@ -354,6 +354,7 @@ exports.sendCode = (req, res) => {
             return Promise.reject('invalid ref code');
           });
         }
+        isTelegram && telegram.push(`用户[ ${req.body.email.toString().toLowerCase()} ]注册失败，未开放注册`);
         return Promise.reject('signup close');
       });
   }).then(() => {
