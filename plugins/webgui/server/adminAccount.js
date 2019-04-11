@@ -151,13 +151,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
   try {
     const stype = req.query.stype;
     let type = req.query.type || 'shadowrocket';
-    //为了兼容原来的 2019.03取消
-    if (stype == 1) {
-      type = 'ssr'
-    }
-    if (stype == 2) {
-      type = 'ssd'
-    }
     const resolveIp = req.query.ip;
     const showFlow = req.query.flow || 0;
     const token = req.params.token;
@@ -172,7 +165,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!isSubscribeOn) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       for (const s of subscribeAccount.server) {
-        //s.comment = ((s.status != -1 && s.isGfw) ? '[被墙]' : '') + s.comment;
         s.host = await getAddress(s.host, +resolveIp);
       }
       const baseSetting = await knex('webguiSetting').where({
@@ -180,6 +172,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }).then(s => s[0]).then(s => JSON.parse(s.value));
 
       let accountInfo = subscribeAccount.account;
+
+      //更新订阅时间
+      await knex('account_plugin').update({
+        lastSubscribeTime: Date.now()
+      }).where({
+        'id': accountInfo.id
+      });
       if (accountInfo.type >= 2 && accountInfo.type <= 5) {
         const time = {
           '2': 7 * 24 * 3600000,

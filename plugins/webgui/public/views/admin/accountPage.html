@@ -92,7 +92,6 @@
                                     <div flex="70" style="text-align:right">{{account.obfs_param}}</div>
                                 </div>
                             </md-list-item>
-
                             <md-divider ng-hide="isWG(server)"></md-divider>
                             <md-list-item ng-show="isWG(server)">
                                 <div flex layout="row" layout-align="space-between center">
@@ -177,6 +176,13 @@
                                     <div flex="60" style="text-align:right">{{ server.comment }}</div>
                                 </div>
                             </md-list-item>
+                            <md-divider></md-divider>
+                            <md-list-item>
+                                <div flex layout="row" layout-align="space-between center">
+                                    <div flex="50">{{ '上次更新订阅时间：' | translate }}</div>
+                                    <div flex="50" style="text-align:right">{{account.lastSubscribeTime | date : 'yyyy-MM-dd HH:mm'}}</div>
+                                </div>
+                            </md-list-item>                            
                             <md-divider></md-divider>
                         </md-list>
                     </div>

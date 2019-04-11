@@ -128,7 +128,8 @@ const getAccount = async (options = {}) => {
     'account_plugin.protocol as protocol',
     'account_plugin.protocol_param as protocol_param',
     'account_plugin.obfs as obfs',
-    'account_plugin.obfs_param as obfs_param'
+    'account_plugin.obfs_param as obfs_param',
+    'account_plugin.lastSubscribeTime as lastSubscribeTime'
   ])
     .leftJoin('user', 'user.id', 'account_plugin.userId')
     .where(where)

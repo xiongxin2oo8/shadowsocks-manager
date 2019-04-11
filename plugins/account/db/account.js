@@ -10,6 +10,12 @@ const createTable = async() => {
     const hasProtocol_param = await knex.schema.hasColumn(tableName, 'protocol_param');
     const hasObfs = await knex.schema.hasColumn(tableName, 'obfs');
     const hasObfs_param = await knex.schema.hasColumn(tableName, 'obfs_param');
+    const hasLastSubTime = await knex.schema.hasColumn(tableName, 'lastSubscribeTime');
+    if(!hasLastSubTime) {
+      await knex.schema.table(tableName, function(table) {
+        table.bigInteger('lastSubscribeTime');
+      });
+    }
     if(!hasConnType) {
       await knex.schema.table(tableName, function(table) {
         table.string('connType');
@@ -63,6 +69,7 @@ const createTable = async() => {
     table.string('key');
     table.string('data');
     table.string('subscribe');
+    table.bigInteger('lastSubscribeTime');
     table.integer('status');
     table.integer('autoRemove').defaultTo(0);
     table.bigInteger('autoRemoveDelay').defaultTo(0);
