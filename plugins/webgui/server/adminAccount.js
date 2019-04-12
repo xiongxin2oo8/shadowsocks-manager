@@ -246,7 +246,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           let insertFlow = {
             method: 'chacha20',
             host: '127.0.0.1',
-            shift: 0,
+            shift: 1,
             comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
           };
           subscribeAccount.server.unshift(insertExpire);
@@ -255,7 +255,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         let renew = {
           method: 'chacha20',
           host: '127.0.0.1',
-          shift: 0,
+          shift: 2,
           comment: '续费地址：' + config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site
         };
         subscribeAccount.server.unshift(renew);
