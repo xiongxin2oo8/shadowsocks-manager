@@ -252,6 +252,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           subscribeAccount.server.unshift(insertExpire);
           subscribeAccount.server.unshift(insertFlow);
         }
+        let renew = {
+          method: 'chacha20',
+          host: '127.0.0.1',
+          shift: 0,
+          comment: '续费地址：' + config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site
+        };
+        subscribeAccount.server.unshift(renew);
         if (type === 'clash') {
           if (accountInfo.connType == "SSR") {
             subscribeAccount.server = [{
