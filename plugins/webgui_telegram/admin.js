@@ -44,7 +44,7 @@ const day_push = async () => {
   //当日使用端口数
   const today_info = await knex('saveFlow').countDistinct('accountId as count').whereBetween('time', [begin_time, end_time]).then(success => success[0]);
   //当日更新订阅数
-  const subscribe_info = await knex('account_plugin').count('id as count').whereBetween('time', [begin_time, end_time]).then(success => success[0]);
+  const subscribe_info = await knex('account_plugin').count('id as count').whereBetween('lastSubscribeTime', [begin_time, end_time]).then(success => success[0]);
   //总流量
   //各个服务器使用情况
   const server_info = await knex('saveFlow')
