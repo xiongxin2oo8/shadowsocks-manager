@@ -29,9 +29,14 @@ const flowNumber = (number) => {
 
 //每天消息推送
 const isTelegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
-const day_push = async () => {
+const day_push = async (flag) => {
   let begin_time = moment(new Date()).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
   let end_time = new Date().getTime();
+  //提醒前一天
+  if (flag === 1) {
+    end_time = begin_time;
+    begin_time = moment(new Date()).day(-1).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
+  }
   //当日登录用户数
   const login = await knex('user').count('id as count').whereNot({
     type: 'admin'
@@ -39,8 +44,8 @@ const day_push = async () => {
   const newuser = await knex('user').count('id as count').whereNot({
     type: 'admin'
   }).whereBetween('createTime', [begin_time, end_time]).then(success => success[0].count);
-  //总账号数，使用订阅数
-  const total_info = await knex('account_plugin').countDistinct('id as count').countDistinct('subscribe as sub_count').then(success => success[0]);
+  //总账号数
+  const total_info = await knex('account_plugin').countDistinct('id as count').then(success => success[0]);
   //当日使用端口数
   const today_info = await knex('saveFlow').countDistinct('accountId as count').whereBetween('time', [begin_time, end_time]).then(success => success[0]);
   //当日更新订阅数
@@ -71,9 +76,9 @@ const day_push = async () => {
     .whereBetween('createTime', [begin_time, end_time])
     .where('status', 'FINISH')
     .then(success => success[0]);
-  let msg = `主人，晚上好！`;
+  let msg = `主人，${flag === 1 ? '早' : '晚'}上好！`;
   msg += `\n截止目前，共有账号数 ${total_info.count} 个`;
-  msg += `\n今天:`;
+  msg += `\n${flag === 1 ? '昨' : '今'}天:`;
   msg += `\n共注册了 ${newuser} 个新用户`;
   msg += `\n共有 ${subscribe_info.count} 人更新订阅`
   msg += `\n共有 ${login} 个人登录了网站`;
@@ -82,10 +87,17 @@ const day_push = async () => {
   msg += `\n各服务器使用情况：\n${server_info.list}`;
   await push(msg);
 }
+//今天(提醒当天)
 cron.cron(() => {
   if (isTelegram) {
-    day_push();
+    day_push(0);
   }
-}, 'day_push', '15 23 * * *', 24 * 3600);
+}, 'day_push', '45 22 * * *', 24 * 3600);
+//昨天(第二天提醒前一天)
+cron.cron(() => {
+  if (isTelegram) {
+    day_push(1);
+  }
+}, 'day_push2', '00 06 * * *', 24 * 3600);
 
 exports.push = push;
