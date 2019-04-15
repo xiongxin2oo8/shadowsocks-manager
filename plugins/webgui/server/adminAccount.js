@@ -233,6 +233,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         result = 'ssd://' + new Buffer(JSON.stringify(obj)).toString('base64');
         return res.send(result);
       } else {
+        let renew = {
+          method: 'chacha20',
+          host: '127.0.0.1',
+          shift: 2,
+          comment: '续费地址：' + config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site
+        };
+        subscribeAccount.server.unshift(renew);
         if (accountInfo.type == 1) {
           const insert = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
           subscribeAccount.server.unshift(insert);
@@ -251,19 +258,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           shift: 0,
           comment: accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
         };
-        let renew = {
-          method: 'chacha20',
-          host: '127.0.0.1',
-          shift: 2,
-          comment: '续费地址：' + config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site
-        };
 
         if (accountInfo.data.expire <= new Date()) {
-          subscribeAccount.server = [insertExpire];
+          subscribeAccount.server = [insertExpire, renew]
         } else {
           subscribeAccount.server.unshift(insertExpire);
         }
-        subscribeAccount.server.unshift(renew);
         if (type === 'clash') {
           if (accountInfo.connType == "SSR") {
             subscribeAccount.server = [{
