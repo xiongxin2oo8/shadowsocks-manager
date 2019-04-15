@@ -35,7 +35,7 @@ const day_push = async (flag) => {
   //提醒前一天
   if (flag === 1) {
     end_time = begin_time;
-    begin_time = moment(new Date()).day(-1).hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
+    begin_time = moment(new Date()).add(-1,'d').hour(0).minute(0).second(0).millisecond(0).toDate().getTime();
   }
   //当日登录用户数
   const login = await knex('user').count('id as count').whereNot({

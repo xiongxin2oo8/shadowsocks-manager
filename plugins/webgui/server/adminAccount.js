@@ -237,27 +237,32 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const insert = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
           subscribeAccount.server.unshift(insert);
         } else if (+showFlow && !config.plugins.webgui.hideFlow) {
-          let insertExpire = {
-            method: 'chacha20',
-            host: '127.0.0.1',
-            shift: 0,
-            comment: accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
-          };
           let insertFlow = {
             method: 'chacha20',
             host: '127.0.0.1',
             shift: 1,
             comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
           };
-          subscribeAccount.server.unshift(insertExpire);
           subscribeAccount.server.unshift(insertFlow);
         }
+        let insertExpire = {
+          method: 'chacha20',
+          host: '127.0.0.1',
+          shift: 0,
+          comment: accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
+        };
         let renew = {
           method: 'chacha20',
           host: '127.0.0.1',
           shift: 2,
           comment: '续费地址：' + config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site
         };
+
+        if (accountInfo.data.expire <= new Date()) {
+          subscribeAccount.server = [insertExpire];
+        } else {
+          subscribeAccount.server.unshift(insertExpire);
+        }
         subscribeAccount.server.unshift(renew);
         if (type === 'clash') {
           if (accountInfo.connType == "SSR") {
