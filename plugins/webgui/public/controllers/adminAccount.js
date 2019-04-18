@@ -255,14 +255,14 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         let date = Date.now();
         let day = moment().day();
         if (day == 0) {
-          date = moment().day(-7).valueOf();
+          date = moment().add(-1, 'd').valueOf();
         }
         return date;
       }
       const flowTime = {
         hour: Date.now(),
         day: Date.now(),
-        week:  weektime(),
+        week: weektime(),
       };
       const flowLabel = {
         hour: ['0', '', '', '15', '', '', '30', '', '', '45', '', ''],
@@ -577,12 +577,12 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       });
       $scope.accountUser = {
         search: '',
-        searchChange: function(search) {},
-        selectedItemChange: function(item) {
+        searchChange: function (search) { },
+        selectedItemChange: function (item) {
           $scope.account.user = item ? item.id : null;
         },
-        querySearch: function(search) {
-          return $http.get('/api/admin/user', { params: { pageSize: 5, group: -1, search, type: 'normal' }}).then(success => success.data.users);
+        querySearch: function (search) {
+          return $http.get('/api/admin/user', { params: { pageSize: 5, group: -1, search, type: 'normal' } }).then(success => success.data.users);
         }
       };
     }

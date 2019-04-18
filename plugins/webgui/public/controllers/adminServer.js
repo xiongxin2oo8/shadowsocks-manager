@@ -242,7 +242,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         let date = Date.now();
         let day = moment().day();
         if (day == 0) {
-          date = moment().day(-7).valueOf();
+          date = moment().add(-1,'d').valueOf();
         }
         return date;
       }
