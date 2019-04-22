@@ -243,14 +243,26 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (accountInfo.type == 1) {
           const insert = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
           subscribeAccount.server.unshift(insert);
-        } else if (+showFlow && !config.plugins.webgui.hideFlow) {
-          let insertFlow = {
-            method: 'chacha20',
-            host: '127.0.0.1',
-            shift: 1,
-            comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
-          };
-          subscribeAccount.server.unshift(insertFlow);
+        } else if (config.plugins.webgui.hideFlow) {
+          if (accountInfo.data.flow < 100 * 1000 * 1000 * 1000) {
+            let insertFlow = {
+              method: 'chacha20',
+              host: '127.0.0.1',
+              shift: 1,
+              comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
+            };
+            subscribeAccount.server.unshift(insertFlow);
+          }
+        } else {
+          if (+showFlow) {
+            let insertFlow = {
+              method: 'chacha20',
+              host: '127.0.0.1',
+              shift: 1,
+              comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
+            };
+            subscribeAccount.server.unshift(insertFlow);
+          }
         }
         let insertExpire = {
           method: 'chacha20',
