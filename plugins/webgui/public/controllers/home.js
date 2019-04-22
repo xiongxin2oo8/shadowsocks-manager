@@ -2,9 +2,9 @@ const app = angular.module('app');
 
 app
   .controller('HomeController', ['$scope', '$mdMedia', '$mdSidenav', '$state', '$http', '$timeout', '$localStorage', 'configManager',
-    ($scope, $mdMedia, $mdSidenav, $state, $http, $timeout, $localStorage, configManager) => {    
+    ($scope, $mdMedia, $mdSidenav, $state, $http, $timeout, $localStorage, configManager) => {
       const config = configManager.getConfig();
-      if(config.status === 'normal') {
+      if (config.status === 'normal') {
         return $state.go('user.index');
       } else if (config.status === 'admin') {
         return $state.go('admin.index');
@@ -17,7 +17,7 @@ app
       $scope.home = {};
 
       $scope.innerSideNav = true;
-      $scope.menuButton = function() {
+      $scope.menuButton = function () {
         if ($mdMedia('gt-sm')) {
           $scope.innerSideNav = !$scope.innerSideNav;
         } else {
@@ -76,14 +76,14 @@ app
         alertDialog.loading().then(() => {
           return homeApi.findPassword($scope.user.email);
         })
-        .then(success => {
-          alertDialog.show(success, '确定');
-        }).catch(err => {
-          alertDialog.show(err, '确定');
-        });
+          .then(success => {
+            alertDialog.show(success, '确定');
+          }).catch(err => {
+            alertDialog.show(err, '确定');
+          });
       };
       $scope.enterKey = key => {
-        if(key.keyCode === 13) {
+        if (key.keyCode === 13) {
           $scope.login();
         }
       };
@@ -93,49 +93,50 @@ app
     ($scope, $state, $interval, $timeout, homeApi, alertDialog, $localStorage, configManager) => {
       $scope.user = {};
       $scope.sendCodeTime = 0;
+      const refId = $scope.home.refId || $localStorage.refId;
       $scope.sendCode = () => {
         alertDialog.loading().then(() => {
-          return homeApi.sendCode($scope.user.email, $scope.home.refId);
+          return homeApi.sendCode($scope.user.email, refId);
         })
-        .then(success => {
-          alertDialog.show('验证码已发至邮箱', '确定');
-          $scope.sendCodeTime = 120;
-          const interval = $interval(() => {
-            if ($scope.sendCodeTime > 0) {
-              $scope.sendCodeTime--;
-            } else {
-              $interval.cancel(interval);
-              $scope.sendCodeTime = 0;
-            }
-          }, 1000);
-        }).catch(err => {
-          alertDialog.show(err, '确定');
-        });
+          .then(success => {
+            alertDialog.show('验证码已发至邮箱', '确定');
+            $scope.sendCodeTime = 120;
+            const interval = $interval(() => {
+              if ($scope.sendCodeTime > 0) {
+                $scope.sendCodeTime--;
+              } else {
+                $interval.cancel(interval);
+                $scope.sendCodeTime = 0;
+              }
+            }, 1000);
+          }).catch(err => {
+            alertDialog.show(err, '确定');
+          });
       };
       $scope.signup = () => {
         alertDialog.loading().then(() => {
           return homeApi.userSignup($scope.user.email, $scope.user.code, $scope.user.password, $scope.home.refId);
         })
-        .then(userType => {
-          alertDialog.show('用户注册成功', '确定').then(success => {
-            configManager.deleteConfig();
-            if(userType === 'admin') {
-              $state.go('admin.index');
-            } else {
-              $state.go('user.index');
-            }
+          .then(userType => {
+            alertDialog.show('用户注册成功', '确定').then(success => {
+              configManager.deleteConfig();
+              if (userType === 'admin') {
+                $state.go('admin.index');
+              } else {
+                $state.go('user.index');
+              }
+            });
+          }).catch(err => {
+            alertDialog.show(err, '确定');
           });
-        }).catch(err => {
-          alertDialog.show(err, '确定');
-        });
       };
     }
   ])
   .controller('HomeResetPasswordController', ['$scope', '$http', '$state', '$stateParams', 'alertDialog',
     ($scope, $http, $state, $stateParams, alertDialog) => {
-      if($scope.config.status) {
+      if ($scope.config.status) {
         alertDialog.show('请先退出登录再访问重置密码链接', '确定');
-        return; 
+        return;
       }
       $scope.user = {};
       const token = $stateParams.token;
@@ -169,9 +170,9 @@ app
   ])
   .controller('HomeMacLoginController', ['$scope', '$http', '$state', '$stateParams', '$localStorage', 'configManager', 'alertDialog',
     ($scope, $http, $state, $stateParams, $localStorage, configManager, alertDialog) => {
-      if($scope.config.status) {
+      if ($scope.config.status) {
         alertDialog.show('请先退出登录再访问mac登录链接', '确定');
-        return; 
+        return;
       }
       const mac = $stateParams.mac;
       configManager.deleteConfig();
@@ -189,9 +190,9 @@ app
   ])
   .controller('HomeTelegramLoginController', ['$scope', '$http', '$state', '$stateParams', '$localStorage', 'configManager', 'alertDialog',
     ($scope, $http, $state, $stateParams, $localStorage, configManager, alertDialog) => {
-      if($scope.config.status) {
+      if ($scope.config.status) {
         alertDialog.show('请先退出登录再访问telegram登录链接', '确定');
-        return; 
+        return;
       }
       const token = $stateParams.token;
       configManager.deleteConfig();
@@ -207,16 +208,17 @@ app
       });
     }
   ])
-  .controller('HomeRefController', ['$scope', '$state', '$stateParams', '$http', 'alertDialog',
-    ($scope, $state, $stateParams, $http, alertDialog) => {
-      if($scope.config.status) {
+  .controller('HomeRefController', ['$scope', '$state', '$stateParams', '$http', '$localStorage', 'alertDialog',
+    ($scope, $state, $stateParams, $http, $localStorage, alertDialog) => {
+      if ($scope.config.status) {
         alertDialog.show('请先退出登录再访问邀请链接', '确定');
-        return; 
+        return;
       }
       const refId = $stateParams.refId;
       $scope.home.refId = refId;
       $scope.home.refIdValid = false;
-      $http.post(`/api/home/ref/${ refId }`).then(success => {
+      $http.post(`/api/home/ref/${refId}`).then(success => {
+        $localStorage.refId = refId;
         $scope.home.refIdValid = success.data.valid;
         $state.go('home.signup');
       });
@@ -224,12 +226,12 @@ app
   ])
   .controller('HomeRefInputController', ['$scope', '$state', '$stateParams', '$http', 'alertDialog',
     ($scope, $state, $stateParams, $http, alertDialog) => {
-      if($scope.config.status) {
+      if ($scope.config.status) {
         alertDialog.show('请先退出登录再访问此链接', '确定');
-        return; 
+        return;
       }
       $scope.home.refInput = true;
       $state.go('home.signup');
     }
   ])
-;
+  ;
