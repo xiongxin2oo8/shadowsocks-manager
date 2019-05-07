@@ -252,6 +252,16 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
             };
             subscribeAccount.server.unshift(insertFlow);
+          } else {
+            if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)){
+              let insertFlow = {
+                method: 'chacha20',
+                host: '127.0.0.1',
+                shift: 1,
+                comment: '已封停，请购买流量包或联系管理员'
+              };
+              subscribeAccount.server.unshift(insertFlow);
+            }
           }
         } else {
           if (+showFlow) {

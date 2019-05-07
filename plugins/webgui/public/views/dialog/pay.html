@@ -32,7 +32,7 @@
                         layout-align="center center" ng-repeat-start="order in publicInfo.orders" value="{{order.id}}"
                         ng-hide="order[publicInfo.myPayType] === 0">
                         <div layout="row" layout-align="space-between center" style="min-width: 190px; max-width: 390px;">
-                            <span flex="65" translate>{{ order.name + (publicInfo.orderId==order.id?'[在用]':'')}}</span>
+                            <span flex="65" translate>{{ order.name }}</span>
                             <span flex="30" style="text-align:right; color: #888">
                                 <span>{{ publicInfo.myPayType === 'alipay' ? '￥' : '$' }}</span><span>{{order[publicInfo.myPayType]
                                     }}</span>
