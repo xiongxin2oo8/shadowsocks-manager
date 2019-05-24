@@ -6,6 +6,7 @@ const rp = require('request-promise');
 const config = appRequire('services/config').all();
 const knex = appRequire('init/knex').knex;
 const isInBlackList = appRequire('plugins/email/blackList').isInBlackList;
+const { DM } = require('waliyun');
 
 let emailConfig;
 let transporter;
@@ -30,6 +31,29 @@ if (config.plugins.email.type === 'smtp') {
   transporter = nodemailer.createTransport(emailConfig);
   if (config.plugins.email.proxy && config.plugins.email.proxy.indexOf('socks') >= 0) {
     transporter.set('proxy_socks_module', require('socks'));
+  }
+} else if (config.plugins.email.type === 'aliyun') {
+  let dm = DM({
+    AccessKeyId: config.plugins.email.accessKeyId,
+    AccessKeySecret: config.plugins.email.accessKeySecret
+  });
+  transporter = {};
+  transporter.sendMail = (options, cb) => {
+    dm.singleSendMail({
+      AccountName: config.plugins.email.username,
+      ReplyToAddress: true,
+      AddressType: 1,
+      ToAddress: options.to,
+      FromAlias: config.plugins.email.fromAlias,
+      Subject: options.subject,
+      HtmlBody: options.html || options.text
+    }).then(data => {
+      //console.log(data);
+      cb(null);
+    }).catch(err => {
+      //console.log(err);
+      cb(err);
+    });
   }
 } else if (config.plugins.email.type === 'mailgun') {
   emailConfig = {
