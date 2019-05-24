@@ -541,7 +541,7 @@ cron.minute(() => {
                 .where('nextCheckTime', '<', Date.now())
                 .whereNotIn('serverId', server_not)
                 .orderBy('nextCheckTime', 'asc')
-                .limit(300)
+                .limit(200)
                 .offset(0);
               accounts = [...accounts, ...datas];
             } catch (err) {
@@ -741,7 +741,6 @@ const expireDate = (account) => {
 
 //账号过期邮件提醒
 const remind = async () => {
-  logger.info('开始检查账号过期');
   try {
     const users = await knex('user').select()
       .where({ 'type': 'normal' });
@@ -769,10 +768,11 @@ const remind = async () => {
     isTelegram && telegram.push(`已通过邮件提醒 ${count} 人账号即将到期`);
     logger.info(`账号到期邮件提醒 ${count} 人`)
   } catch (err) {
+    isTelegram && telegram.push(`邮件提醒出错(${count})[${config.plugins.webgui.site}]`);
     logger.info('邮件提醒出错', err)
   }
 }
 cron.cron(() => {
   logger.info('每天10点执行');
   remind();
-}, 'Remind', '2 10 * * *', 24 * 3600);
+}, 'Remind', '2 10 * * *', 23 * 3600);

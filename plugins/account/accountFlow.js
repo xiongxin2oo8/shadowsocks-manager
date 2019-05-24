@@ -87,7 +87,8 @@ const editForLogin = async accountId => {
     })
     .where({ accountId })
     .whereNotNull('checkTime')
-    .where('checkTime', '<', Date.now() - 20 * 60 * 1000);
+    .where('checkTime', '<', Date.now() - 20 * 60 * 1000)
+    .where('nextCheckTime', '>', Date.now());
 };
 const server = async serverId => {
   const server = await knex('server').where({ id: serverId }).then(s => s[0]);
