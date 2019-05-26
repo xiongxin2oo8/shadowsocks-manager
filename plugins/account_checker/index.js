@@ -742,26 +742,30 @@ const expireDate = (account) => {
 //账号过期邮件提醒
 const remind = async () => {
   try {
-    const users = await knex('user').select()
-      .where({ 'type': 'normal' });
+    //取得网站信息
+    const baseSetting = await knex('webguiSetting').where({
+      key: 'base'
+    }).then(s => s[0]).then(s => JSON.parse(s.value));
     let count = 0;
-    for (const user of users) {
-      let account = await knex('account_plugin').select()
-        .where({ 'userId': user.id });
-      //不提醒多账号的用户
-      if (account.length != 1) {
-        continue;
-      } else {
-        account = account[0];
+    let accounts = await knex('account_plugin').select();
+    for (let account of accounts) {
+      let length = await knex('account_plugin').select()
+        .where({ 'userId': account.userId }).length;
+      if (length != 1) {
+        continue
       }
       //检查过期时间 提前一天提醒
       let expireTime = expireDate(account);
       if (expireTime < 0) continue;
-      //取得网站信息
-      const baseSetting = await knex('webguiSetting').where({
-        key: 'base'
-      }).then(s => s[0]).then(s => JSON.parse(s.value));
-      await emailPlugin.sendMail(user.email, '账号过期提醒', `您的账号即将于 ${moment(expireTime).format("YYYY-MM-DD HH:mm:ss")} 过期，请及时续费，以免影响使用。地址：${config.plugins.webgui.site} (${baseSetting.title})`);
+      let user = await knex('user').select()
+        .where({ 'id': account.userId });
+      if (user && user.length > 0) {
+        user = user[0];
+      } else {
+        continue;
+      }
+      await sleep(500);
+      emailPlugin.sendMail(user.email, '账号过期提醒', `您的账号即将于 ${moment(expireTime).format("YYYY-MM-DD HH:mm:ss")} 过期，请及时续费，以免影响使用。地址：${config.plugins.webgui.site} (${baseSetting.title})`);
       count++;
     }
 
