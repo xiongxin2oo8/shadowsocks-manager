@@ -750,7 +750,8 @@ const remind = async () => {
     let accounts = await knex('account_plugin').select();
     for (let account of accounts) {
       let length = await knex('account_plugin').select()
-        .where({ 'userId': account.userId }).length;
+        .where({ 'userId': account.userId })
+        .then(c => c.length);
       if (length != 1) {
         continue
       }
