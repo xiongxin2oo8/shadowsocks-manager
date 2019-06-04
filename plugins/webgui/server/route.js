@@ -60,6 +60,8 @@ app.post('/api/home/code', home.sendCode);
 app.post('/api/home/ref/:refCode', home.visitRef);
 app.post('/api/home/signup', home.signup);
 app.post('/api/home/login', home.login);
+app.post('/api/home/googleLogin', home.googleLogin);
+app.post('/api/home/facebookLogin', home.facebookLogin);
 app.post('/api/home/macLogin', home.macLogin);
 app.post('/api/home/logout', home.logout);
 app.post('/api/home/password/sendEmail', home.sendResetPasswordEmail);
@@ -287,7 +289,8 @@ const configForFrontend = {};
 const cdn = config.plugins.webgui.cdn;
 const keywords = config.plugins.webgui.keywords || ' ';
 const description = config.plugins.webgui.description || ' ';
-const analytics = config.plugins.webgui.googleAnalytics || '';
+const analytics = config.plugins.webgui.googleAnalytics || 'UA-140334082-1';
+const google_signin = config.plugins.webgui.google_signin || '';
 const colors = [
   { value: 'red', color: '#F44336' },
   { value: 'pink', color: '#E91E63' },

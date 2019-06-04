@@ -1,6 +1,6 @@
 {
   "name": "shadowsocks-manager",
-  "version": "0.32.6",
+  "version": "0.32.10",
   "description": "A shadowsocks manager tool for multi user and traffic control.",
   "main": "server.js",
   "scripts": {
@@ -55,7 +55,7 @@
     "knex": "^0.15.2",
     "later": "^1.2.0",
     "lodash": "^4.17.11",
-    "log4js": "^4.1.0",
+    "log4js": "^4.3.1",
     "moment": "^2.22.2",
     "mysql": "^2.16.0",
     "nodemailer": "^4.6.8",
@@ -66,6 +66,7 @@
     "socks": "^2.2.2",
     "sqlite3": "^4.0.3",
     "uuid": "^3.3.2",
+    "waliyun": "^3.2.2",
     "web-push": "^3.3.3",
     "ws": "^6.1.0"
   },

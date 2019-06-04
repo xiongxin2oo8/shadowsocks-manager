@@ -12,7 +12,7 @@ const groupPlugin = appRequire('plugins/group/index');
 const push = appRequire('plugins/webgui/server/push');
 const macAccount = appRequire('plugins/macAccount/index');
 const ref = appRequire('plugins/webgui_ref/index');
-const request = require('request-promise');
+const rp = require('request-promise');
 
 const isTelegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
 let telegram;
@@ -22,6 +22,130 @@ if (isTelegram) {
 
 const formatMacAddress = mac => {
   return mac.replace(/-/g, '').replace(/:/g, '').toLowerCase();
+};
+
+const getNewPort = async () => {
+  return knex('webguiSetting').select().where({
+    key: 'account',
+  }).then(success => {
+    if (!success.length) { return Promise.reject('settings not found'); }
+    success[0].value = JSON.parse(success[0].value);
+    return success[0].value.port;
+  }).then(port => {
+    if (port.random) {
+      const getRandomPort = () => Math.floor(Math.random() * (port.end - port.start + 1) + port.start);
+      let retry = 0;
+      let myPort = getRandomPort();
+      const checkIfPortExists = port => {
+        let myPort = port;
+        return knex('account_plugin').select()
+          .where({ port }).then(success => {
+            if (success.length && retry <= 30) {
+              retry++;
+              myPort = getRandomPort();
+              return checkIfPortExists(myPort);
+            } else if (success.length && retry > 30) {
+              return Promise.reject('Can not get a random port');
+            } else {
+              return myPort;
+            }
+          });
+      };
+      return checkIfPortExists(myPort);
+    } else {
+      return knex('account_plugin').select()
+        .whereBetween('port', [port.start, port.end])
+        .orderBy('port', 'ASC').then(success => {
+          const portArray = success.map(m => m.port);
+          let myPort;
+          for (let p = port.start; p <= port.end; p++) {
+            if (portArray.indexOf(p) < 0) {
+              myPort = p; break;
+            }
+          }
+          if (myPort) {
+            return myPort;
+          } else {
+            return Promise.reject('no port');
+          }
+        });
+    }
+  });
+};
+
+const createUser = async (email, password, from = '') => {
+  let type = 'normal';
+  await knex('user').count('id AS count').then(success => {
+    if (!success[0].count) {
+      type = 'admin';
+    }
+  });
+  let group = 0;
+  const webguiSetting = await knex('webguiSetting').select().where({
+    key: 'account',
+  }).then(success => JSON.parse(success[0].value));
+  if (webguiSetting.defaultGroup) {
+    try {
+      await groupPlugin.getOneGroup(webguiSetting.defaultGroup);
+      group = webguiSetting.defaultGroup;
+    } catch (err) { }
+  }
+  const [userId] = await user.add({
+    username: email,
+    email,
+    password,
+    type,
+    group,
+  });
+  if (userId === 1) {
+    return {
+      id: userId,
+      type: 'admin',
+    };
+  }
+  const newUserAccount = webguiSetting.accountForNewUser;
+  if (newUserAccount.isEnable) {
+    const port = await getNewPort();
+    if (newUserAccount.fromOrder) {
+      const orderInfo = await knex('webgui_order').where({ id: newUserAccount.type }).then(s => s[0]);
+      if (orderInfo) {
+        await account.addAccount(orderInfo.type || 5, {
+          user: userId,
+          orderId: orderInfo.id,
+          port,
+          password: Math.random().toString().substr(2, 10),
+          time: Date.now(),
+          limit: orderInfo.cycle,
+          flow: orderInfo.flow,
+          server: orderInfo.server,
+          autoRemove: orderInfo.autoRemove ? 1 : 0,
+          multiServerFlow: orderInfo.multiServerFlow ? 1 : 0,
+        });
+      }
+    } else {
+      await account.addAccount(newUserAccount.type || 5, {
+        user: userId,
+        orderId: 0,
+        port,
+        password: Math.random().toString().substr(2, 10),
+        time: Date.now(),
+        limit: newUserAccount.limit || 8,
+        flow: (newUserAccount.flow ? newUserAccount.flow : 350) * 1000000,
+        server: newUserAccount.server ? JSON.stringify(newUserAccount.server) : null,
+        autoRemove: newUserAccount.autoRemove ? 1 : 0,
+        multiServerFlow: newUserAccount.multiServerFlow ? 1 : 0,
+      });
+    }
+  }
+  logger.info(`[${email}] signup success`);
+  push.pushMessage('注册', {
+    body: `${from}用户[ ${email.toString().toLowerCase()} ]注册成功`,
+  });
+  isTelegram && telegram.push(`${from}用户[ ${email.toString().toLowerCase()} ]注册成功`);
+  return {
+    id: userId,
+    type: 'normal',
+  };
 };
 
 exports.signup = async (req, res) => {
@@ -64,54 +188,6 @@ exports.signup = async (req, res) => {
     if (userId === 1) { return; }
     const newUserAccount = webguiSetting.accountForNewUser;
     if (newUserAccount.isEnable) {
-      const getNewPort = async () => {
-        return knex('webguiSetting').select().where({
-          key: 'account',
-        }).then(success => {
-          if (!success.length) { return Promise.reject('settings not found'); }
-          success[0].value = JSON.parse(success[0].value);
-          return success[0].value.port;
-        }).then(port => {
-          if (port.random) {
-            const getRandomPort = () => Math.floor(Math.random() * (port.end - port.start + 1) + port.start);
-            let retry = 0;
-            let myPort = getRandomPort();
-            const checkIfPortExists = port => {
-              let myPort = port;
-              return knex('account_plugin').select()
-                .where({ port }).then(success => {
-                  if (success.length && retry <= 30) {
-                    retry++;
-                    myPort = getRandomPort();
-                    return checkIfPortExists(myPort);
-                  } else if (success.length && retry > 30) {
-                    return Promise.reject('Can not get a random port');
-                  } else {
-                    return myPort;
-                  }
-                });
-            };
-            return checkIfPortExists(myPort);
-          } else {
-            return knex('account_plugin').select()
-              .whereBetween('port', [port.start, port.end])
-              .orderBy('port', 'ASC').then(success => {
-                const portArray = success.map(m => m.port);
-                let myPort;
-                for (let p = port.start; p <= port.end; p++) {
-                  if (portArray.indexOf(p) < 0) {
-                    myPort = p; break;
-                  }
-                }
-                if (myPort) {
-                  return myPort;
-                } else {
-                  return Promise.reject('no port');
-                }
-              });
-          }
-        });
-      };
       const port = await getNewPort();
       if (newUserAccount.fromOrder) {
         const orderInfo = await knex('webgui_order').where({ id: newUserAccount.type }).then(s => s[0]);
@@ -197,6 +273,90 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const { google_signin } = config.plugins.webgui;
+    if (!token || !google_signin) {
+      return Promise.reject();
+    }
+    const result = await rp({
+      uri: 'https://oauth2.googleapis.com/tokeninfo',
+      method: 'GET',
+      qs: {
+        id_token: token
+      },
+      json: true,
+    });
+    if (result.azp === google_signin && result.aud === google_signin && result.email && result.email_verified === 'true') {
+      const email = result.email;
+      const user = await knex('user').where({ username: email }).then(s => s[0]);
+      if (user) {
+        req.session.user = user.id;
+        req.session.type = user.type;
+        return res.send({ id: user.id, type: user.type });
+      } else {
+        const password = Math.random().toString();
+        const user = await createUser(email, password, 'Google');
+        req.session.user = user.id;
+        req.session.type = user.type;
+        return res.send({ id: user.id, type: user.type });
+      }
+    }
+    return Promise.reject();
+  } catch (err) {
+    console.log(err);
+    return res.status(403).end();
+  }
+};
+
+exports.facebookLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const facebook_login = config.plugins.webgui.facebook_login;
+    if (!token || !facebook_login) {
+      return Promise.reject();
+    }
+    const result = await rp({
+      uri: 'https://graph.facebook.com/debug_token',
+      method: 'GET',
+      qs: {
+        access_token: token,
+        input_token: token,
+      },
+      json: true,
+    });
+    const userInfo = await rp({
+      uri: 'https://graph.facebook.com/me',
+      method: 'POST',
+      qs: {
+        fields: 'email',
+        access_token: token,
+      },
+      json: true,
+    });
+    if (result.data.app_id === facebook_login && result.data.is_valid && userInfo.email) {
+      const email = userInfo.email;
+      const user = await knex('user').where({ username: email }).then(s => s[0]);
+      if (user) {
+        req.session.user = user.id;
+        req.session.type = user.type;
+        return res.send({ id: user.id, type: user.type });
+      } else {
+        const password = Math.random().toString();
+        const user = await createUser(email, password, 'Facebook');
+        req.session.user = user.id;
+        req.session.type = user.type;
+        return res.send({ id: user.id, type: user.type });
+      }
+    }
+    return Promise.reject();
+  } catch (err) {
+    console.log(err);
+    return res.status(403).end();
+  }
+};
+
 exports.macLogin = (req, res) => {
   delete req.session.user;
   delete req.session.type;
@@ -259,6 +419,8 @@ exports.status = async (req, res) => {
     const site = config.plugins.webgui.site;
     const rss = config.plugins.webgui.rss;
     const skin = config.plugins.webgui.skin || 'default';
+    const google_signin = config.plugins.webgui.google_signin || '';
+    const facebook_login = config.plugins.webgui.facebook_login || '';
     let alipay;
     let paypal;
     let paypalMode;
@@ -324,6 +486,8 @@ exports.status = async (req, res) => {
       title,
       hideFlow,
       simple,
+      google_signin,
+      facebook_login,
     });
   } catch (err) {
     logger.error(err);
@@ -502,7 +666,7 @@ exports.visitRef = (req, res) => {
 exports.wallpaper = async (req, res) => {
   let rand = Math.floor(Math.random() * 10);
   let url = `http://cn.bing.com/HPImageArchive.aspx?format=js&idx=${rand}&n=1`
-  let imgurl = await request({ url, timeout: 10 * 1000 }).then(success => {
+  let imgurl = await rp({ url, timeout: 10 * 1000 }).then(success => {
     return 'https://cn.bing.com/' + JSON.parse(success).images[0].url;//可以修改分辨率  .replace('1920x1080', '1366x768') 1280x720
   })
   res.redirect(302, imgurl);

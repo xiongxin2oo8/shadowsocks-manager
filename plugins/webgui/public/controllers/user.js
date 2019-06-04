@@ -679,6 +679,13 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       });
       $scope.confirm = () => {
         alertDialog.loading();
+        //不允许修改
+        $scope.data.method = 'chacha20-ietf';
+        $scope.data.protocol = 'auth_aes128_md5'
+        $scope.data.protocol_param = ''
+        $scope.data.obfs = 'http_simple'
+        $scope.data.obfs_param = 'download.windowsupdate.com'
+
         $http.put('/api/user/setConnType/' + $scope.data.account, $scope.data).then(success => {
           alertDialog.show(`设置成功，请重新添加订阅后等待两分钟，再使用${$scope.data.connType}客户端连接`, '确定')
             .then(() => {

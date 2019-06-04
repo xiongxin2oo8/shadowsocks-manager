@@ -87,6 +87,9 @@ app
           $scope.login();
         }
       };
+      $scope.socialLogin = () => {
+        $state.go('home.social');
+      };
     }
   ])
   .controller('HomeSignupController', ['$scope', '$state', '$interval', '$timeout', 'homeApi', 'alertDialog', '$localStorage', 'configManager',
@@ -234,4 +237,78 @@ app
       $state.go('home.signup');
     }
   ])
-  ;
+  .controller('HomeSocialLoginController', ['$scope', '$state', '$http', 'configManager', 'alertDialog', '$window', '$document',
+    ($scope, $state, $http, configManager, alertDialog, $window, $document) => {
+      $scope.back = () => {
+        $state.go('home.login');
+      };
+      let auth2;
+      $window.gapiInit = () => {
+        auth2 = gapi.auth2.getAuthInstance();
+        auth2.isSignedIn.listen(signInChanged);
+        if(auth2.isSignedIn.get() === true) {
+          auth2.signIn();
+        }
+      };
+
+      const signInChanged = isSignedIn => {
+        if(isSignedIn) {
+          const googleUser = auth2.currentUser.get();
+          const authResponse = googleUser.getAuthResponse();
+          const token = authResponse.id_token;
+          alertDialog.loading().then(() => {
+            return $http.post('/api/home/googleLogin', {
+              token,
+            });
+          }).then(success => {
+            alertDialog.close();
+            auth2.disconnect();
+            $scope.setId(success.data.id);
+            configManager.deleteConfig();
+            if (success.data.type === 'normal') {
+              $state.go('user.index');
+            } else if (success.data.type === 'admin') {
+              $state.go('admin.index');
+            }
+          }).catch(err => {
+            alertDialog.show('登录失败', '确定');
+          });
+        }
+      };
+
+      $window.fbInit = function() {
+        FB.init({ 
+          appId: $scope.config.facebook_login,
+          status: true, 
+          cookie: true, 
+          xfbml: true,
+          version: 'v2.4'
+        });
+      };
+
+      $window.checkLoginState = () => {
+        FB.getLoginStatus(function(response) {
+          if(response.status === 'connected') {
+            const token = response.authResponse.accessToken;
+            alertDialog.loading().then(() => {
+              return $http.post('/api/home/facebookLogin', {
+                token,
+              });
+            }).then(success => {
+              alertDialog.close();
+              $scope.setId(success.data.id);
+              configManager.deleteConfig();
+              if (success.data.type === 'normal') {
+                $state.go('user.index');
+              } else if (success.data.type === 'admin') {
+                $state.go('admin.index');
+              }
+            }).catch(err => {
+              alertDialog.show('登录失败', '确定');
+            });
+          }
+        });
+      };
+    }
+  ])
+;
