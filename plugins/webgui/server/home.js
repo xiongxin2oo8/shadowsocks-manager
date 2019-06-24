@@ -275,21 +275,40 @@ exports.login = async (req, res) => {
 
 exports.googleLogin = async (req, res) => {
   try {
-    const { token } = req.body;
-    const { google_signin } = config.plugins.webgui;
-    if (!token || !google_signin) {
+    const { code, redirect_uri } = req.body;
+    const {
+      google_login_client_id: client_id,
+      google_login_client_secret: client_secret
+    } =  config.plugins.webgui;
+    if(!code || !client_id) {
       return Promise.reject();
     }
     const result = await rp({
-      uri: 'https://oauth2.googleapis.com/tokeninfo',
-      method: 'GET',
-      qs: {
-        id_token: token
+      uri: 'https://www.googleapis.com/oauth2/v4/token',
+      method: 'POST',
+      body: {
+        code,
+        client_id,
+        client_secret,
+        redirect_uri,
+        grant_type: 'authorization_code',
       },
       json: true,
     });
-    if (result.azp === google_signin && result.aud === google_signin && result.email && result.email_verified === 'true') {
-      const email = result.email;
+    if(!result.access_token) { return Promise.reject(); }
+    const userInfo = await rp({
+      uri: 'https://www.googleapis.com/oauth2/v1/userinfo',
+      method: 'GET',
+      qs: {
+        alt: 'json',
+      },
+      headers: {
+        Authorization: `Bearer ${ result.access_token }`,
+      },
+      json: true,
+    });
+    if(userInfo.verified_email && userInfo.email) {
+      const email = userInfo.email;
       const user = await knex('user').where({ username: email }).then(s => s[0]);
       if (user) {
         req.session.user = user.id;
@@ -304,38 +323,77 @@ exports.googleLogin = async (req, res) => {
       }
     }
     return Promise.reject();
-  } catch (err) {
-    console.log(err);
+  } catch(err) {
+    logger.error(err);
     return res.status(403).end();
   }
 };
 
+let facebookAppToken = '';
+const getFacebookAppToken = async () => {
+  if(facebookAppToken) { return facebookAppToken; }
+  const {
+    facebook_login_client_id: client_id,
+    facebook_login_client_secret: client_secret
+  } =  config.plugins.webgui;
+  const result = await rp({
+    uri: 'https://graph.facebook.com/oauth/access_token',
+    qs: {
+      client_id,
+      client_secret,
+      grant_type: 'client_credentials',
+    },
+    json: true,
+  });
+  if(!result.access_token) { return Promise.reject(); }
+  facebookAppToken = result.access_token;
+  return result.access_token;
+};
+
 exports.facebookLogin = async (req, res) => {
   try {
-    const { token } = req.body;
-    const facebook_login = config.plugins.webgui.facebook_login;
-    if (!token || !facebook_login) {
+    const { code, redirect_uri } = req.body;
+    const {
+      facebook_login_client_id: client_id,
+      facebook_login_client_secret: client_secret
+    } =  config.plugins.webgui;
+    if(!code || !client_id) {
       return Promise.reject();
     }
     const result = await rp({
-      uri: 'https://graph.facebook.com/debug_token',
+      uri: 'https://graph.facebook.com/v3.3/oauth/access_token',
       method: 'GET',
       qs: {
-        access_token: token,
-        input_token: token,
+        code,
+        client_id,
+        client_secret,
+        redirect_uri,
       },
       json: true,
     });
+    if(!result.access_token) { return Promise.reject(); }
+    const checkToken = await rp({
+      uri: 'https://graph.facebook.com/debug_token',
+      method: 'GET',
+      qs: {
+        input_token: result.access_token,
+        access_token: await getFacebookAppToken(),
+      },
+      json: true,
+    });
+    if(!checkToken.data || checkToken.data.app_id !== client_id || !checkToken.data.is_valid) {
+      return Promise.reject();
+    }
     const userInfo = await rp({
       uri: 'https://graph.facebook.com/me',
       method: 'POST',
       qs: {
         fields: 'email',
-        access_token: token,
+        access_token: result.access_token
       },
       json: true,
     });
-    if (result.data.app_id === facebook_login && result.data.is_valid && userInfo.email) {
+    if(userInfo.email) {
       const email = userInfo.email;
       const user = await knex('user').where({ username: email }).then(s => s[0]);
       if (user) {
@@ -351,8 +409,72 @@ exports.facebookLogin = async (req, res) => {
       }
     }
     return Promise.reject();
-  } catch (err) {
-    console.log(err);
+  } catch(err) {
+    logger.error(err);
+    return res.status(403).end();
+  }
+};
+
+exports.githubLogin = async (req, res) => {
+  try {
+    const { code, redirect_uri, state } = req.body;
+    const {
+      github_login_client_id: client_id,
+      github_login_client_secret: client_secret
+    } =  config.plugins.webgui;
+    if(!code || !client_id) {
+      return Promise.reject();
+    }
+    const result = await rp({
+      uri: 'https://github.com/login/oauth/access_token',
+      method: 'POST',
+      body: {
+        code,
+        client_id,
+        client_secret,
+        redirect_uri,
+        state,
+      },
+      json: true,
+    });
+    if(!result.access_token) { return Promise.reject(); }
+    const userInfo = await rp({
+      uri: 'https://api.github.com/user',
+      method: 'GET',
+      headers: {
+        'User-Agent': 'ssmgr',
+        Authorization: `token ${ result.access_token }`,
+      },
+      json: true,
+    });
+    const emails = await rp({
+      uri: 'https://api.github.com/user/emails',
+      method: 'GET',
+      headers: {
+        'User-Agent': 'ssmgr',
+        Authorization: `token ${ result.access_token }`,
+      },
+      json: true,
+    });
+    const emailInfo = emails.filter(f => f.email === userInfo.email)[0];
+    if(emailInfo.email && emailInfo.verified) {
+      const email = emailInfo.email;
+      const user = await knex('user').where({ username: email }).then(s => s[0]);
+      if(user) {
+        req.session.user = user.id;
+        req.session.type = user.type;
+        return res.send({ id: user.id, type: user.type });
+      } else {
+        const password = Math.random().toString();
+        const user = await createUser(email, password, 'Github');
+        req.session.user = user.id;
+        req.session.type = user.type;
+        return res.send({ id: user.id, type: user.type });
+      }
+    }
+    return Promise.reject();
+  } catch(err) {
+    logger.error(err);
     return res.status(403).end();
   }
 };
@@ -419,8 +541,9 @@ exports.status = async (req, res) => {
     const site = config.plugins.webgui.site;
     const rss = config.plugins.webgui.rss;
     const skin = config.plugins.webgui.skin || 'default';
-    const google_signin = config.plugins.webgui.google_signin || '';
-    const facebook_login = config.plugins.webgui.facebook_login || '';
+    const google_login_client_id = config.plugins.webgui.google_login_client_id || '';
+    const facebook_login_client_id = config.plugins.webgui.facebook_login_client_id || '';
+    const github_login_client_id = config.plugins.webgui.github_login_client_id || '';
     let alipay;
     let paypal;
     let paypalMode;
@@ -486,8 +609,9 @@ exports.status = async (req, res) => {
       title,
       hideFlow,
       simple,
-      google_signin,
-      facebook_login,
+      google_login_client_id,
+      facebook_login_client_id,
+      github_login_client_id,
     });
   } catch (err) {
     logger.error(err);

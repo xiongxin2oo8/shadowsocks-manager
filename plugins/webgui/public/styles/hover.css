@@ -1,0 +1,11 @@
+.hover-mouse {
+  cursor: pointer;
+}
+
+.hover-flow {
+  transition: transform .2s;
+}
+
+.hover-flow:hover {
+  transform: translateY(-5px);
+}
