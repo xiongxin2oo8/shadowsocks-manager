@@ -375,7 +375,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.shadowrocket = subscribe => {
         let rss = config.rss || `${config.site}/api/user/account/subscribe`;
         let base64 = urlsafeBase64(`${rss}/${subscribe}?type=shadowrocket&ip=0${config.hideFlow ? '' : '&flow=1'}`);
-        let remarks = ((config.site.split('//')[1] || config.site) + '(左滑更新)');//config.title
+        let remarks = encodeURIComponent((config.site.split('//')[1] || config.site) + '(左滑更新)');//config.title
         let str = `shadowrocket://add/sub://${base64}?remarks=${remarks}`;
         return str;
       }
@@ -459,12 +459,17 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           color: '#a33',
         };
       };
+      //检查是否过期
       $scope.isAccountOutOfDate = account => {
         if (account.type >= 2 && account.type <= 5) {
           return Date.now() >= account.data.expire;
         } else {
           return false;
         }
+      };
+      //检查流量是否超出
+      $scope.isOverFlow = account => {
+        return account.serverPortFlow > (account.data.flow + account.data.flowPack);
       };
       $scope.showQrcodeDialog = (server, account) => {
         let ssAddress = $scope.createQrCode(server, account);

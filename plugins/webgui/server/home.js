@@ -13,6 +13,8 @@ const push = appRequire('plugins/webgui/server/push');
 const macAccount = appRequire('plugins/macAccount/index');
 const ref = appRequire('plugins/webgui_ref/index');
 const rp = require('request-promise');
+const TwitterLogin = appRequire('plugins/webgui/server/twitterLogin');
+const redis = appRequire('init/redis').redis;
 
 const isTelegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
 let telegram;
@@ -155,7 +157,7 @@ exports.signup = async (req, res) => {
     req.checkBody('password', 'Invalid password').notEmpty();
     let type = 'normal';
     const validation = await req.getValidationResult();
-    if (!validation.isEmpty()) { return Promise.reject(validation.array()); }
+    if(!validation.isEmpty()) { throw(validation.array()); }
     const email = req.body.email.toString().toLowerCase();
     const code = req.body.code;
     await emailPlugin.checkCode(email, code);
@@ -184,8 +186,11 @@ exports.signup = async (req, res) => {
     });
     req.session.user = userId;
     req.session.type = type;
-    if (req.body.ref) { ref.addRefUser(req.body.ref, req.session.user); }
-    if (userId === 1) { return; }
+    if(req.body.ref) { ref.addRefUser(req.body.ref, req.session.user); }
+    if(userId === 1) {
+      res.send(type);
+      return;
+    }
     const newUserAccount = webguiSetting.accountForNewUser;
     if (newUserAccount.isEnable) {
       const port = await getNewPort();
@@ -244,8 +249,8 @@ exports.login = async (req, res) => {
     req.checkBody('email', 'Invalid email').isEmail();
     req.checkBody('password', 'Invalid password').notEmpty();
     const validation = await req.getValidationResult();
-    if (!validation.isEmpty()) {
-      return Promise.reject('invalid body');
+    if(!validation.isEmpty()) {
+      throw('invalid body');
     }
     const email = req.body.email.toString().toLowerCase();
     const password = req.body.password;
@@ -281,7 +286,7 @@ exports.googleLogin = async (req, res) => {
       google_login_client_secret: client_secret
     } =  config.plugins.webgui;
     if(!code || !client_id) {
-      return Promise.reject();
+      return await Promise.reject();
     }
     const result = await rp({
       uri: 'https://www.googleapis.com/oauth2/v4/token',
@@ -295,7 +300,7 @@ exports.googleLogin = async (req, res) => {
       },
       json: true,
     });
-    if(!result.access_token) { return Promise.reject(); }
+    if(!result.access_token) { return await Promise.reject(); }
     const userInfo = await rp({
       uri: 'https://www.googleapis.com/oauth2/v1/userinfo',
       method: 'GET',
@@ -313,6 +318,7 @@ exports.googleLogin = async (req, res) => {
       if (user) {
         req.session.user = user.id;
         req.session.type = user.type;
+        logger.info(`Google用户[${email}]登录`);
         return res.send({ id: user.id, type: user.type });
       } else {
         const password = Math.random().toString();
@@ -322,7 +328,7 @@ exports.googleLogin = async (req, res) => {
         return res.send({ id: user.id, type: user.type });
       }
     }
-    return Promise.reject();
+    return await Promise.reject();
   } catch(err) {
     logger.error(err);
     return res.status(403).end();
@@ -334,8 +340,8 @@ const getFacebookAppToken = async () => {
   if(facebookAppToken) { return facebookAppToken; }
   const {
     facebook_login_client_id: client_id,
-    facebook_login_client_secret: client_secret
-  } =  config.plugins.webgui;
+    facebook_login_client_secret: client_secret,
+  } = config.plugins.webgui;
   const result = await rp({
     uri: 'https://graph.facebook.com/oauth/access_token',
     qs: {
@@ -355,8 +361,8 @@ exports.facebookLogin = async (req, res) => {
     const { code, redirect_uri } = req.body;
     const {
       facebook_login_client_id: client_id,
-      facebook_login_client_secret: client_secret
-    } =  config.plugins.webgui;
+      facebook_login_client_secret: client_secret,
+    } = config.plugins.webgui;
     if(!code || !client_id) {
       return Promise.reject();
     }
@@ -389,7 +395,7 @@ exports.facebookLogin = async (req, res) => {
       method: 'POST',
       qs: {
         fields: 'email',
-        access_token: result.access_token
+        access_token: result.access_token,
       },
       json: true,
     });
@@ -399,6 +405,7 @@ exports.facebookLogin = async (req, res) => {
       if (user) {
         req.session.user = user.id;
         req.session.type = user.type;
+        logger.info(`Facebook用户[${email}]登录`);
         return res.send({ id: user.id, type: user.type });
       } else {
         const password = Math.random().toString();
@@ -420,10 +427,10 @@ exports.githubLogin = async (req, res) => {
     const { code, redirect_uri, state } = req.body;
     const {
       github_login_client_id: client_id,
-      github_login_client_secret: client_secret
-    } =  config.plugins.webgui;
+      github_login_client_secret: client_secret,
+    } = config.plugins.webgui;
     if(!code || !client_id) {
-      return Promise.reject();
+      return await Promise.reject();
     }
     const result = await rp({
       uri: 'https://github.com/login/oauth/access_token',
@@ -437,7 +444,7 @@ exports.githubLogin = async (req, res) => {
       },
       json: true,
     });
-    if(!result.access_token) { return Promise.reject(); }
+    if(!result.access_token) { return await Promise.reject(); }
     const userInfo = await rp({
       uri: 'https://api.github.com/user',
       method: 'GET',
@@ -456,13 +463,14 @@ exports.githubLogin = async (req, res) => {
       },
       json: true,
     });
-    const emailInfo = emails.filter(f => f.email === userInfo.email)[0];
+    const emailInfo = emails.filter(f => f.primary === true)[0];
     if(emailInfo.email && emailInfo.verified) {
       const email = emailInfo.email;
       const user = await knex('user').where({ username: email }).then(s => s[0]);
       if(user) {
         req.session.user = user.id;
         req.session.type = user.type;
+        logger.info(`Github用户[${email}]登录`);
         return res.send({ id: user.id, type: user.type });
       } else {
         const password = Math.random().toString();
@@ -472,7 +480,75 @@ exports.githubLogin = async (req, res) => {
         return res.send({ id: user.id, type: user.type });
       }
     }
-    return Promise.reject();
+    return await Promise.reject();
+  } catch(err) {
+    logger.error(err);
+    return res.status(403).end();
+  }
+};
+
+exports.getTwitterLoginUrl = async (req, res) => {
+  try {
+    const { callbackUrl } = req.query;
+    const time = callbackUrl.split('?time=')[1];
+    const {
+      twitter_login_consumer_key: consumerKey,
+      twitter_login_consumer_secret: consumerSecret
+    } =  config.plugins.webgui;
+    if(!callbackUrl || !time || !consumerKey || !consumerSecret) {
+      throw('invalid params');
+    }
+    if(Math.abs(Date.now() - (+time)) >= 10 * 60 * 1000) {
+      throw('invalid time');
+    }
+    const tl = new TwitterLogin({
+      consumerKey,
+      consumerSecret,
+      callbackUrl,
+    });
+    const { tokenSecret, url } = await tl.login();
+    await redis.set(`TwitterLogin:${time}`, tokenSecret, 'EX', 120);
+    res.send(url);
+  } catch(err) {
+    logger.error(err);
+    return res.status(403).end();
+  }
+};
+
+exports.twitterLogin = async (req, res) => {
+  try {
+    const { oauth_token, oauth_verifier, callbackUrl } = req.body;
+    const time = callbackUrl.split('?time=')[1];
+    if(Math.abs(Date.now() - (+time)) >= 10 * 60 * 1000) {
+      throw('invalid time');
+    }
+    const {
+      twitter_login_consumer_key: consumerKey,
+      twitter_login_consumer_secret: consumerSecret
+    } =  config.plugins.webgui;
+    const tl = new TwitterLogin({
+      consumerKey,
+      consumerSecret,
+      callbackUrl,
+    });
+    const tokenSecret = await redis.get(`TwitterLogin:${time}`);
+    const { userToken, userTokenSecret } = await tl.callback({ oauth_token, oauth_verifier }, tokenSecret);
+    const userInfo = await tl.userInfo({ userToken, userTokenSecret });
+    
+    const email = userInfo.email;
+    const user = await knex('user').where({ username: email }).then(s => s[0]);
+    if(user) {
+      req.session.user = user.id;
+      req.session.type = user.type;
+      logger.info(`Twitter用户[${email}]登录`);
+      return res.send({ id: user.id, type: user.type });
+    } else {
+      const password = Math.random().toString();
+      const user = await createUser(email, password, 'Twitter');
+      req.session.user = user.id;
+      req.session.type = user.type;
+      return res.send({ id: user.id, type: user.type });
+    }
   } catch(err) {
     logger.error(err);
     return res.status(403).end();

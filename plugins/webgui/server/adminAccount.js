@@ -329,7 +329,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
             } else if (type === 'ssr') {
               let index = method.indexOf(s.method);
-              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(accountInfo.password) + '/?obfsparam=&remarks=' + urlsafeBase64((index == -1 ? '' : '[不支持SSR]') + s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(accountInfo.password) + '/?obfsparam=&remarks=' + urlsafeBase64((index == -1 ? '' : '[不支持SSR(请切换连接方式)]') + s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
             }
           }).join('\r\n');
         }

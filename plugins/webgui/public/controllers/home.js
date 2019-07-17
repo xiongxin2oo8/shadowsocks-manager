@@ -258,14 +258,27 @@ app
       $scope.github = () => {
         window.location.replace(`https://github.com/login/oauth/authorize?client_id=${ github_login_client_id }&redirect_uri=${ github_login_redirect_uri }&state=${ state }&scope=user`);
       };
+      $scope.twitter = () => {
+        const twitter_login_redirect_uri = $scope.config.url + '/home/twitter?time=' + Date.now();
+        $http.get('/api/home/twitterLogin', {
+          params: {
+            callbackUrl: twitter_login_redirect_uri,
+          }
+        }).then(success => {
+          window.location.replace(success.data);
+        });
+      };
     }
   ])
-  .controller('HomeGoogleLoginController', ['$scope', '$state', '$http', '$location', 'configManager',
-    ($scope, $state, $http, $location, configManager) => {
-      $http.post('/api/home/googleLogin', {
-        code: $location.search().code,
-        redirect_uri: $scope.config.url + '/home/google',
+  .controller('HomeGoogleLoginController', ['$scope', '$state', '$http', '$location', 'configManager', 'alertDialog',
+    ($scope, $state, $http, $location, configManager, alertDialog) => {
+      alertDialog.loading().then(() => {
+        return $http.post('/api/home/googleLogin', {
+          code: $location.search().code,
+          redirect_uri: $scope.config.url + '/home/google',
+        });
       }).then(success => {
+        alertDialog.close();
         $scope.setId(success.data.id);
         configManager.deleteConfig();
         if (success.data.type === 'normal') {
@@ -273,15 +286,20 @@ app
         } else if (success.data.type === 'admin') {
           $state.go('admin.index');
         }
-      }); 
+      }).catch(err => {
+        alertDialog.show('登录失败，请稍后重试', '确定').then(() => { $state.go('home.social'); });
+      });
     }
   ])
-  .controller('HomeFacebookLoginController', ['$scope', '$state', '$http', '$location', 'configManager',
-    ($scope, $state, $http, $location, configManager) => {
-      $http.post('/api/home/facebookLogin', {
-        code: $location.search().code,
-        redirect_uri: $scope.config.url + '/home/facebook',
+  .controller('HomeFacebookLoginController', ['$scope', '$state', '$http', '$location', 'configManager', 'alertDialog',
+    ($scope, $state, $http, $location, configManager, alertDialog) => {
+      alertDialog.loading().then(() => {
+        return $http.post('/api/home/facebookLogin', {
+          code: $location.search().code,
+          redirect_uri: $scope.config.url + '/home/facebook',
+        });
       }).then(success => {
+        alertDialog.close();
         $scope.setId(success.data.id);
         configManager.deleteConfig();
         if (success.data.type === 'normal') {
@@ -289,7 +307,9 @@ app
         } else if (success.data.type === 'admin') {
           $state.go('admin.index');
         }
-      }); 
+      }).catch(err => {
+        alertDialog.show('登录失败，请稍后重试', '确定').then(() => { $state.go('home.social'); });
+      });
     }
   ])
   .controller('HomeGithubLoginController', ['$scope', '$state', '$http', '$location', 'configManager', 'alertDialog',
@@ -310,7 +330,29 @@ app
           $state.go('admin.index');
         }
       }).catch(err => {
-        alertDialog.show('登录失败，请稍后重试', '确定');
+        alertDialog.show('登录失败，请稍后重试', '确定').then(() => { $state.go('home.social'); });
+      });
+    }
+  ])
+  .controller('HomeTwitterLoginController', ['$scope', '$state', '$http', '$location', 'configManager', 'alertDialog',
+    ($scope, $state, $http, $location, configManager, alertDialog) => {
+      alertDialog.loading().then(() => {
+        return $http.post('/api/home/twitterLogin', {
+          oauth_token: $location.search().oauth_token,
+          oauth_verifier: $location.search().oauth_verifier,
+          callbackUrl: $scope.config.url + '/home/twitter?time=' + $location.search().time,
+        });
+      }).then(success => {
+        alertDialog.close();
+        $scope.setId(success.data.id);
+        configManager.deleteConfig();
+        if (success.data.type === 'normal') {
+          $state.go('user.index');
+        } else if (success.data.type === 'admin') {
+          $state.go('admin.index');
+        }
+      }).catch(err => {
+        alertDialog.show('登录失败，请稍后重试', '确定').then(() => { $state.go('home.social'); });
       });
     }
   ])

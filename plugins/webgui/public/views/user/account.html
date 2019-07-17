@@ -31,9 +31,9 @@
             <md-card-header ng-style="isBlur(a)" style="padding-bottom:0">
                 <md-card-header-text>
                     <span class="md-title">{{a.port}} - {{a.connType||'SS'}}
-                        <span ng-if='!isAccountOutOfDate(a)'
-                            style="color:green">&nbsp;(共{{a.serverList.length}}个节点可用)</span>
+                        <span ng-if='!isAccountOutOfDate(a)' style="color:green">&nbsp;(共{{a.serverList.length}}个节点可用)</span>
                         <span ng-if='isAccountOutOfDate(a)' style="color: #a33;">&nbsp;{{ '已过期' | translate }}</span>
+                        <span ng-if="isOverFlow(a)" style="color: #a33;">&nbsp;已封停</span>
                         <!-- ng-show="isAccountOutOfDate(a)" -->
                     </span>
                 </md-card-header-text>
@@ -250,8 +250,8 @@
                             href="{{shadowrocket(a.subscribe)}}">IPhone({{'一键订阅'
                             | translate }})</a></md-button>
                     <md-button style="margin:6px 0;" class="md-primary">
-                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;"
-                           target="_blank" href="http://doc.balala.ml">使用教程</a></md-button>
+                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;" target="_blank"
+                            href="http://doc.balala.ml">使用教程</a></md-button>
                 </div>
             </md-card-content>
         </md-card>

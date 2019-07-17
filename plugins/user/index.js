@@ -1,7 +1,7 @@
 const knex = appRequire('init/knex').knex;
 const redis = appRequire('init/redis').redis;
 const crypto = require('crypto');
-const macAccount = appRequire('plugins/macAccount/index');
+// const macAccount = appRequire('plugins/macAccount/index');
 
 const checkPasswordLimit = {
   number: 5,
@@ -238,6 +238,7 @@ const deleteUser = async userId => {
   if (existAccount.length) {
     return Promise.reject('delete user fail');
   }
+  const macAccount = appRequire('plugins/macAccount/index');
   const macAccounts = await macAccount.getAccountByUserId(userId);
   if (macAccounts.length) {
     macAccounts.forEach(f => {
