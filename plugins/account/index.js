@@ -831,7 +831,7 @@ const getAccountForSubscribe = async (token, ip) => {
     subscribe: token
   }).then(s => s[0]);
   if (!account) {
-    loginFail(token, ip);
+    //loginFail(token, ip);//由于订阅使用了反向代理，都是同一ip请求
     return Promise.reject('can not find account');
   }
   if (account.data) {
