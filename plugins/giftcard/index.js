@@ -256,6 +256,7 @@ const getUserOrders = async userId => {
   const orders = await knex(dbTableName).select([
     `${dbTableName}.password as orderId`,
     `${dbTableName}.orderType`,
+    'webgui_order.name as orderName',
     'user.id as userId',
     'user.username',
     'account_plugin.id as accountId',
@@ -263,10 +264,11 @@ const getUserOrders = async userId => {
     `${dbTableName}.status`,
     `${dbTableName}.usedTime as createTime`,
   ])
-    .where({ 'user.id': userId })
-    .orderBy(`${dbTableName}.usedTime`, 'DESC')
     .leftJoin('user', 'user.id', `${dbTableName}.user`)
-    .leftJoin('account_plugin', 'account_plugin.id', `${dbTableName}.account`);
+    .leftJoin('account_plugin', 'account_plugin.id', `${dbTableName}.account`)
+    .leftJoin('webgui_order', 'webgui_order.id', 'alipay.orderType')
+    .where({ 'user.id': userId })
+    .orderBy(`${dbTableName}.usedTime`, 'DESC');
   return orders;
 };
 

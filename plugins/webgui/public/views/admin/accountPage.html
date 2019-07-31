@@ -140,8 +140,7 @@
                                     <div flex="60" style="text-align:right">
                                         <span ng-if="account.type === 1" translate>无</span>
                                         <span ng-if="account.type >=2 && account.type <= 5">
-                                            <span style="font-size: 0.9em;">{{account.data.from | date : 'yyyy-MM-dd HH:mm'}}</span>
-                                            <br>
+                                            <span style="font-size: 0.9em;">{{account.data.from | date : 'yyyy-MM-dd HH:mm'}}</span><br>
                                             <span style="font-size: 0.9em;">{{account.data.to | date : 'yyyy-MM-dd HH:mm'}}</span>
                                         </span>
                                     </div>
