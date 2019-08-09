@@ -81,20 +81,12 @@
                         ng-disabled="!account.autoRemove">
                 </md-input-container>
             </form>
-            <div style="width: 100%;" layout="row" layout-align="space-between center">
-                <div flex="75">清除该账号流量</div>
-                <div flex layout="row" layout-align="end center">
-                    <md-switch ng-model="account.cleanFlow" aria-label="cleanFlow" ng-true-value="1" ng-false-value="0">
-                    </md-switch>
+            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%; height: 52px;" layout="row" layout-align="space-between center" ng-click="setAccountServer()">
+                <div flex="75" translate>
+                    <span>自定义服务器&nbsp;[{{ account.server ? account.server.length : '∞' }}]</span>
                 </div>
-            </div>
-            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%;" layout="row"
-                layout-align="space-between center">
-                <div flex="75">到期自动删除</div>
                 <div flex layout="row" layout-align="end center">
-                    <md-switch ng-model="account.autoRemove" aria-label="autoRemove" ng-true-value="1"
-                        ng-false-value="0">
-                    </md-switch>
+                    <md-button class="md-icon-button"><md-icon>keyboard_arrow_right</md-icon></md-button>
                 </div>
             </div>
             <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%;" layout="row"
@@ -106,24 +98,18 @@
                     </md-switch>
                 </div>
             </div>
-            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%;" layout="row"
-                layout-align="space-between center">
-                <div flex="75">自定义可用服务器</div>
+            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%;" layout="row" layout-align="space-between center">
+                <div flex="75">到期自动删除</div>
                 <div flex layout="row" layout-align="end center">
-                    <md-switch ng-model="account.accountServer" aria-label="account.accountServer">
+                    <md-switch ng-model="account.autoRemove" aria-label="autoRemove" ng-true-value="1" ng-false-value="0">
                     </md-switch>
                 </div>
             </div>
-            <div layout="column" layout-wrap flex ng-if="account.accountServer && +account.type !== 1">
-                <div layout="column" layout-wrap flex ng-repeat="server in servers">
-                    <div flex="100">
-                        <md-checkbox ng-model="account.accountServerObj[server.id]">
-                            <div layout="row" layout-align="space-between center">
-                                <span flex>{{ server.name }}</span>
-                                <span flex style="color: #777;text-overflow: ellipsis">{{ server.host }}</span>
-                            </div>
-                        </md-checkbox>
-                    </div>
+            <div style="width: 100%;" layout="row" layout-align="space-between center">
+                <div flex="75">清除该账号流量</div>
+                <div flex layout="row" layout-align="end center">
+                    <md-switch ng-model="account.cleanFlow" aria-label="cleanFlow" ng-true-value="1" ng-false-value="0">
+                    </md-switch>
                 </div>
             </div>
         </div>

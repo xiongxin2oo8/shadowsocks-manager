@@ -36,7 +36,7 @@ const modifyAccountFlow = async (serverId, accountId, nextCheckTime) => {
   await knex('account_flow').update({
     checkTime: Date.now(),
     nextCheckTime,
-  }).where({ serverId, accountId });
+  }).where({ accountId, serverId });
 };
 
 var portList = {};
@@ -305,7 +305,7 @@ const addPortSSR = async (server, account) => {
   const ssr = await knex('ssr_user').where({ serverId: server.id, accountId: account.id }).then(s => s[0]);
   //如果已存在，设置为可用
   if (ssr) {
-    await knex('ssr_user').update('enable', 1).where({ serverId: server.id, accountId: account.id });
+    await knex('ssr_user').update('enable', 1).where({ accountId: account.id, serverId: server.id });
   } else {
     await knex('ssr_user').insert({
       passwd: account.password,
