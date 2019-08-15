@@ -199,6 +199,7 @@ app.delete('/api/admin/order/:orderId(\\d+)', isAdmin, isSuperAdmin, adminOrder.
 
 app.get('/api/user/notice', isUser, user.getNotice);
 app.get('/api/user/account', isUser, user.getAccount);
+app.get('/api/user/usage', isUser, user.getAccountUsage);
 app.get('/api/user/account/mac', isUser, user.getMacAccount);
 app.post('/api/user/account/mac', isUser, user.addMacAccount);
 app.get('/api/user/account/:accountId(\\d+)', isUser, user.getOneAccount);
@@ -246,6 +247,12 @@ if (config.plugins.webgui_telegram && config.plugins.webgui_telegram.use) {
 if (config.plugins.webgui.gcmAPIKey && config.plugins.webgui.gcmSenderId) {
   app.post('/api/push/client', push.client);
   app.delete('/api/push/client', push.deleteClient);
+}
+
+if (config.plugins.webgui_crisp && config.plugins.webgui_crisp.use) {
+  const crisp = appRequire('plugins/webgui_crisp/index');
+  app.get('/api/user/crisp', isUser, crisp.getUserToken);
+  app.post('/api/user/crisp', isUser, crisp.setUserToken);
 }
 
 app.get('/favicon.png', (req, res) => {

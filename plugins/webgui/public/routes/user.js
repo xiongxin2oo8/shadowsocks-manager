@@ -62,6 +62,11 @@ app.config(['$stateProvider', $stateProvider => {
       controller: 'ConnTypeController',
       templateUrl: `${ cdn }/public/views/user/connType.html`,
     })
+    .state('user.notice', {
+      url: '/notice',
+      controller: 'UserNoticeController',
+      templateUrl: `${ cdn }/public/views/user/notice.html`,
+    })
     ;
   }])
 ;

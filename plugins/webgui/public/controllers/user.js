@@ -1,7 +1,7 @@
 const app = angular.module('app');
 
-app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', '$http', '$interval', '$localStorage', 'userApi', 'configManager',
-  ($scope, $mdMedia, $mdSidenav, $state, $http, $interval, $localStorage, userApi, configManager) => {
+app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', '$http', '$interval', '$localStorage', 'userApi', 'configManager', '$window',
+  ($scope, $mdMedia, $mdSidenav, $state, $http, $interval, $localStorage, userApi, configManager, $window) => {
     const config = configManager.getConfig();
     if (config.status === 'admin') {
       return $state.go('admin.index');
@@ -61,6 +61,9 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           $localStorage.home = {};
           $localStorage.user = {};
           configManager.deleteConfig();
+          if(config.crisp) {
+            $crisp.push(['do', 'session:reset', [false]]);
+          }
           $state.go('home.index');
         });
       },
@@ -149,6 +152,39 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         };
       });
     };
+    document.addEventListener('crispReady', function (e) {
+      $crisp.push(['set', 'session:data', [[['user-type', 'ssmgr-user']]]]);
+      $crisp.push(['set', 'session:data', [[['user-agent', navigator.userAgent]]]]);
+      if(!$scope.crispToken) {
+        $scope.crispToken = $crisp.get('session:identifier');
+        $http.post('/api/user/crisp', { token: $scope.crispToken });
+      }
+    }, false);
+    const startCrisp = () => {
+      $crisp.push(['do', 'chat:hide']);
+      $crisp.push(['on', 'chat:closed', () => {
+        $crisp.push(['do', 'chat:hide']);
+      }]);
+      (function() {
+        d = document;
+        s = d.createElement('script');
+        s.src = 'https://client.crisp.chat/l.js';
+        s.async = 1;
+        d.getElementsByTagName('head')[0].appendChild(s);
+      })();
+    };
+    if(config.crisp) {
+      $http.get('/api/user/crisp').then(success => {
+        $scope.crispToken = success.data.token;
+        $crisp.push(['set', 'user:email', config.email]);
+        if(!$scope.crispToken) {
+          startCrisp();
+        } else {
+          window.CRISP_TOKEN_ID = $scope.crispToken;
+          startCrisp();
+        }
+      });
+    }
   }
 ])
   .controller('UserIndexController', ['$scope', '$state', 'userApi', 'markdownDialog', '$sessionStorage', 'autopopDialog',
@@ -164,6 +200,9 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           }
         }
       });
+      userApi.getUsage().then(success => {
+        $scope.usage = success;
+      });
       $scope.toMyAccount = () => {
         $state.go('user.account');
       };
@@ -172,6 +211,9 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
       $scope.toTelegram = () => {
         $state.go('user.telegram');
+      };
+      $scope.toNotice = () => {
+        $state.go('user.notice');
       };
       $scope.toRef = () => {
         $state.go('user.ref');
@@ -630,6 +672,18 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         });
       };
       getMacAccount();
+    }
+  ])
+  .controller('UserNoticeController', ['$scope', 'userApi', 'markdownDialog',
+    ($scope, userApi, markdownDialog) => {
+      $scope.setTitle('公告');
+      $scope.setMenuButton('arrow_back', 'user.index');
+      userApi.getNotice().then(success => {
+        $scope.notices = success;
+      });
+      $scope.showNotice = notice => {
+        markdownDialog.show(notice.title, notice.content);
+      };
     }
   ])
   .controller('ConnTypeController', ['$scope', '$state', 'userApi', 'alertDialog', '$http', '$localStorage',

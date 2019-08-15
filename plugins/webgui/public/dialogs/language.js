@@ -29,7 +29,7 @@ app.factory('languageDialog' , [ '$mdDialog', $mdDialog => {
     bindToController: true,
     controller: ['$scope', '$translate', '$localStorage', 'bind', function($scope, $translate, $localStorage, bind) {
       $scope.publicInfo = bind;
-      $scope.publicInfo.myLanguage = $localStorage.language || navigator.language || 'zh-CN';
+      $scope.publicInfo.myLanguage = $localStorage.language || window.ssmgrConfig.language || navigator.language || 'zh-CN';
       $scope.chooseLanguage = () => {
         $translate.use($scope.publicInfo.myLanguage);
         $localStorage.language = $scope.publicInfo.myLanguage;
@@ -37,11 +37,16 @@ app.factory('languageDialog' , [ '$mdDialog', $mdDialog => {
       };
       $scope.languages = [
         { id: 'zh-CN', name: '中文' },
-        { id: 'ja-JP', name: '日本語' },
         { id: 'en-US', name: 'English' },
-        { id: 'ru-RU', name: 'Русский' },
+        { id: 'ja-JP', name: '日本語' },
         { id: 'ko-KR', name: '한국' },
+        { id: 'ru-RU', name: 'Русский' },
       ];
+      $scope.languages.forEach(language => {
+        if(language.id === window.ssmgrConfig.language) {
+          language.default = true;
+        }
+      });
       $scope.refresh = () => { window.location.reload(true); };
     }],
     clickOutsideToClose: true,

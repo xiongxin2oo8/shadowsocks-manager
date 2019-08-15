@@ -56,10 +56,15 @@ const updatePorts = async server => {
 };
 
 const isPortExists = async (server, account) => {
-  const ports = await updatePorts(server);
-  if (ports.includes(server.shift + account.port)) {
-    return true;
-  } else {
+  try {
+    const ports = await updatePorts(server);
+    if (ports.includes(server.shift + account.port)) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch{
+    console.log(`服务器 ${server.name} 请求失败，强制返回false`);
     return false;
   }
 };
