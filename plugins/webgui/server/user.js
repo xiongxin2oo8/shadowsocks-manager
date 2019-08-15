@@ -751,6 +751,6 @@ exports.setConnType = async (req, res) => {
   }).catch(err => {
     console.log(err);
     res.status(403).end();
-  });;
+  });
 };
 
