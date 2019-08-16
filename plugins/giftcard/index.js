@@ -266,7 +266,7 @@ const getUserOrders = async userId => {
   ])
     .leftJoin('user', 'user.id', `${dbTableName}.user`)
     .leftJoin('account_plugin', 'account_plugin.id', `${dbTableName}.account`)
-    .leftJoin('webgui_order', 'webgui_order.id', 'alipay.orderType')
+    .leftJoin('webgui_order', 'webgui_order.id', `${dbTableName}.orderType`)
     .where({ 'user.id': userId })
     .orderBy(`${dbTableName}.usedTime`, 'DESC');
   return orders;

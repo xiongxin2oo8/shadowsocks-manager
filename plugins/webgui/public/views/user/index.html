@@ -33,7 +33,7 @@
                 <md-card-title-text><span class="md-headline">{{ '账号' | translate }}</span></md-card-title-text>
             </md-card-title>
             <md-card-content>
-                <md-list>
+                <md-list ng-if="!config.hideFlow" >
                     <md-divider></md-divider>
                     <md-list-item>
                         <div flex layout="row" layout-align="space-between center">
