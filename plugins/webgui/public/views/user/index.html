@@ -41,7 +41,7 @@
                                 <span>今日</span>
                             </div>
                             <div flex="30" flex-xs="40" style="text-align: right;">
-                                <span style="color: #555">{{ (usage[0]*(config.hideFlow?3:1)) | flow}}</span>
+                                <span style="color: #555">{{ usage[0] | flow}}</span>
                             </div>
                         </div>
                     </md-list-item>
@@ -52,7 +52,7 @@
                                 <span>本周</span>
                             </div>
                             <div flex="30" flex-xs="40" style="text-align: right;">
-                                <span style="color: #555">{{ (usage[1]*(config.hideFlow?3:1)) | flow}}</span>
+                                <span style="color: #555">{{ usage[1] | flow}}</span>
                             </div>
                         </div>
                     </md-list-item>
@@ -63,7 +63,7 @@
                                 <span>本月</span>
                             </div>
                             <div flex="30" flex-xs="40" style="text-align: right;">
-                                <span style="color: #555">{{ (usage[2]*(config.hideFlow?3:1)) | flow}}</span>
+                                <span style="color: #555">{{ usage[2] | flow}}</span>
                             </div>
                         </div>
                     </md-list-item>
