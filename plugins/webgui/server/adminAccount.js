@@ -237,7 +237,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           method: 'chacha20',
           host: '127.0.0.1',
           shift: 2,
-          comment: `续费地址：${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}(备用 ${config.plugins.webgui.siteback})`
+          comment: `续费地址：${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}` + (config.plugins.webgui.siteback ? `(备用 ${config.plugins.webgui.siteback})` : '')
         };
         subscribeAccount.server.unshift(renew);
         if (accountInfo.type == 1) {
