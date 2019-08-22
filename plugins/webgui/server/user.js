@@ -306,8 +306,8 @@ exports.getPrice = async (req, res) => {
         '5': 3600000,
       };
       const expire = accountData.create + time[account.type] * accountData.limit;
-      //5天内到期才能更换套餐
-      return expire <= Date.now() + 5 * 24 * 60 * 60 * 1000;
+      //10天内到期才能更换套餐
+      return expire <= Date.now() + 10 * 24 * 60 * 60 * 1000;
     };
     if (accountId) {
       orderInfo = await orderPlugin.getOneOrderByAccountId(accountId);

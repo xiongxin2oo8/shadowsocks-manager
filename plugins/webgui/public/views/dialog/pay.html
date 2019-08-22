@@ -11,7 +11,8 @@
                     <md-radio-button ng-repeat="pt in publicInfo.payType" value="{{pt.type}}">
                         {{ pt.name }}
                     </md-radio-button>
-                </md-radio-group>
+                </md-radio-group>                
+                <div style="font-size:12px;margin: 20px 0 0 0;">如果没有出现支付方式，请刷新页面</div>
             </div>
             <div layout="column" layout-align="center center" ng-show="publicInfo.status === 'pay'">
                 <div ng-if="publicInfo.config.alipay && publicInfo.myPayType === 'alipay'" layout="column" layout-align="center center">
@@ -45,7 +46,7 @@
                         ng-show="+publicInfo.orderId === +order.id" ng-repeat-end>有效期：{{ publicInfo.account.data.to |
                         date : 'yyyy-MM-dd HH:mm' }}</div>
                 </md-radio-group>
-                <div style="font-size:12px;margin: 20px 0 0 0;">注意：套餐过期时间小于5天才可以更换套餐。</div>
+                <div style="font-size:12px;margin: 20px 0 0 0;">注意：套餐过期时间小于10天才可以更换套餐。</div>
             </div>
             <div layout="column" layout-align="center center" ng-show="publicInfo.status === 'giftcard'">
                 <form>
