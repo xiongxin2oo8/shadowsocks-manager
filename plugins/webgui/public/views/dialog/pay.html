@@ -24,7 +24,8 @@
                     layout="column" layout-align="center center">
                     <div translate>请点击下面按钮完成PayPal支付</div>
                     <div style="margin-top: 5px;" id="paypal-button-container"></div>
-                </div>
+                </div>                
+                <div style="font-size:12px;margin: 20px 0 0 0;">支付后，<span style='color: red;'>删除订阅，重新添加</span>，方可使用！</div>
             </div>
             <div layout="column" layout-align="center center" ng-if="publicInfo.status === 'choose'">
                 <div style="margin-bottom: 20px;" translate>请选择续费周期：</div>
@@ -46,7 +47,7 @@
                         ng-show="+publicInfo.orderId === +order.id" ng-repeat-end>有效期：{{ publicInfo.account.data.to |
                         date : 'yyyy-MM-dd HH:mm' }}</div>
                 </md-radio-group>
-                <div style="font-size:12px;margin: 20px 0 0 0;">注意：套餐过期时间小于10天才可以更换套餐。</div>
+                <div style="font-size:12px;margin: 20px 0 0 0;color: red;">注意：套餐过期时间小于10天才可以更换套餐。</div>
             </div>
             <div layout="column" layout-align="center center" ng-show="publicInfo.status === 'giftcard'">
                 <form>

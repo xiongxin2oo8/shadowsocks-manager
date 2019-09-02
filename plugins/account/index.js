@@ -510,7 +510,7 @@ const setAccountLimit = async (userId, accountId, orderId) => {
       orderId,
       user: userId,
       port,
-      password: Math.random().toString().substr(2, 4),
+      password: Math.ceil(Math.random() * 9) + Math.random().toString().substr(2, 3),//防止密码首位出现0
       time: Date.now(),
       limit,
       flow: orderInfo.flow,
