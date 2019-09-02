@@ -144,6 +144,7 @@ const getOnlineAccount = async serverId => {
       'saveFlow.id as serverId',
     ]).countDistinct('saveFlow.accountId as online')
       .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
+      .where('saveFlow.flow', '>', 10000)
       .groupBy('saveFlow.id');
     const result = {};
     for (const online of onlines) {
@@ -155,12 +156,13 @@ const getOnlineAccount = async serverId => {
     'account_plugin.id',
     'account_plugin.port',
   ])
-    .whereExists(
-      knex('saveFlow')
-        .where({ 'saveFlow.id': serverId })
-        .whereRaw('saveFlow.accountId = account_plugin.id')
-        .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
-    );
+  .whereExists(
+    knex('saveFlow')
+    .where({ 'saveFlow.id': serverId })
+    .whereRaw('saveFlow.accountId = account_plugin.id')
+    .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
+    .where('saveFlow.flow', '>', 10000)
+  );
   return account.map(m => m.id);
 };
 

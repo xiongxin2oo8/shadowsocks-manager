@@ -27,6 +27,12 @@ module.exports = {
   '无效': 'not valid',
   '已发送': 'has been sent',
 
+  '有问题先看这里':'News',
+  '购买/续费':'Purchase / Renewal',
+  '在线':'Online',
+  '客服咨询':'Online chat',
+  '使用教程':'Doc',
+
   '服务器': 'Servers',
   '用户': 'Users',
   '账号': 'Accounts',

@@ -124,8 +124,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };
   }
 ])
-  .controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog', 'banDialog',
-    ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog, banDialog) => {
+  .controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog', 'banDialog','$filter',
+    ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog, banDialog, $filter) => {
       $scope.setTitle('账号');
       $scope.setMenuButton('arrow_back', 'admin.account');
       $scope.accountId = +$stateParams.accountId;
@@ -452,7 +452,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         });
       };
       $scope.clipboardSuccess = event => {
-        $scope.toast('二维码链接已复制到剪贴板');
+        $scope.toast($filter('translate')('二维码链接已复制到剪贴板'));
       };
       $scope.isWG = server => server.type === 'WireGuard';
       $scope.showWireGuard = (server, account) => {

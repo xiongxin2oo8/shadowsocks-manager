@@ -213,9 +213,9 @@
                         <div hide-xs></div>
                         <div ng-hide="isWG(a.serverInfo)" layout="column" layout-align-xs="center center">
                             <qr ng-if="a.serverInfo" ng-click="showQrcodeDialog(a.serverInfo, a)" size="getQrCodeSize()"
-                                layout-margin text="createQrCode(a.serverInfo, a)" image="true"></qr>
-                            <!-- <md-button class="md-primary" ngclipboard data-clipboard-text="{{ createQrCode(a.serverInfo, a) }}"
-                                ngclipboard-success="clipboardSuccess(e);">复制二维码链接</md-button> -->
+                            layout-margin text="createQrCode(a.serverInfo, a)"
+                            image="true"></qr>
+                            <md-button class="md-primary" ngclipboard data-clipboard-text="{{ createQrCode(a.serverInfo, a) }}" ngclipboard-success="clipboardSuccess(e);">{{ '复制二维码链接' | translate }}</md-button>
                         </div>
                         <div ng-show="isWG(a.serverInfo)" ng-click="showWireGuard(a.serverInfo, a)" layout="column"
                             layout-align-xs="center center" style="background-color: #eee;">
@@ -244,15 +244,13 @@
                         ng-show="config.alipay || config.paypal || config.giftcard" ng-if="a.type >= 2 && a.type <= 5"
                         ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
                     <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary"
-                        ng-click="subscribe(a.id)" ng-if="config.subscribe">{{
-                        '订阅' | translate }}({{'推荐' | translate }})</md-button>
+                        ng-click="subscribe(a.id)" ng-if="config.subscribe">{{'订阅' | translate }}({{'推荐' | translate }})</md-button>
                     <md-button style="margin:6px 0;" class="md-primary" ng-if="config.subscribe">
                         <a class="md-primary" style="text-decoration:none;text-transform:capitalize;"
-                            href="{{shadowrocket(a.subscribe)}}">IPhone({{'一键订阅'
-                            | translate }})</a></md-button>
+                            href="{{shadowrocket(a.subscribe)}}">IPhone({{'一键订阅' | translate }})</a></md-button>
                     <md-button style="margin:6px 0;" class="md-primary">
                         <a class="md-primary" style="text-decoration:none;text-transform:capitalize;color: red;" target="_blank"
-                            href="http://doc.balala.ml">使用教程</a></md-button>
+                            href="http://doc.balala.ml">{{'使用教程' | translate }}</a></md-button>
                 </div>
             </md-card-content>
         </md-card>

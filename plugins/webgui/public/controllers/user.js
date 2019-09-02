@@ -61,7 +61,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           $localStorage.home = {};
           $localStorage.user = {};
           configManager.deleteConfig();
-          if(config.crisp) {
+          if (config.crisp) {
             $crisp.push(['do', 'session:reset', [false]]);
           }
           $state.go('home.index');
@@ -155,7 +155,11 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
     document.addEventListener('crispReady', function (e) {
       $crisp.push(['set', 'session:data', [[['user-type', 'ssmgr-user']]]]);
       $crisp.push(['set', 'session:data', [[['user-agent', navigator.userAgent]]]]);
-      if(!$scope.crispToken) {
+      $crisp.push(['on', 'message:received', () => {
+        $crisp.push(['do', 'chat:open']);
+        $crisp.push(['do', 'chat:show']);
+      }]);
+      if (!$scope.crispToken) {
         $scope.crispToken = $crisp.get('session:identifier');
         $http.post('/api/user/crisp', { token: $scope.crispToken });
       }
@@ -165,7 +169,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $crisp.push(['on', 'chat:closed', () => {
         $crisp.push(['do', 'chat:hide']);
       }]);
-      (function() {
+      (function () {
         d = document;
         s = d.createElement('script');
         s.src = 'https://client.crisp.chat/l.js';
@@ -173,11 +177,11 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         d.getElementsByTagName('head')[0].appendChild(s);
       })();
     };
-    if(config.crisp) {
+    if (config.crisp) {
       $http.get('/api/user/crisp').then(success => {
         $scope.crispToken = success.data.token;
         $crisp.push(['set', 'user:email', config.email]);
-        if(!$scope.crispToken) {
+        if (!$scope.crispToken) {
           startCrisp();
         } else {
           window.CRISP_TOKEN_ID = $scope.crispToken;
@@ -190,6 +194,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
   .controller('UserIndexController', ['$scope', '$state', 'userApi', 'markdownDialog', '$sessionStorage', 'autopopDialog',
     ($scope, $state, userApi, markdownDialog, $sessionStorage, autopopDialog) => {
       $scope.setTitle('首页');
+      $scope.notices = [];
       userApi.getNotice().then(success => {
         $scope.notices = success;
         if (!$sessionStorage.showNotice) {
