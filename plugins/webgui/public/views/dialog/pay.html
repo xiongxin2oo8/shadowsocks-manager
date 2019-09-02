@@ -24,8 +24,8 @@
                     layout="column" layout-align="center center">
                     <div translate>请点击下面按钮完成PayPal支付</div>
                     <div style="margin-top: 5px;" id="paypal-button-container"></div>
-                </div>                
-                <div style="font-size:12px;margin: 20px 0 0 0;">支付后，<span style='color: red;'>删除订阅，重新添加</span>，方可使用！</div>
+                </div>
+                <div style="font-size:12px;margin: 20px 0 0 0;">支付后，<span style='color: red;'>{{publicInfo.accountId?'请更新订阅':'删除订阅，重新添加'}}</span>，方可使用！</div>
             </div>
             <div layout="column" layout-align="center center" ng-if="publicInfo.status === 'choose'">
                 <div style="margin-bottom: 20px;" translate>请选择续费周期：</div>

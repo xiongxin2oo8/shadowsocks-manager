@@ -126,7 +126,6 @@ app.factory('payDialog', ['$mdDialog', '$interval', '$timeout', '$http', '$local
     clickOutsideToClose: false,
   };
   const choosePayType = account => {
-    console.log(account);
     publicInfo.status = 'type';
     publicInfo.account = account;
     publicInfo.accountId = account ? account.id : null;
