@@ -6,19 +6,24 @@
     <div flex="100" ng-if="account && !account.length && !isUserLoading">
         <md-card>
             <md-card-content>
-                <div style="margin-top: 30px; margin-bottom: 30px;" translate>目前该用户没有分配账号，请联系管理员处理</div>
+                <div style="margin-top: 5px; margin-bottom: 5px;" translate>目前您还没有账号，请联系管理员处理</div>
                 <div ng-show="config.alipay || config.paypal || config.giftcard" ng-click="createOrder()"
-                    style="margin-bottom: 30px;">{{
+                    style="margin-bottom: 5px;">{{
                     '或' | translate }}
                     <span>
-                        <md-button class="md-primary">{{ '点击这里' | translate }}</md-button>
+                        <md-button style="margin: 0px" class="md-primary">{{ '点击这里' | translate }}</md-button>
                     </span>
-                    {{ '付款立即开通帐号' | translate }}</div>
-                <div style="text-align:left;color:#c3c3c3;font-size: 14px;">提示：账号到期7天后就会被删除，需要付款重新分配帐号。<span
-                        style="color:red">支付成功后，将于三分钟内开通，请不要捉急。</span><span
-                        style="color:green;font-weight: 600">请重新添加订阅！</span></div>
+                    {{ '付款立即开通帐号' | translate }}({{ '充值码' | translate }})</div>
             </md-card-content>
         </md-card>
+        <div style="text-align:left;font-size: 14px;margin:15px 8px">常见问题：
+            <ul style="line-height: 25px">
+                <li>账号到期7天后就会被删除，需要重新购买。</li>
+                <li><span style="color:green;font-weight: 600">切记！重新购买后，</span><span style="color:red;font-weight: 600">重新添加订阅，方可使用。</li>
+                <li><span>支付成功后，将于三分钟内开通，请不要捉急。</span></li>
+                <li><span style="color:blue">使用方法请看教程，不要询问客服。</span></li>
+            </ul>
+        </div>
     </div>
     <div flex="100" flex-gt-md="{{flexGtSm}}" ng-repeat="a in accountList track by a.id">
         <md-card ng-click="toAccount(a.id)" style="position: relative;">
@@ -32,7 +37,8 @@
             <md-card-header ng-style="isBlur(a)" style="padding-bottom:0">
                 <md-card-header-text>
                     <span class="md-title">{{a.port}} - {{a.connType||'SS'}}
-                        <span ng-if='!isAccountOutOfDate(a)' style="color:green">&nbsp;(共{{a.serverList.length}}个节点可用)</span>
+                        <span ng-if='!isAccountOutOfDate(a)'
+                            style="color:green">&nbsp;(共{{a.serverList.length}}个节点可用)</span>
                         <span ng-if='isAccountOutOfDate(a)' style="color: #a33;">&nbsp;{{ '已过期' | translate }}</span>
                         <span ng-if="isOverFlow(a)" style="color: #a33;">&nbsp;已封停</span>
                         <!-- ng-show="isAccountOutOfDate(a)" -->
@@ -208,14 +214,16 @@
                             <md-divider></md-divider>
                         </md-list>
                     </div>
-                    <div flex flex-xs="100" layout="row" layout-align-xs="center center"
-                        layout-align-gt-xs="space-between center" ng-hide="config.simple">
+                    <div flex=40 flex-xs="100" layout="row" layout-align-xs="center center"
+                        layout-align-gt-xs="space-between center" ng-hide="config.simple"
+                        style="flex-direction: column">
                         <div hide-xs></div>
                         <div ng-hide="isWG(a.serverInfo)" layout="column" layout-align-xs="center center">
                             <qr ng-if="a.serverInfo" ng-click="showQrcodeDialog(a.serverInfo, a)" size="getQrCodeSize()"
-                            layout-margin text="createQrCode(a.serverInfo, a)"
-                            image="true"></qr>
-                            <md-button class="md-primary" ngclipboard data-clipboard-text="{{ createQrCode(a.serverInfo, a) }}" ngclipboard-success="clipboardSuccess(e);">{{ '复制二维码链接' | translate }}</md-button>
+                                layout-margin text="createQrCode(a.serverInfo, a)" image="true"></qr>
+                            <!-- <md-button class="md-primary" ngclipboard
+                                data-clipboard-text="{{ createQrCode(a.serverInfo, a) }}"
+                                ngclipboard-success="clipboardSuccess(e);">{{ '复制二维码链接' | translate }}</md-button> -->
                         </div>
                         <div ng-show="isWG(a.serverInfo)" ng-click="showWireGuard(a.serverInfo, a)" layout="column"
                             layout-align-xs="center center" style="background-color: #eee;">
@@ -225,14 +233,12 @@
                             <md-button class="md-primary">显示WireGuard配置</md-button>
                         </div>
                         <div hide-xs></div>
+                        <ul style="line-height: 25px;font-size:14px;">
+                            <li style="color:green">请使用订阅，一次导入全部节点</li>
+                            <li style="color:red;">请勿扫码！请勿手动添加！(请看教程)</li>
+                        </ul>
                     </div>
-                    <div style="text-align:left;color:#c3c3c3;font-size: 14px;line-height: 20px"
-                        ng-hide="config.simple">
-                        <span style='color:green;font-weight: 600'>请使用订阅，一次就能导入全部节点</span>
-                        <br><br>
-                        <span style='color:red;'>请勿扫码！请勿手动添加！</span>
-                        <br><br>
-                        <span>不同地域，节点速度各不相同，每个节点都试试吧。</span>
+                    <div flex flex-xs="100" layout="row" layout-align-xs="center center">
                     </div>
                 </div>
                 <div class="btns" style="display: flex;justify-content: center;flex-wrap: wrap;">
@@ -244,13 +250,14 @@
                         ng-show="config.alipay || config.paypal || config.giftcard" ng-if="a.type >= 2 && a.type <= 5"
                         ng-click="createOrder(a)">{{ '续费' | translate }}</md-button>
                     <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary"
-                        ng-click="subscribe(a.id)" ng-if="config.subscribe">{{'订阅' | translate }}({{'推荐' | translate }})</md-button>
+                        ng-click="subscribe(a.id)" ng-if="config.subscribe">{{'订阅' | translate }}({{'推荐' | translate }})
+                    </md-button>
                     <md-button style="margin:6px 0;" class="md-primary" ng-if="config.subscribe">
                         <a class="md-primary" style="text-decoration:none;text-transform:capitalize;"
                             href="{{shadowrocket(a.subscribe)}}">IPhone({{'一键订阅' | translate }})</a></md-button>
                     <md-button style="margin:6px 0;" class="md-primary">
-                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;color: red;" target="_blank"
-                            href="http://doc.balala.ml">{{'使用教程' | translate }}</a></md-button>
+                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;color: red;"
+                            target="_blank" href="http://doc.balala.ml">{{'使用教程' | translate }}</a></md-button>
                 </div>
             </md-card-content>
         </md-card>
