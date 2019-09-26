@@ -94,17 +94,17 @@
                         <div ng-message="required">流量重置日期不能为空</div>
                     </div>
                 </md-input-container>
+                <div style="width: 100%;" layout="row" ng-if="server.type === 'Shadowsocks'" layout-align="space-between center">
+                    <div flex="75" translate>仅开放单端口</div>
+                    <div flex layout="row" layout-align="end center">
+                        <md-switch ng-model="server.singlePortOnly" aria-label="singlePortOnly" ng-true-value="1" ng-false-value="0"></md-switch>
+                    </div>
+                </div>
                 <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks'">
                     <label>单端口</label>
                     <input type="number" required name="singlePort" placeholder="单端口端口号" ng-model="server.singlePort">
                     <div ng-messages="serverForm.singlePort.$error">
                         <div ng-message="required">单端口端口号不能为空</div>
-                    </div>
-                </md-input-container>
-                <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks'">
-                    <div flex="75" translate>仅开放单端口</div>
-                    <div flex layout="row" layout-align="end center">
-                        <md-switch ng-model="accountData.singlePortOnly" aria-label="singlePortOnly"></md-switch>
                     </div>
                 </md-input-container>
             </form>
