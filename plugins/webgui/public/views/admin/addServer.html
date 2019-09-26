@@ -43,7 +43,7 @@
                         <div ng-message="required">密码不能为空</div>
                     </div>
                 </md-input-container>
-                 <md-input-container class="md-block" ng-if="server.type === 'WireGuard'">
+                <md-input-container class="md-block" ng-if="server.type === 'WireGuard'">
                     <label>Public key</label>
                     <input type="text" required name="publicKey" ng-model="server.key">
                 </md-input-container>
@@ -55,17 +55,12 @@
                     <label>WireGuard端口</label>
                     <input type="number" required name="wgPort" ng-model="server.wgPort">
                 </md-input-container>
-                <div ng-if="server.type === 'Shadowsocks'" class="md-block" layout="column" layout-align="center stretch" style="margin-bottom: 25px;">
+                <div ng-if="server.type === 'Shadowsocks'" class="md-block" layout="column"
+                    layout-align="center stretch" style="margin-bottom: 25px;">
                     <label flex style="color: rgba(0,0,0, 0.54); font-size: 13px;">加密方式</label>
-                    <md-autocomplete flex
-                        md-selected-item="server.method"
-                        md-items="method in methods"
-                        md-item-text="method"
-                        md-min-length="0"
-                        md-search-text="methodSearch"
-                        md-search-text-change="setMethod()"
-                        md-require-match="false"
-                        placeholder="请填写加密方式">
+                    <md-autocomplete flex md-selected-item="server.method" md-items="method in methods"
+                        md-item-text="method" md-min-length="0" md-search-text="methodSearch"
+                        md-search-text-change="setMethod()" md-require-match="false" placeholder="请填写加密方式">
                         <md-item-template>
                             <span md-highlight-text="methodSearch" md-highlight-flags="^i">{{method}}</span>
                         </md-item-template>
@@ -97,6 +92,19 @@
                     <input type="text" required name="resetday" placeholder="eg:15" ng-model="server.resetday">
                     <div ng-messages="serverForm.resetday.$error">
                         <div ng-message="required">流量重置日期不能为空</div>
+                    </div>
+                </md-input-container>
+                <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks'">
+                    <label>单端口</label>
+                    <input type="number" required name="singlePort" placeholder="单端口端口号" ng-model="server.singlePort">
+                    <div ng-messages="serverForm.singlePort.$error">
+                        <div ng-message="required">单端口端口号不能为空</div>
+                    </div>
+                </md-input-container>
+                <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks'">
+                    <div flex="75" translate>仅开放单端口</div>
+                    <div flex layout="row" layout-align="end center">
+                        <md-switch ng-model="accountData.singlePortOnly" aria-label="singlePortOnly"></md-switch>
                     </div>
                 </md-input-container>
             </form>

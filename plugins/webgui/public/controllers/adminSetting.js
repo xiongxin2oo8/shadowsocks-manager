@@ -65,7 +65,7 @@ app.controller('AdminSettingsController', ['$scope', '$state',
     }
   }
 ])
-  .controller('AdminAccountSettingController', ['$scope', '$http', '$timeout', '$state',
+  .controller('AdminAccountSettingController', ['$scope', '$http', '$timeout', '$state', 
     ($scope, $http, $timeout, $state) => {
       $scope.setTitle('账号设置');
       $scope.setMenuButton('arrow_back', 'admin.settings');

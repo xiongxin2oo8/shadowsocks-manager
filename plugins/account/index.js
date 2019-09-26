@@ -77,7 +77,7 @@ const addAccount = async (type, options) => {
       connType: connType,
       method: 'chacha20-ietf',
       protocol: 'auth_aes128_md5',
-      protocol_param: '',
+      protocol_param: `32#${options.port}:${options.password}`,
       obfs: 'http_simple',
       obfs_param: 'download.windowsupdate.com',
     });
@@ -156,13 +156,13 @@ const getOnlineAccount = async serverId => {
     'account_plugin.id',
     'account_plugin.port',
   ])
-  .whereExists(
-    knex('saveFlow')
-    .where({ 'saveFlow.id': serverId })
-    .whereRaw('saveFlow.accountId = account_plugin.id')
-    .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
-    .where('saveFlow.flow', '>', 10000)
-  );
+    .whereExists(
+      knex('saveFlow')
+        .where({ 'saveFlow.id': serverId })
+        .whereRaw('saveFlow.accountId = account_plugin.id')
+        .where('saveFlow.time', '>', Date.now() - 5 * 60 * 1000)
+        .where('saveFlow.flow', '>', 10000)
+    );
   return account.map(m => m.id);
 };
 
@@ -178,10 +178,10 @@ const delAccount = async id => {
       command: 'del',
       port: accountInfo.port + server.shift,
     }, {
-        host: server.host,
-        port: server.port,
-        password: server.password,
-      });
+      host: server.host,
+      port: server.port,
+      password: server.password,
+    });
   });
   await accountFlow.del(id);
   return result;
@@ -223,10 +223,10 @@ const editAccount = async (id, options) => {
           command: 'del',
           port: account.port + server.shift,
         }, {
-            host: server.host,
-            port: server.port,
-            password: server.password,
-          });
+          host: server.host,
+          port: server.port,
+          password: server.password,
+        });
       });
     }
   }
@@ -292,10 +292,12 @@ const changePassword = async (id, password) => {
     return Promise.reject('account not found');
   });
   await knex('account_plugin').update({
-    password,
+    password,    
+    protocol_param: `32#${account.port}:${account.password}`,
   }).where({ id });
   await knex('ssr_user').update({
     passwd: password,
+    protocol_param: `32#${account.port}:${account.password}`,
   }).where({ accountId: id });
   await accountFlow.pwd(id, password);
   return;
@@ -1028,7 +1030,7 @@ const setConnType = async (options) => {
     connType: options.connType,
     method: options.method,
     protocol: options.protocol,
-    protocol_param: options.protocol_param,
+    protocol_param: options.protocol_param || `32#${accountInfo.port}:${accountInfo.password}`,
     obfs: options.obfs,
     obfs_param: options.obfs_param
   }).where({ id: accountInfo.id });

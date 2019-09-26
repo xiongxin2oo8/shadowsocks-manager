@@ -159,10 +159,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
     if (isMacAddress(token)) {
       subscribeAccount = await macAccount.getMacAccountForSubscribe(token, ip);
     } else {
-      const isSubscribeOn = await knex('webguiSetting').where({
+      const accountSetting = await knex('webguiSetting').where({
         key: 'account'
-      }).then(s => s[0]).then(s => JSON.parse(s.value).subscribe);
-      if (!isSubscribeOn) { return res.status(404).end(); }
+      }).then(s => s[0]).then(s => JSON.parse(s.value));
+      if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       for (const s of subscribeAccount.server) {
         s.host = await getAddress(s.host, +resolveIp);
@@ -198,6 +198,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }
 
       const flowInfo = await flow.getServerPortFlowWithScale(0, accountInfo.id, [accountInfo.data.from, accountInfo.data.to], 1);
+
+
 
       let result = '';
       if (type === 'ssd') {
@@ -236,7 +238,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         let renew = {
           method: 'chacha20',
           host: '127.0.0.1',
-          shift: 2,
+          shift: 0,
           comment: `续费地址：${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}` + (config.plugins.webgui.siteback ? `(备用 ${config.plugins.webgui.siteback})` : '')
         };
         subscribeAccount.server.unshift(renew);
@@ -319,7 +321,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
         if (accountInfo.connType == "SSR") {
           result = subscribeAccount.server.map(s => {
-            return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + (accountInfo.protocol_param ? urlsafeBase64(accountInfo.protocol_param) : '') + '&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+            //强制单端口
+            if (accountSetting.singlePortOnly || s.singlePortOnly) {
+              return 'ssr://' + urlsafeBase64(s.host + ':' + (s.singlePort) + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64((s.comment || '这里显示备注') + ' - ' + s.singlePort) + '&group=' + urlsafeBase64(baseSetting.title));
+            } else {
+              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + (accountInfo.protocol_param ? urlsafeBase64(accountInfo.protocol_param) : '') + '&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+            }
           }).join('\r\n');
         } else {
           result = subscribeAccount.server.map(s => {

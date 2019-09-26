@@ -26,10 +26,10 @@ exports.getOneServer = (req, res) => {
       return manager.send({
         command: 'portlist',
       }, {
-          host: success[0].host,
-          port: success[0].port,
-          password: success[0].password
-        });
+        host: success[0].host,
+        port: success[0].port,
+        password: success[0].password
+      });
     }
     res.status(404).end();
   }).then(success => {
@@ -53,6 +53,8 @@ exports.addServer = async (req, res) => {
     req.checkBody('shift', 'Invalid shift').isInt();
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
+    req.checkBody('singlePort', 'Invalid singlePort').isInt({ min: 1, max: 65535 });
+    req.checkBody('singlePortOnly', 'Invalid singlePortOnly').isInt();
     const result = await req.getValidationResult();
     if (!result.isEmpty()) { return Promise.reject(result.array()); }
     const type = req.body.type;
@@ -70,14 +72,16 @@ exports.addServer = async (req, res) => {
     const key = isWG ? req.body.key : null;
     const net = isWG ? req.body.net : null;
     const wgPort = isWG ? req.body.wgPort : null;
+    const singlePort = +req.body.singlePort;
+    const singlePortOnly = +req.body.singlePortOnly;
     await manager.send({
       command: 'flow',
       options: { clear: false, },
     }, {
-        host: address,
-        port,
-        password,
-      });
+      host: address,
+      port,
+      password,
+    });
     await serverManager.add({
       type,
       name,
@@ -93,6 +97,8 @@ exports.addServer = async (req, res) => {
       key,
       net,
       wgPort,
+      singlePort,
+      singlePortOnly
     });
     res.send('success');
   } catch (err) {
@@ -113,6 +119,8 @@ exports.editServer = async (req, res) => {
     req.checkBody('shift', 'Invalid shift').isInt();
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
+    req.checkBody('singlePort', 'Invalid singlePort').isInt({ min: 1, max: 65535 });
+    req.checkBody('singlePortOnly', 'Invalid singlePortOnly').isInt();
     const result = await req.getValidationResult();
     if (!result.isEmpty()) { return Promise.reject(result.array()); }
     const serverId = req.params.serverId;
@@ -130,16 +138,18 @@ exports.editServer = async (req, res) => {
     const resetday = req.body.resetday;
     const key = isWG ? req.body.key : null;
     const net = isWG ? req.body.net : null;
-    const wgPort = isWG ? req.body.wgPort : null;
+    const wgPort = isWG ? req.body.wgPort : null;    
+    const singlePort = +req.body.singlePort;
+    const singlePortOnly = +req.body.singlePortOnly;
     const check = +req.body.check;
     await manager.send({
       command: 'flow',
       options: { clear: false, },
     }, {
-        host: address,
-        port,
-        password,
-      });
+      host: address,
+      port,
+      password,
+    });
     await serverManager.edit({
       id: serverId,
       type,
@@ -156,6 +166,8 @@ exports.editServer = async (req, res) => {
       key,
       net,
       wgPort,
+      singlePort,
+      singlePortOnly,
       check
     });
     res.send('success');

@@ -64,15 +64,17 @@
                             <md-list-item ng-hide="config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>端口：</div>
-                                    <div flex="60" style="text-align:right">{{ isWG(a.serverInfo) ?
-                                        a.serverInfo.wgPort: a.port + a.serverInfo.shift}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="isWG(a.serverInfo)">{{ a.serverInfo.wgPort }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">{{ a.serverInfo.singlePort }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">{{ a.port + a.serverInfo.shift }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="config.simple"></md-divider>
                             <md-list-item ng-hide="isWG(a.serverInfo) || config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>密码：</div>
-                                    <div flex="60" style="text-align:right">{{a.password}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">{{a.password}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">balala</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType=='SSR'"></md-divider>
@@ -101,7 +103,8 @@
                             <md-list-item ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '协议参数：' | translate }}</div>
-                                    <div flex="60" style="text-align:right">{{a.protocol_param}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">{{a.protocol_param}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">{{(a.port + a.serverInfo.shift)+':'+ a.password}}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'"></md-divider>

@@ -42,7 +42,9 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
       const rss = config.rss || `${config.site}/api/user/account/subscribe`;
       $scope.hideFlow = config.hideFlow;
       $scope.publicInfo.flow = 1;
+      $scope.connType = '';
       $scope.publicInfo.getSubscribe().then(success => {
+        $scope.connType = success.data.connType;
         if (success.data.connType == "SSR") {
           $scope.publicInfo.types = [
             'ssr',
@@ -53,15 +55,15 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
           ];
         }
         $scope.publicInfo.token = success.data.subscribe;
-        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
+        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.singlePort}`;
       });
       $scope.changeLinkType = () => {
-        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
+        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.singlePort}`;
       };
       $scope.publicInfo.updateLink = () => {
         $scope.publicInfo.updateSubscribe().then(success => {
           $scope.publicInfo.token = success.data.subscribe;
-          $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}`;
+          $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.singlePort}`;
         });
       };
       $scope.toast = () => {

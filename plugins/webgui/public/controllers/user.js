@@ -231,6 +231,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
   ])
   .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
     ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
+      const config = $scope.config;
       $scope.setTitle('账号');
       $scope.setMenuSearchButton('search');
       $scope.currentPage = 1;
@@ -261,7 +262,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       if ($scope.account.length >= 2) {
         $scope.flexGtSm = 50;
       }
-
+      
       const setAccountServerList = (account, server) => {
         account.forEach(a => {
           a.serverList = $scope.servers.filter(f => {
@@ -403,7 +404,11 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
             `AllowedIPs = 0.0.0.0/0`,
           ].join('\n');
         } else if (account.connType == "SSR") {
-          return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+          if (config.singlePortOnly || server.singlePortOnly) {
+            return 'ssr://' + urlsafeBase64(server.host + ':' + (server.singlePort) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + server.singlePort));
+          } else {
+            return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+          }
         } else {
           return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
         }
@@ -411,8 +416,12 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
       $scope.SSRAddress = (server, account) => {
         let str = '';
-        if (account.connType == "SSR") {
-          str = 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+        if (account.connType == "SSR") {          
+          if (config.singlePortOnly || server.singlePortOnly) {
+            return 'ssr://' + urlsafeBase64(server.host + ':' + (server.singlePort) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + server.singlePort));
+          } else {
+            return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+          }
         } else {
           let index = method.indexOf(server.method);
           if (index != -1) {
@@ -422,7 +431,6 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         }
         return str;
       };
-      const config = configManager.getConfig();
       $scope.shadowrocket = subscribe => {
         let rss = config.rss || `${config.site}/api/user/account/subscribe`;
         let base64 = urlsafeBase64(`${rss}/${subscribe}?type=shadowrocket&ip=0${config.hideFlow ? '' : '&flow=1'}`);

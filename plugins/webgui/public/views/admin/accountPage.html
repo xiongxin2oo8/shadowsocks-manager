@@ -41,14 +41,17 @@
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>端口：</div>
-                                    <div flex="60" style="text-align:right">{{ account.port + server.shift }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="isWG(server)">{{ server.wgPort }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || server.singlePortOnly">{{ server.singlePort }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!server.singlePortOnly">{{ account.port + server.shift }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
                             <md-list-item ng-hide="isWG(server)">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>密码：</div>
-                                    <div flex="60" style="text-align:right">{{ account.password }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!server.singlePortOnly">{{account.password}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || server.singlePortOnly">balala</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(server) || account.connType=='SSR'"></md-divider>
@@ -77,7 +80,8 @@
                             <md-list-item ng-hide="isWG(server) || account.connType!='SSR'">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '协议参数：' | translate }}</div>
-                                    <div flex="60" style="text-align:right">{{account.protocol_param}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!server.singlePortOnly">{{account.protocol_param}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || server.singlePortOnly">{{(account.port + server.shift)+':'+ account.password}}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(server) || account.connType!='SSR'"></md-divider>

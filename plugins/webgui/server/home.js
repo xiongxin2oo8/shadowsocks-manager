@@ -157,7 +157,7 @@ exports.signup = async (req, res) => {
     req.checkBody('password', 'Invalid password').notEmpty();
     let type = 'normal';
     const validation = await req.getValidationResult();
-    if(!validation.isEmpty()) { throw(validation.array()); }
+    if (!validation.isEmpty()) { throw (validation.array()); }
     const email = req.body.email.toString().toLowerCase();
     const code = req.body.code;
     await emailPlugin.checkCode(email, code);
@@ -186,8 +186,8 @@ exports.signup = async (req, res) => {
     });
     req.session.user = userId;
     req.session.type = type;
-    if(req.body.ref) { ref.addRefUser(req.body.ref, req.session.user); }
-    if(userId === 1) {
+    if (req.body.ref) { ref.addRefUser(req.body.ref, req.session.user); }
+    if (userId === 1) {
       res.send(type);
       return;
     }
@@ -249,8 +249,8 @@ exports.login = async (req, res) => {
     req.checkBody('email', 'Invalid email').isEmail();
     req.checkBody('password', 'Invalid password').notEmpty();
     const validation = await req.getValidationResult();
-    if(!validation.isEmpty()) {
-      throw('invalid body');
+    if (!validation.isEmpty()) {
+      throw ('invalid body');
     }
     const email = req.body.email.toString().toLowerCase();
     const password = req.body.password;
@@ -284,8 +284,8 @@ exports.googleLogin = async (req, res) => {
     const {
       google_login_client_id: client_id,
       google_login_client_secret: client_secret
-    } =  config.plugins.webgui;
-    if(!code || !client_id) {
+    } = config.plugins.webgui;
+    if (!code || !client_id) {
       return await Promise.reject();
     }
     const result = await rp({
@@ -300,7 +300,7 @@ exports.googleLogin = async (req, res) => {
       },
       json: true,
     });
-    if(!result.access_token) { return await Promise.reject(); }
+    if (!result.access_token) { return await Promise.reject(); }
     const userInfo = await rp({
       uri: 'https://www.googleapis.com/oauth2/v1/userinfo',
       method: 'GET',
@@ -308,11 +308,11 @@ exports.googleLogin = async (req, res) => {
         alt: 'json',
       },
       headers: {
-        Authorization: `Bearer ${ result.access_token }`,
+        Authorization: `Bearer ${result.access_token}`,
       },
       json: true,
     });
-    if(userInfo.verified_email && userInfo.email) {
+    if (userInfo.verified_email && userInfo.email) {
       const email = userInfo.email;
       const user = await knex('user').where({ username: email }).then(s => s[0]);
       if (user) {
@@ -329,7 +329,7 @@ exports.googleLogin = async (req, res) => {
       }
     }
     return await Promise.reject();
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     return res.status(403).end();
   }
@@ -337,7 +337,7 @@ exports.googleLogin = async (req, res) => {
 
 let facebookAppToken = '';
 const getFacebookAppToken = async () => {
-  if(facebookAppToken) { return facebookAppToken; }
+  if (facebookAppToken) { return facebookAppToken; }
   const {
     facebook_login_client_id: client_id,
     facebook_login_client_secret: client_secret,
@@ -351,7 +351,7 @@ const getFacebookAppToken = async () => {
     },
     json: true,
   });
-  if(!result.access_token) { return Promise.reject(); }
+  if (!result.access_token) { return Promise.reject(); }
   facebookAppToken = result.access_token;
   return result.access_token;
 };
@@ -363,7 +363,7 @@ exports.facebookLogin = async (req, res) => {
       facebook_login_client_id: client_id,
       facebook_login_client_secret: client_secret,
     } = config.plugins.webgui;
-    if(!code || !client_id) {
+    if (!code || !client_id) {
       return Promise.reject();
     }
     const result = await rp({
@@ -377,7 +377,7 @@ exports.facebookLogin = async (req, res) => {
       },
       json: true,
     });
-    if(!result.access_token) { return Promise.reject(); }
+    if (!result.access_token) { return Promise.reject(); }
     const checkToken = await rp({
       uri: 'https://graph.facebook.com/debug_token',
       method: 'GET',
@@ -387,7 +387,7 @@ exports.facebookLogin = async (req, res) => {
       },
       json: true,
     });
-    if(!checkToken.data || checkToken.data.app_id !== client_id || !checkToken.data.is_valid) {
+    if (!checkToken.data || checkToken.data.app_id !== client_id || !checkToken.data.is_valid) {
       return Promise.reject();
     }
     const userInfo = await rp({
@@ -399,7 +399,7 @@ exports.facebookLogin = async (req, res) => {
       },
       json: true,
     });
-    if(userInfo.email) {
+    if (userInfo.email) {
       const email = userInfo.email;
       const user = await knex('user').where({ username: email }).then(s => s[0]);
       if (user) {
@@ -416,7 +416,7 @@ exports.facebookLogin = async (req, res) => {
       }
     }
     return Promise.reject();
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     return res.status(403).end();
   }
@@ -429,7 +429,7 @@ exports.githubLogin = async (req, res) => {
       github_login_client_id: client_id,
       github_login_client_secret: client_secret,
     } = config.plugins.webgui;
-    if(!code || !client_id) {
+    if (!code || !client_id) {
       return await Promise.reject();
     }
     const result = await rp({
@@ -444,13 +444,13 @@ exports.githubLogin = async (req, res) => {
       },
       json: true,
     });
-    if(!result.access_token) { return await Promise.reject(); }
+    if (!result.access_token) { return await Promise.reject(); }
     const userInfo = await rp({
       uri: 'https://api.github.com/user',
       method: 'GET',
       headers: {
         'User-Agent': 'ssmgr',
-        Authorization: `token ${ result.access_token }`,
+        Authorization: `token ${result.access_token}`,
       },
       json: true,
     });
@@ -459,15 +459,15 @@ exports.githubLogin = async (req, res) => {
       method: 'GET',
       headers: {
         'User-Agent': 'ssmgr',
-        Authorization: `token ${ result.access_token }`,
+        Authorization: `token ${result.access_token}`,
       },
       json: true,
     });
     const emailInfo = emails.filter(f => f.primary === true)[0];
-    if(emailInfo.email && emailInfo.verified) {
+    if (emailInfo.email && emailInfo.verified) {
       const email = emailInfo.email;
       const user = await knex('user').where({ username: email }).then(s => s[0]);
-      if(user) {
+      if (user) {
         req.session.user = user.id;
         req.session.type = user.type;
         logger.info(`Github用户[${email}]登录`);
@@ -481,7 +481,7 @@ exports.githubLogin = async (req, res) => {
       }
     }
     return await Promise.reject();
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     return res.status(403).end();
   }
@@ -494,12 +494,12 @@ exports.getTwitterLoginUrl = async (req, res) => {
     const {
       twitter_login_consumer_key: consumerKey,
       twitter_login_consumer_secret: consumerSecret
-    } =  config.plugins.webgui;
-    if(!callbackUrl || !time || !consumerKey || !consumerSecret) {
-      throw('invalid params');
+    } = config.plugins.webgui;
+    if (!callbackUrl || !time || !consumerKey || !consumerSecret) {
+      throw ('invalid params');
     }
-    if(Math.abs(Date.now() - (+time)) >= 10 * 60 * 1000) {
-      throw('invalid time');
+    if (Math.abs(Date.now() - (+time)) >= 10 * 60 * 1000) {
+      throw ('invalid time');
     }
     const tl = new TwitterLogin({
       consumerKey,
@@ -509,7 +509,7 @@ exports.getTwitterLoginUrl = async (req, res) => {
     const { tokenSecret, url } = await tl.login();
     await redis.set(`TwitterLogin:${time}`, tokenSecret, 'EX', 120);
     res.send(url);
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     return res.status(403).end();
   }
@@ -519,13 +519,13 @@ exports.twitterLogin = async (req, res) => {
   try {
     const { oauth_token, oauth_verifier, callbackUrl } = req.body;
     const time = callbackUrl.split('?time=')[1];
-    if(Math.abs(Date.now() - (+time)) >= 10 * 60 * 1000) {
-      throw('invalid time');
+    if (Math.abs(Date.now() - (+time)) >= 10 * 60 * 1000) {
+      throw ('invalid time');
     }
     const {
       twitter_login_consumer_key: consumerKey,
       twitter_login_consumer_secret: consumerSecret
-    } =  config.plugins.webgui;
+    } = config.plugins.webgui;
     const tl = new TwitterLogin({
       consumerKey,
       consumerSecret,
@@ -534,10 +534,10 @@ exports.twitterLogin = async (req, res) => {
     const tokenSecret = await redis.get(`TwitterLogin:${time}`);
     const { userToken, userTokenSecret } = await tl.callback({ oauth_token, oauth_verifier }, tokenSecret);
     const userInfo = await tl.userInfo({ userToken, userTokenSecret });
-    
+
     const email = userInfo.email;
     const user = await knex('user').where({ username: email }).then(s => s[0]);
-    if(user) {
+    if (user) {
       req.session.user = user.id;
       req.session.type = user.type;
       logger.info(`Twitter用户[${email}]登录`);
@@ -549,7 +549,7 @@ exports.twitterLogin = async (req, res) => {
       req.session.type = user.type;
       return res.send({ id: user.id, type: user.type });
     }
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     return res.status(403).end();
   }
@@ -605,6 +605,10 @@ exports.status = async (req, res) => {
       success[0].value = JSON.parse(success[0].value);
       return success[0].value;
     }));
+    const accountSetting = await knex('webguiSetting').where({
+      key: 'account'
+    }).then(s => s[0]).then(s => JSON.parse(s.value));
+
     const title = base.title;
     const themePrimary = base.themePrimary;
     const themeAccent = base.themeAccent;
@@ -622,6 +626,8 @@ exports.status = async (req, res) => {
     const facebook_login_client_id = config.plugins.webgui.facebook_login_client_id || '';
     const github_login_client_id = config.plugins.webgui.github_login_client_id || '';
     const crisp = (config.plugins.webgui_crisp && config.plugins.webgui_crisp.use) ? config.plugins.webgui_crisp.websiteId : '';
+    const singlePortOnly = accountSetting.singlePortOnly;
+
     let alipay;
     let paypal;
     let paypalMode;
@@ -633,6 +639,7 @@ exports.status = async (req, res) => {
     let multiAccount;
     let simple;
     let hideFlow;
+    let ssr;
     if (status) {
       email = (await knex('user').select(['email']).where({ id }).then(s => s[0])).email;
       alipay = config.plugins.alipay && config.plugins.alipay.use;
@@ -641,24 +648,15 @@ exports.status = async (req, res) => {
       telegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
       giftcard = config.plugins.giftcard && config.plugins.giftcard.use;
       hideFlow = config.plugins.webgui.hideFlow;
+      ssr = config.plugins.ssr;
       refCode = (await knex('webguiSetting').select().where({
         key: 'webgui_ref',
       }).then(success => {
         success[0].value = JSON.parse(success[0].value);
         return success[0].value;
       })).useRef;
-      subscribe = (await knex('webguiSetting').select().where({
-        key: 'account',
-      }).then(success => {
-        success[0].value = JSON.parse(success[0].value);
-        return success[0].value;
-      })).subscribe;
-      simple = (await knex('webguiSetting').select().where({
-        key: 'account',
-      }).then(success => {
-        success[0].value = JSON.parse(success[0].value);
-        return success[0].value;
-      })).simple;
+      subscribe = accountSetting.subscribe;
+      simple = accountSetting.simple;
     }
     if (status === 'normal') {
       knex('user').update({ lastLogin: Date.now() }).where({ id }).then();
@@ -692,6 +690,8 @@ exports.status = async (req, res) => {
       facebook_login_client_id,
       github_login_client_id,
       crisp,
+      ssr,
+      singlePortOnly
     });
   } catch (err) {
     logger.error(err);
@@ -799,9 +799,9 @@ exports.sendResetPasswordEmail = (req, res) => {
     return user.edit({
       username: email,
     }, {
-        resetPasswordId: token,
-        resetPasswordTime: Date.now(),
-      });
+      resetPasswordId: token,
+      resetPasswordTime: Date.now(),
+    });
   }).then(success => {
     res.send('success');
   }).catch(err => {
@@ -845,10 +845,10 @@ exports.resetPassword = (req, res) => {
     return user.edit({
       resetPasswordId: token,
     }, {
-        password,
-        resetPasswordId: null,
-        resetPasswordTime: null,
-      });
+      password,
+      resetPasswordId: null,
+      resetPasswordTime: null,
+    });
   }).then(success => {
     res.send('success');
   }).catch(err => {

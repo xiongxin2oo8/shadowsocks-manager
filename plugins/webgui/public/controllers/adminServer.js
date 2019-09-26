@@ -157,7 +157,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       $state.go('admin.addServer');
     };
     $scope.showServer = serverName => {
-      if(!$scope.menuSearch.text) { return true; }
+      if (!$scope.menuSearch.text) { return true; }
       return serverName.toString().includes($scope.menuSearch.text);
     };
   }
@@ -208,7 +208,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           });
           $scope.portNumber = Object.keys($scope.currentPorts).filter(f => {
             return $scope.currentPorts[f].exists;
-          }).length;          
+          }).length;
           $scope.getServerInfoError = false;
         }).catch(() => {
           $scope.getServerInfoError = true;
@@ -245,7 +245,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         let date = Date.now();
         let day = moment().day();
         if (day == 0) {
-          date = moment().add(-1,'d').valueOf();
+          date = moment().add(-1, 'd').valueOf();
         }
         return date;
       }
@@ -498,14 +498,16 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           key: $scope.server.key,
           net: $scope.server.net,
           wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
+          singlePort: $scope.server.singlePort || 80,
+          singlePortOnly: $scope.server.singlePortOnly || 0
         }, {
-            timeout: 15000,
-          }).then(success => {
-            alertDialog.show('添加服务器成功', '确定');
-            $state.go('admin.server');
-          }).catch(() => {
-            alertDialog.show('添加服务器失败', '确定');
-          });
+          timeout: 15000,
+        }).then(success => {
+          alertDialog.show('添加服务器成功', '确定');
+          $state.go('admin.server');
+        }).catch(() => {
+          alertDialog.show('添加服务器失败', '确定');
+        });
       };
       $scope.cancel = () => {
         $state.go('admin.server');
@@ -567,6 +569,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.key = success.data.key;
           $scope.server.net = success.data.net;
           $scope.server.wgPort = success.data.wgPort;
+          $scope.server.singlePort = success.data.singlePort;
+          $scope.server.singlePortOnly = success.data.singlePortOnly;
         });
       $scope.confirm = () => {
         alertDialog.loading();
@@ -587,6 +591,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           key: $scope.server.key,
           net: $scope.server.net,
           wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
+          singlePort: $scope.server.singlePort || 80,
+          singlePortOnly: $scope.server.singlePortOnly || 0
         }).then(success => {
           alertDialog.show('修改服务器成功', '确定');
           $state.go('admin.serverPage', { serverId: $stateParams.serverId });

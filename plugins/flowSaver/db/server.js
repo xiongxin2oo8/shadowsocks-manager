@@ -29,6 +29,18 @@ const createTable = async () => {
         table.integer('resetday').defaultTo(1);
       });
     }
+    const singlePort = await knex.schema.hasColumn(tableName, 'singlePort');
+    if (!singlePort) {
+      await knex.schema.table(tableName, function (table) {
+        table.integer('singlePort').defaultTo(80);
+      });
+    }
+    const singlePortOnly = await knex.schema.hasColumn(tableName, 'singlePortOnly');
+    if (!singlePortOnly) {
+      await knex.schema.table(tableName, function (table) {
+        table.integer('singlePortOnly').defaultTo(0);
+      });
+    }
   }
   else {
     await knex.schema.createTable(tableName, function (table) {
@@ -47,6 +59,8 @@ const createTable = async () => {
       table.string('key');
       table.string('net');
       table.integer('wgPort');
+      table.integer('singlePort');
+      table.integer('singlePortOnly');
     });
   }
   const list = await knex('server').select(['name', 'host', 'port', 'password']);

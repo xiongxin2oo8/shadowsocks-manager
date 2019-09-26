@@ -35,7 +35,8 @@ const del = (id) => {
 };
 
 const edit = async options => {
-  const { id, type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort, } = options;
+  const { id, type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort,
+    singlePort, singlePortOnly } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
     const accounts = await knex('account_plugin').where({});
@@ -45,10 +46,10 @@ const edit = async options => {
           command: 'del',
           port: account.port + server.shift,
         }, {
-            host: server.host,
-            port: server.port,
-            password: server.password,
-          }).catch();
+          host: server.host,
+          port: server.port,
+          password: server.password,
+        }).catch();
       }
     })(serverInfo);
   }
@@ -73,6 +74,8 @@ const edit = async options => {
     key,
     net,
     wgPort,
+    singlePort,
+    singlePortOnly
   });
 };
 
@@ -93,6 +96,8 @@ const list = async (options = {}) => {
     'key',
     'net',
     'wgPort',
+    'singlePort',
+    'singlePortOnly'
   ]).orderBy('name');
   if (options.status) {
     const serverStatus = [];
@@ -100,14 +105,14 @@ const list = async (options = {}) => {
       return manager.send({
         command: 'version',
       }, {
-          host: server.host,
-          port: server.port,
-          password: server.password
-        }).then(success => {
-          return { status: success.version, isGfw: success.isGfw, index };
-        }).catch(error => {
-          return { status: -1, index };
-        });
+        host: server.host,
+        port: server.port,
+        password: server.password
+      }).then(success => {
+        return { status: success.version, isGfw: success.isGfw, index };
+      }).catch(error => {
+        return { status: -1, index };
+      });
     };
     for (let i = 0; i < serverList.length; i++) {
       let server = serverList[i];
