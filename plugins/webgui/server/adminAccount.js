@@ -153,6 +153,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
     let type = req.query.type || 'shadowrocket';
     const resolveIp = req.query.ip;
     const showFlow = req.query.flow || 0;
+    const singlePort = req.query.port;
     const token = req.params.token;
     const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
     let subscribeAccount;
@@ -322,7 +323,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (accountInfo.connType == "SSR") {
           result = subscribeAccount.server.map(s => {
             //强制单端口
-            if (accountSetting.singlePortOnly || s.singlePortOnly) {
+            if (accountSetting.singlePortOnly || s.singlePortOnly || +singlePort) {
               return 'ssr://' + urlsafeBase64(s.host + ':' + (s.singlePort) + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64((s.comment || '这里显示备注') + ' - ' + s.singlePort) + '&group=' + urlsafeBase64(baseSetting.title));
             } else {
               return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + (accountInfo.protocol_param ? urlsafeBase64(accountInfo.protocol_param) : '') + '&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));

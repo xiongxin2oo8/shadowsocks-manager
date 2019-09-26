@@ -3,7 +3,7 @@ const window = require('window');
 const cdn = window.cdn || '';
 
 app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
-  const publicInfo = { linkType: 'shadowrocket', ip: '0', flow: '1' };
+  const publicInfo = { linkType: 'shadowrocket', ip: '0', flow: '1', port: '0' };
   const hide = () => {
     return $mdDialog.hide()
       .then(success => {
@@ -46,6 +46,7 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
       $scope.publicInfo.getSubscribe().then(success => {
         $scope.connType = success.data.connType;
         if (success.data.connType == "SSR") {
+          publicInfo.linkType='ssr';
           $scope.publicInfo.types = [
             'ssr',
           ];
@@ -55,15 +56,15 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
           ];
         }
         $scope.publicInfo.token = success.data.subscribe;
-        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.singlePort}`;
+        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
       });
       $scope.changeLinkType = () => {
-        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.singlePort}`;
+        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
       };
       $scope.publicInfo.updateLink = () => {
         $scope.publicInfo.updateSubscribe().then(success => {
           $scope.publicInfo.token = success.data.subscribe;
-          $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.singlePort}`;
+          $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
         });
       };
       $scope.toast = () => {
