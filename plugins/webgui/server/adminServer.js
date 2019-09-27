@@ -53,7 +53,7 @@ exports.addServer = async (req, res) => {
     req.checkBody('shift', 'Invalid shift').isInt();
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
-    req.checkBody('singlePort', 'Invalid singlePort').isInt({ min: 1, max: 65535 });
+    req.checkBody('singlePort', 'Invalid singlePort').notEmpty();
     req.checkBody('singlePortOnly', 'Invalid singlePortOnly').isInt();
     const result = await req.getValidationResult();
     if (!result.isEmpty()) { return Promise.reject(result.array()); }
@@ -72,7 +72,7 @@ exports.addServer = async (req, res) => {
     const key = isWG ? req.body.key : null;
     const net = isWG ? req.body.net : null;
     const wgPort = isWG ? req.body.wgPort : null;
-    const singlePort = +req.body.singlePort;
+    const singlePort = req.body.singlePort;
     const singlePortOnly = +req.body.singlePortOnly;
     await manager.send({
       command: 'flow',
@@ -119,7 +119,7 @@ exports.editServer = async (req, res) => {
     req.checkBody('shift', 'Invalid shift').isInt();
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
-    req.checkBody('singlePort', 'Invalid singlePort').isInt({ min: 1, max: 65535 });
+    req.checkBody('singlePort', 'Invalid singlePort').notEmpty();
     req.checkBody('singlePortOnly', 'Invalid singlePortOnly').isInt();
     const result = await req.getValidationResult();
     if (!result.isEmpty()) { return Promise.reject(result.array()); }
@@ -139,7 +139,7 @@ exports.editServer = async (req, res) => {
     const key = isWG ? req.body.key : null;
     const net = isWG ? req.body.net : null;
     const wgPort = isWG ? req.body.wgPort : null;    
-    const singlePort = +req.body.singlePort;
+    const singlePort = req.body.singlePort;
     const singlePortOnly = +req.body.singlePortOnly;
     const check = +req.body.check;
     await manager.send({

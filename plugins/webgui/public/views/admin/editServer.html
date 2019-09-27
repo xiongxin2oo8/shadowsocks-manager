@@ -113,7 +113,7 @@
                 </div>
                 <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks'">
                     <label>单端口</label>
-                    <input type="number" required name="singlePort" placeholder="单端口端口号" ng-model="server.singlePort">
+                    <input type="text" required name="singlePort" placeholder="多个用英文,隔开" ng-model="server.singlePort">
                     <div ng-messages="serverForm.singlePort.$error">
                         <div ng-message="required">单端口端口号不能为空</div>
                     </div>

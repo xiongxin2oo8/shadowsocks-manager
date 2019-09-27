@@ -27,7 +27,16 @@
                         ng-disabled="account.server && account.server.indexOf(server.id) < 0">
                     </md-tab>
                 </md-tabs>
-                <div layout="row" layout-align="center center" layout-wrap ng-if="servers.length">
+                
+                
+                <div ng-show="(config.singlePortOnly || server.singlePortOnly) && (account.connType == 'SS' || !account.connType)">
+                    <ul style="line-height: 25px;font-size:14px;">
+                        <li style="color:red">抱歉，此服务器此时不支持SS</li>
+                        <li style="color:green;">请在网站设置中切换为SSR</li>
+                    </ul>
+                </div>
+    
+                <div ng-hide="(config.singlePortOnly || server.singlePortOnly) && (account.connType == 'SS' || !account.connType)" layout="row" layout-align="center center" layout-wrap ng-if="servers.length">
                     <div flex-lg="10"></div>
                     <div flex="60" flex-lg="50" flex-xs="100">
                         <md-list>
@@ -42,7 +51,9 @@
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>端口：</div>
                                     <div flex="60" style="text-align:right" ng-if="isWG(server)">{{ server.wgPort }}</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || server.singlePortOnly">{{ server.singlePort }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || account.serverInfo.singlePortOnly">
+                                        {{ server.singlePort.split(',').join('或') }}
+                                    </div>
                                     <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!server.singlePortOnly">{{ account.port + server.shift }}</div>
                                 </div>
                             </md-list-item>

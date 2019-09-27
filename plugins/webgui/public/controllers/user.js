@@ -262,7 +262,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       if ($scope.account.length >= 2) {
         $scope.flexGtSm = 50;
       }
-      
+
       const setAccountServerList = (account, server) => {
         account.forEach(a => {
           a.serverList = $scope.servers.filter(f => {
@@ -405,7 +405,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           ].join('\n');
         } else if (account.connType == "SSR") {
           if (config.singlePortOnly || server.singlePortOnly) {
-            return 'ssr://' + urlsafeBase64(server.host + ':' + (server.singlePort) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + server.singlePort));
+            let port = server.singlePort.split(',')[0];
+            return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
           } else {
             return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
           }
@@ -416,9 +417,10 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
       $scope.SSRAddress = (server, account) => {
         let str = '';
-        if (account.connType == "SSR") {          
+        if (account.connType == "SSR") {
           if (config.singlePortOnly || server.singlePortOnly) {
-            return 'ssr://' + urlsafeBase64(server.host + ':' + (server.singlePort) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + server.singlePort));
+            let port = server.singlePort.split(',')[0];
+            return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
           } else {
             return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
             //' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '
@@ -529,6 +531,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
       //检查流量是否超出
       $scope.isOverFlow = account => {
+        if(!account.data) return false;
         return account.serverPortFlow > (account.data.flow + account.data.flowPack);
       };
       $scope.showQrcodeDialog = (server, account) => {

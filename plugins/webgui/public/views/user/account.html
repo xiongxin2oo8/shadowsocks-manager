@@ -19,7 +19,8 @@
         <div style="text-align:left;font-size: 14px;margin:15px 8px">常见问题：
             <ul style="line-height: 25px">
                 <li>账号到期7天后就会被删除，需要重新购买。</li>
-                <li><span style="color:green;font-weight: 600">切记！重新购买后，</span><span style="color:red;font-weight: 600">重新添加订阅，方可使用。</li>
+                <li><span style="color:green;font-weight: 600">切记！重新购买后，</span><span
+                        style="color:red;font-weight: 600">重新添加订阅，方可使用。</li>
                 <li><span>支付成功后，将于三分钟内开通，请不要捉急。</span></li>
                 <li><span style="color:blue">使用方法请看教程，不要询问客服。</span></li>
             </ul>
@@ -37,8 +38,7 @@
             <md-card-header ng-style="isBlur(a)" style="padding-bottom:0">
                 <md-card-header-text>
                     <span class="md-title">{{a.port}} - {{a.connType||'SS'}}
-                        <span ng-if='!isAccountOutOfDate(a)'
-                            style="color:green">&nbsp;(共{{a.serverList.length}}个节点可用)</span>
+                        <span ng-if='!isAccountOutOfDate(a)' style="color:green">&nbsp;(共{{a.serverList.length}}个节点可用)</span>
                         <span ng-if='isAccountOutOfDate(a)' style="color: #a33;">&nbsp;{{ '已过期' | translate }}</span>
                         <span ng-if="isOverFlow(a)" style="color: #a33;">&nbsp;已封停</span>
                         <!-- ng-show="isAccountOutOfDate(a)" -->
@@ -51,7 +51,15 @@
                         md-on-select="getServerPortData(a, server.id)">
                     </md-tab>
                 </md-tabs>
-                <div layout="row" layout-align="center center" layout-wrap>
+                
+                <div ng-show="(config.singlePortOnly || server.singlePortOnly) && (a.connType == 'SS' || !a.connType)">
+                    <ul style="line-height: 25px;font-size:14px;">
+                        <li style="color:red">抱歉，此服务器此时不支持SS</li>
+                        <li style="color:green;">请在网站设置中切换为SSR</li>
+                    </ul>
+                </div>
+
+                <div ng-hide="(config.singlePortOnly || server.singlePortOnly) && (a.connType == 'SS' || !a.connType)" layout="row" layout-align="center center" layout-wrap>
                     <div flex="60" flex-xs="100">
                         <md-list>
                             <md-list-item ng-hide="config.simple">
@@ -65,16 +73,23 @@
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>端口：</div>
                                     <div flex="60" style="text-align:right" ng-if="isWG(a.serverInfo)">{{ a.serverInfo.wgPort }}</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">{{ a.serverInfo.singlePort }}</div>
-                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">{{ a.port + a.serverInfo.shift }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">
+                                        {{ a.serverInfo.singlePort.split(',').join('或') }}
+                                    </div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">
+                                        {{ a.port + a.serverInfo.shift }}
+                                    </div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="config.simple"></md-divider>
                             <md-list-item ng-hide="isWG(a.serverInfo) || config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>密码：</div>
-                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">{{a.password}}</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">balala</div>
+                                    <div flex="60" style="text-align:right"
+                                        ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">{{a.password}}
+                                    </div>
+                                    <div flex="60" style="text-align:right"
+                                        ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">balala</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType=='SSR'"></md-divider>
@@ -103,8 +118,12 @@
                             <md-list-item ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '协议参数：' | translate }}</div>
-                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">{{a.protocol_param}}</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">{{(a.port + a.serverInfo.shift)+':'+ a.password}}</div>
+                                    <div flex="60" style="text-align:right"
+                                        ng-if="!config.singlePortOnly&&!a.serverInfo.singlePortOnly">
+                                        {{a.protocol_param}}</div>
+                                    <div flex="60" style="text-align:right"
+                                        ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">
+                                        {{(a.port + a.serverInfo.shift)+':'+ a.password}}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(a.serverInfo) || config.simple || a.connType!='SSR'"></md-divider>
@@ -163,8 +182,7 @@
                                 </div>
                             </md-list-item>
                             <md-divider ng-if="!config.hideFlow"></md-divider>
-                            <md-list-item ng-if="!config.hideFlow" ng-style="cycleStyle(a)">
-
+                            <md-list-item ng-if="!config.hideFlow && !isAccountOutOfDate(a)" ng-style="cycleStyle(a)">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '周期：' | translate }}</div>
                                     <div flex="60" style="text-align:right">
@@ -185,10 +203,10 @@
                                     <div flex="60" style="text-align:right">
                                         <span ng-if="a.type === 1" translate>不限时</span>
                                         <span ng-if="a.type >=2 && a.type <= 5">
-                                            <span style="font-size: 0.9em;">{{ a.data.expire | date : 'yyyy-MM-dd
-                                                HH:mm' }}
-                                            </span><br><span style="font-size: 0.9em;" ng-style="fontColor(a)">{{
-                                                a.data.expire | timeago | translateTime }}</span>
+                                            <span
+                                                style="font-size: 0.9em;">{{ a.data.expire | date : 'yyyy-MM-dd HH:mm' }}
+                                            </span><br><span style="font-size: 0.9em;"
+                                                ng-style="fontColor(a)">{{ a.data.expire | timeago | translateTime }}</span>
                                         </span>
                                     </div>
                                 </div>

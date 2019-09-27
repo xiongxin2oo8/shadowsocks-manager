@@ -32,7 +32,7 @@ const createTable = async () => {
     const singlePort = await knex.schema.hasColumn(tableName, 'singlePort');
     if (!singlePort) {
       await knex.schema.table(tableName, function (table) {
-        table.integer('singlePort').defaultTo(80);
+        table.string('singlePort').defaultTo(80);
       });
     }
     const singlePortOnly = await knex.schema.hasColumn(tableName, 'singlePortOnly');
@@ -59,7 +59,7 @@ const createTable = async () => {
       table.string('key');
       table.string('net');
       table.integer('wgPort');
-      table.integer('singlePort');
+      table.string('singlePort');
       table.integer('singlePortOnly');
     });
   }
