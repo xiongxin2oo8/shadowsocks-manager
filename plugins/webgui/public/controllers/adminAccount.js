@@ -224,7 +224,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
           if (config.singlePortOnly || server.singlePortOnly) {
             return 'ssr://' + urlsafeBase64(server.host + ':' + (server.singlePort) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + server.singlePort));
           } else {
-            return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+            return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
           }
         } else {
           return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
@@ -237,7 +237,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
           if (config.singlePortOnly || server.singlePortOnly) {
             return 'ssr://' + urlsafeBase64(server.host + ':' + (server.singlePort) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + server.singlePort));
           } else {
-            return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+            return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
           }
         } else {
           let index = method.indexOf(server.method);

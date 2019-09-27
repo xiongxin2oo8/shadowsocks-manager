@@ -326,7 +326,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             if (accountSetting.singlePortOnly || s.singlePortOnly || +singlePort) {
               return 'ssr://' + urlsafeBase64(s.host + ':' + (s.singlePort) + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64((s.comment || '这里显示备注') + s.singlePort ? '' : (' - ' + s.singlePort)) + '&group=' + urlsafeBase64(baseSetting.title));
             } else {
-              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + (accountInfo.protocol_param ? urlsafeBase64(accountInfo.protocol_param) : '') + '&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
             }
           }).join('\r\n');
         } else {
