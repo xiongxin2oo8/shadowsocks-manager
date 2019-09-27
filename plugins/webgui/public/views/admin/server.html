@@ -10,6 +10,7 @@
                             <span ng-show="server.status !== -1 && !server.isGfw" style="color: #3a3;">&nbsp;{{server.status}}</span>
                             <span ng-show="server.status !== -1 && server.isGfw" style="color: #a33;">&nbsp;{{server.status}}</span>
                             <span style="color: #999;">&nbsp;{{ online[server.id] }}</span></span>
+                            <span ng-show="server.singlePortOnly">&nbsp;单端口 {{ server.singlePort] }}</span></span>
                         <span class="md-subhead">{{server.host.split(':')[0]}}:{{server.port}}</span>
                     </div>
                 </md-card-header-text>

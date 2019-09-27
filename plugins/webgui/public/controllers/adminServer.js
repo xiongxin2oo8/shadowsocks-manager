@@ -77,6 +77,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
             server.resetday = servers[index].resetday;
             server.useFlowStr = $filter('flowNum2Str')(servers[index].useflow);
             server.monthFlowStr = $filter('flowNum2Str')(servers[index].monthflow);
+            server.singlePortOnly=servers[index].singlePortOnly;
+            server.singlePort=servers[index].singlePort;
             adminApi.getServerFlow(server.id).then(flow => {
               if (!server.flow) {
                 server.flow = {};
