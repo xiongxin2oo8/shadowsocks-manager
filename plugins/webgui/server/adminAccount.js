@@ -223,6 +223,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }];
         }
         let servers = subscribeAccount.server.map((s, index) => {
+          if (s.singlePortOnly) {
+            s.comment = '[此节点不支持clash(请在网站中切换连接方式)]';
+          }
           return {
             id: index,//这是客户端排序的顺序
             server: s.host,
@@ -301,6 +304,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
           clashConfig.Proxy = subscribeAccount.server.map(server => {
+            if (server.singlePortOnly) {
+              server.comment = '[此节点不支持clash(请在网站中切换连接方式)]';
+            }
             return {
               cipher: server.method,
               name: server.subscribeName || server.comment || server.name,
