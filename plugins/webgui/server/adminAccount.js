@@ -224,7 +224,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         }
         let servers = subscribeAccount.server.map((s, index) => {
           if (s.singlePortOnly) {
-            s.comment = '[此节点不支持SS(请在网站中切换连接方式)]';
+            s.comment = s.name + '[此节点不支持SS]';
           }
           return {
             id: index,//这是客户端排序的顺序
@@ -305,7 +305,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const clashConfig = appRequire('plugins/webgui/server/clash');
           clashConfig.Proxy = subscribeAccount.server.map(server => {
             if (server.singlePortOnly) {
-              server.comment = '[此节点不支持clash(请在网站中切换连接方式)]';
+              server.comment = server.name + '[此节点不支持SS]';
             }
             return {
               cipher: server.method,
@@ -349,7 +349,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         } else {
           result = subscribeAccount.server.map(s => {
             if (s.singlePortOnly) {
-              s.comment = '[此节点不支持SS(请在网站中切换连接方式)]';
+              s.comment = s.name + '[此节点不支持SS]';
             }
             if (type === 'shadowrocket') {
               return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
