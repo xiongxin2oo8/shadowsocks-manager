@@ -51,7 +51,7 @@
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>端口：</div>
                                     <div flex="60" style="text-align:right" ng-if="isWG(server)">{{ server.wgPort }}</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || account.serverInfo.singlePortOnly">
+                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || server.singlePortOnly">
                                         {{ server.singlePort.split(',').join('或') }}
                                     </div>
                                     <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!server.singlePortOnly">{{ account.port + server.shift }}</div>
