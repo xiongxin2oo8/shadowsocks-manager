@@ -224,7 +224,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         }
         let servers = subscribeAccount.server.map((s, index) => {
           if (s.singlePortOnly) {
-            s.comment = '[此节点不支持clash(请在网站中切换连接方式)]';
+            s.comment = '[此节点不支持SS(请在网站中切换连接方式)]';
           }
           return {
             id: index,//这是客户端排序的顺序
