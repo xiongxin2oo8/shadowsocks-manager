@@ -342,13 +342,21 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }).join('\r\n');
         } else {
           result = subscribeAccount.server.map(s => {
+            if (s.singlePortOnly) {
+              s.comment = '[此节点不支持SS(请在网站中切换连接方式)]';
+            }
             if (type === 'shadowrocket') {
               return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
             } else if (type === 'potatso') {
               return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
             } else if (type === 'ssr') {
               let index = method.indexOf(s.method);
-              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(accountInfo.password) + '/?obfsparam=&remarks=' + urlsafeBase64((index == -1 ? '' : '[不支持SSR(请切换连接方式)]') + s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
+              if (index > -1) {
+                s.comment = '[不支持SSR(请在网站中切换连接方式)]';
+              } else if (s.singlePortOnly) {
+                s.comment = '[此节点不支持SS(请在网站中切换连接方式)]';
+              }
+              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(accountInfo.password) + '/?obfsparam=&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));
             }
           }).join('\r\n');
         }

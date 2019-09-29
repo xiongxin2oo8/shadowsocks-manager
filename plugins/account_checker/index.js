@@ -222,15 +222,15 @@ const deletePort = (server, account) => {
     command: 'del',
     port: portNumber,
   }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    }).then(c => {
-      let index = portList[server.id].ports.indexOf(c.port);
-      if (index > -1) {
-        portList[server.id].ports.splice(index, 1)
-      }
-    }).catch();
+    host: server.host,
+    port: server.port,
+    password: server.password,
+  }).then(c => {
+    let index = portList[server.id].ports.indexOf(c.port);
+    if (index > -1) {
+      portList[server.id].ports.splice(index, 1)
+    }
+  }).catch();
 };
 //设置SSR为不可用
 const deletePortSSR = async (server, account) => {
@@ -273,15 +273,15 @@ const addPort = async (server, account) => {
       port: portNumber,
       password: publicKey,
     }, {
-        host: server.host,
-        port: server.port,
-        password: server.password,
-      }).then(c => {
-        let index = portList[server.id].ports.indexOf(c.port);
-        if (index == -1) {
-          portList[server.id].ports.push(c.port);
-        }
-      }).catch();
+      host: server.host,
+      port: server.port,
+      password: server.password,
+    }).then(c => {
+      let index = portList[server.id].ports.indexOf(c.port);
+      if (index == -1) {
+        portList[server.id].ports.push(c.port);
+      }
+    }).catch();
 
   } else {
     const portNumber = server.shift + account.port;
@@ -290,15 +290,15 @@ const addPort = async (server, account) => {
       port: portNumber,
       password: account.password,
     }, {
-        host: server.host,
-        port: server.port,
-        password: server.password,
-      }).then(c => {
-        let index = portList[server.id].ports.indexOf(c.port);
-        if (index == -1) {
-          portList[server.id].ports.push(c.port);
-        }
-      }).catch();
+      host: server.host,
+      port: server.port,
+      password: server.password,
+    }).then(c => {
+      let index = portList[server.id].ports.indexOf(c.port);
+      if (index == -1) {
+        portList[server.id].ports.push(c.port);
+      }
+    }).catch();
   }
 };
 const addPortSSR = async (server, account) => {
@@ -320,7 +320,7 @@ const addPortSSR = async (server, account) => {
       enable: 1,
       method: account.method,
       protocol: account.protocol,
-      protocol_param: account.protocol_param,
+      protocol_param: `32#${account.port}:${account.password}`,
       obfs: account.obfs,
       obfs_param: account.obfs_param
     });
@@ -365,7 +365,8 @@ const checkAccount = async (serverId, accountId) => {
     const exists = await isPortExists(serverInfo, accountInfo);
     // 是否配置了SSR
     let ssr_exists = await knex('ssr_user').where({ serverId: serverInfo.id, accountId: accountInfo.id, enable: 1 }).then(s => s[0]);
-    if (accountInfo.connType == 'SSR' && exists) {
+    //如果连接方式是SSR时有SS账号或者只能使用单端口   则删除SS账号
+    if ((accountInfo.connType == 'SSR' && exists) || serverInfo.singlePortOnly) {
       deletePort(serverInfo, accountInfo);
     }
     if (ssr_exists && ssr_exists.port != (serverInfo.shift + accountInfo.port)) {

@@ -53,10 +53,12 @@ const edit = async options => {
       }
     })(serverInfo);
   }
-  console.log(`ss=${id} ${check}`);
+  if (serverInfo.singlePortOnly != singlePortOnly) {
+    const accounts = await knex('account_plugin').whereNot({ connType: 'SSR' }).select('id');
+    await knex('account_flow').update({ nextCheckTime: Date.now() }).where('serverId', serverInfo.id).whereIn('accountId', accounts);
+  }
   //立即同步
   if (check) {
-    console.log(`ss2=${id} ${check}`);
     accountFlow.editServer(id);
   }
   return knex('server').where({ id }).update({

@@ -48,7 +48,7 @@ const addAccount = async (type, options) => {
       connType: connType,
       method: 'chacha20-ietf',
       protocol: 'auth_aes128_md5',
-      protocol_param: '',
+      protocol_param: `32#${options.port}:${options.password}`,
       obfs: 'http_simple',
       obfs_param: 'download.windowsupdate.com',
     });
@@ -1039,7 +1039,7 @@ const setConnType = async (options) => {
       enable: 1,
       method: options.method,
       protocol: options.protocol,
-      protocol_param: options.protocol_param,
+      protocol_param: options.protocol_param || `32#${accountInfo.port}:${accountInfo.password}`,
       obfs: options.obfs,
       obfs_param: options.obfs_param
     }).where({ id: accountInfo.id });
