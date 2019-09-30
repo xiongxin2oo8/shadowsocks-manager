@@ -523,7 +523,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       $scope.setMenuButton('arrow_back', function () {
         $state.go('admin.serverPage', { serverId: $stateParams.serverId });
       });
-      $scope.server = { check: 1 };
+      $scope.server = { check: 0 };
       $scope.methods = [
         'aes-256-cfb',
         'aes-192-cfb',
