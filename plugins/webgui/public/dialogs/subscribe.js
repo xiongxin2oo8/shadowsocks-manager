@@ -52,7 +52,7 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
           ];
         } else {
           $scope.publicInfo.types = [
-            'shadowrocket', 'ssr', 'ssd', 'potatso', 'clash',
+            'shadowrocket', 'ssd', 'potatso', 'clash',
           ];
         }
         $scope.publicInfo.token = success.data.subscribe;

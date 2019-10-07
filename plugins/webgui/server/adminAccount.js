@@ -199,10 +199,159 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }
 
       const flowInfo = await flow.getServerPortFlowWithScale(0, accountInfo.id, [accountInfo.data.from, accountInfo.data.to], 1);
+      //插入提示信息
+      let renew = {
+        method: 'chacha20',
+        host: '127.0.0.1',
+        shift: 0,
+        comment: `续费地址：${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}` + (config.plugins.webgui.siteback ? `(备用 ${config.plugins.webgui.siteback})` : '')
+      };
+      subscribeAccount.server.unshift(renew);
+      if (accountInfo.type == 1) {
+        const insert = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
+        subscribeAccount.server.unshift(insert);
+      } else if (config.plugins.webgui.hideFlow) {
+        if (accountInfo.data.flow < 100 * 1000 * 1000 * 1000) {
+          let insertFlow = {
+            method: 'chacha20',
+            host: '127.0.0.1',
+            shift: 1,
+            comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
+          };
+          subscribeAccount.server.unshift(insertFlow);
+        } else {
+          if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
+            let insertFlow = {
+              method: 'chacha20',
+              host: '127.0.0.1',
+              shift: 1,
+              comment: '已封停，请购买流量包或联系管理员'
+            };
+            subscribeAccount.server.unshift(insertFlow);
+          }
+        }
+      } else {
+        if (+showFlow) {
+          let insertFlow = {
+            method: 'chacha20',
+            host: '127.0.0.1',
+            shift: 1,
+            comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
+          };
+          subscribeAccount.server.unshift(insertFlow);
+        }
+      }
+      let insertExpire = {
+        method: 'chacha20',
+        host: '127.0.0.1',
+        shift: 0,
+        comment: accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
+      };
 
-
-
+      if (accountInfo.data.expire <= new Date()) {
+        subscribeAccount.server = [insertExpire, renew]
+      } else {
+        subscribeAccount.server.unshift(insertExpire);
+      }
+      
       let result = '';
+      //SS 模式
+      if (!accountInfo.connType || accountInfo.connType === "SS") {
+        // ssd
+        if (type === 'ssd') {
+          let obj = {
+            airport: baseSetting.title,
+            port: 12580,
+            encryption: 'chacha20',
+            password: subscribeAccount.account.password,
+            traffic_used: ((flowInfo[0] || 10) / 1000000000).toFixed(2),
+            traffic_total: accountInfo.type == 1 || config.plugins.webgui.hideFlow ? 500 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
+            expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
+          };
+          let servers = subscribeAccount.server.map((s, index) => {
+            if (s.singlePortOnly) {
+              s.comment = s.name + '[此节点只支持SSR]';
+            }
+            return {
+              id: index,//这是客户端排序的顺序
+              server: s.host,
+              port: (subscribeAccount.account.port + s.shift),
+              encryption: s.method,
+              ratio: s.scale,
+              remarks: s.comment || '这里显示备注'
+            }
+          });
+          obj.servers = servers;
+          result = 'ssd://' + new Buffer(JSON.stringify(obj)).toString('base64');
+          return res.send(result);
+        }
+        // clash
+        if (type === 'clash') {
+          const yaml = require('js-yaml');
+          const clashConfig = appRequire('plugins/webgui/server/clash');
+          clashConfig.Proxy = subscribeAccount.server.map(server => {
+            if (server.singlePortOnly) {
+              server.comment = server.name + '[此节点只支持SSR]';
+            }
+            return {
+              cipher: server.method,
+              name: server.subscribeName || server.comment || server.name,
+              password: String(subscribeAccount.account.password),
+              port: subscribeAccount.account.port + server.shift,
+              server: server.host,
+              type: 'ss'
+            };
+          });
+          clashConfig['Proxy Group'][0] = {
+            name: 'Proxy',
+            type: 'select',
+            proxies: subscribeAccount.server.map(server => {
+              return server.subscribeName || server.comment || server.name;
+            }),
+          };
+          return res.send(yaml.safeDump(clashConfig));
+        }
+        //其他方式
+        result = subscribeAccount.server.map(s => {
+          if (s.singlePortOnly) {
+            s.comment = s.name + '[此节点只支持SSR]';
+          }
+          if (type === 'shadowrocket') {
+            return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
+          } else if (type === 'potatso') {
+            return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
+          }
+        }).join('\r\n');
+      }
+      //SSR 模式
+      if (accountInfo.connType === "SSR") {
+        result = subscribeAccount.server.map(s => {
+          //强制单端口
+          if (accountSetting.singlePortOnly || s.singlePortOnly || +singlePort) {
+            //单端口，可以是多个
+            let p = s.singlePort ? s.singlePort.split(',') : [];
+            if (p.length > 0) {
+              let str = '';
+              for (var val of p) {
+                if (val) {
+                  str += 'ssr://' + urlsafeBase64(s.host + ':' + val + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + ' - ' + val) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
+                }
+              }
+              return str;
+            }
+            return 'ssr://' + urlsafeBase64(s.host + ':' + (s.singlePort) + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + (s.singlePort ? (' - ' + s.singlePort) : '')) + '&group=' + urlsafeBase64(baseSetting.title));
+          } else {
+            return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(s.comment) + '&group=' + urlsafeBase64(baseSetting.title));
+          }
+        }).join('\r\n');
+      }
+      //V2 模式
+      if (accountInfo.connType === "V2Ray") {
+
+      }
+
+      return res.send(Buffer.from(result).toString('base64'));
+
       if (type === 'ssd') {
         let obj = {
           airport: baseSetting.title,
