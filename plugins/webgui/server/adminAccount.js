@@ -204,7 +204,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         method: 'chacha20',
         host: '127.0.0.1',
         shift: 0,
-        comment: `续费地址：${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}` + (config.plugins.webgui.siteback ? `(备用 ${config.plugins.webgui.siteback})` : '')
+        comment: `备用地址：` + (config.plugins.webgui.siteback ? `${config.plugins.webgui.siteback}` : `${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}`)
       };
       subscribeAccount.server.unshift(renew);
       if (accountInfo.type == 1) {
@@ -253,7 +253,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       } else {
         subscribeAccount.server.unshift(insertExpire);
       }
-      
+
       let result = '';
       //SS 模式
       if (!accountInfo.connType || accountInfo.connType === "SS") {
