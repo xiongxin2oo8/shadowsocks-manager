@@ -203,7 +203,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       let renew = {
         method: 'chacha20',
         host: '127.0.0.1',
-        shift: 0,
+        shift: 2,
         comment: `备用地址：` + (config.plugins.webgui.siteback ? `${config.plugins.webgui.siteback}` : `${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}`)
       };
       subscribeAccount.server.unshift(renew);
