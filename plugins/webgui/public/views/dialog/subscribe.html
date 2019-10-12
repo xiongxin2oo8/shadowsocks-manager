@@ -9,9 +9,13 @@
                 </md-radio-button>
             </md-radio-group>
             <!-- <md-checkbox style="margin-top: 15px;" ng-model="publicInfo.ip" ng-change="changeLinkType()" ng-true-value="1" ng-false-value="0">{{ '将域名转换为IP地址' | translate }}</md-checkbox> -->
-            <md-checkbox style="margin-top: 15px;" ng-if="connType == 'SSR'" ng-model="publicInfo.port" ng-change="changeLinkType()" ng-true-value="1" ng-false-value="0">{{ '单端口' | translate }}</md-checkbox>
-            <md-checkbox ng-model="publicInfo.flow" ng-change="changeLinkType()" ng-true-value="1" ng-false-value="0">{{ '显示流量信息' | translate }}</md-checkbox>
-            <p style="color:green;font-size: 10px;">如果普通模式速度不稳定，可尝试使用单端口</p>
+            <md-checkbox style="margin-top: 15px;" ng-if="connType == 'SSR'" ng-model="publicInfo.port" ng-change="changeLinkType()" ng-true-value="1" ng-false-value="0">
+                {{ '单端口' | translate }}
+            </md-checkbox>
+            <md-checkbox style="margin-top: 15px;" ng-model="publicInfo.flow" ng-change="changeLinkType()" ng-true-value="1" ng-false-value="0">
+                {{ '显示流量信息' | translate }}
+            </md-checkbox>
+            <p style="color:green;font-size: 10px;"  ng-if="connType == 'SSR'">如果普通模式速度不稳定，可尝试使用单端口</p>
             <div layout="row" layout-align="start center" style="margin-top: 25px;">
                 <div>
                     <md-button class="md-primary" ngclipboard data-clipboard-text="{{ publicInfo.subscribeLink }}"
