@@ -99,34 +99,6 @@
                                     <div flex="60" style="text-align:right">{{a.method}}</div>
                                 </div>
                             </md-list-item>
-                            <md-divider ng-hide="config.simple"></md-divider>
-                            <md-list-item ng-hide="config.simple">
-                                <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40">{{ '协议：' | translate }}</div>
-                                    <div flex="60" style="text-align:right">{{a.protocol}}</div>
-                                </div>
-                            </md-list-item>
-                            <md-divider ng-hide="config.simple"></md-divider>
-                            <md-list-item ng-hide="config.simple">
-                                <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40">{{ '协议参数：' | translate }}</div>
-                                    <div flex="60" style="text-align:right"></div>
-                                </div>
-                            </md-list-item>
-                            <md-divider ng-hide="config.simple"></md-divider>
-                            <md-list-item ng-hide="config.simple">
-                                <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40">{{ '混淆：' | translate }}</div>
-                                    <div flex="60" style="text-align:right">{{a.obfs}}</div>
-                                </div>
-                            </md-list-item>
-                            <md-divider ng-hide="config.simple"></md-divider>
-                            <md-list-item ng-hide="config.simple">
-                                <div flex layout="row" layout-align="space-between center">
-                                    <div flex="30">{{ '混淆参数：' | translate }}</div>
-                                    <div flex="70" style="text-align:right">{{a.obfs_param}}</div>
-                                </div>
-                            </md-list-item>
                             <md-divider ng-hide="!config.simple"></md-divider>
                             <md-list-item ng-if="!config.hideFlow">
                                 <div flex layout="row" layout-align="space-between center">
