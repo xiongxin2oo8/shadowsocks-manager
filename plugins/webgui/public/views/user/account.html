@@ -93,13 +93,6 @@
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="config.simple"></md-divider>
-                            <md-list-item ng-hide="config.simple">
-                                <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40">{{ '加密方式：' | translate }}</div>
-                                    <div flex="60" style="text-align:right">{{a.method}}</div>
-                                </div>
-                            </md-list-item>
-                            <md-divider ng-hide="!config.simple"></md-divider>
                             <md-list-item ng-if="!config.hideFlow">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '流量：'| translate }}</div>
@@ -196,13 +189,6 @@
                             <md-list-item ng-hide="config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '加密方式：' | translate }}</div>
-                                    <div flex="60" style="text-align:right">{{a.serverInfo.method}}</div>
-                                </div>
-                            </md-list-item>
-                            <md-divider ng-hide="config.simple"></md-divider>
-                            <md-list-item ng-hide="config.simple">
-                                <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40">{{ '加密方式：' | translate }}</div>
                                     <div flex="60" style="text-align:right">{{a.method}}</div>
                                 </div>
                             </md-list-item>
@@ -237,7 +223,7 @@
                                     <div flex="70" style="text-align:right">{{a.obfs_param}}</div>
                                 </div>
                             </md-list-item>
-                            <md-divider ng-hide="!config.simple"></md-divider>
+                            <md-divider ng-hide="config.simple"></md-divider>
                             <md-list-item ng-if="!config.hideFlow">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '流量：'| translate }}</div>

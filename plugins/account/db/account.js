@@ -11,6 +11,7 @@ const createTable = async() => {
     const hasObfs = await knex.schema.hasColumn(tableName, 'obfs');
     const hasObfs_param = await knex.schema.hasColumn(tableName, 'obfs_param');
     const hasLastSubTime = await knex.schema.hasColumn(tableName, 'lastSubscribeTime');
+    const hasColumnUUID = await knex.schema.hasColumn(tableName, 'uuid');
     if(!hasLastSubTime) {
       await knex.schema.table(tableName, function(table) {
         table.bigInteger('lastSubscribeTime');
@@ -56,7 +57,6 @@ const createTable = async() => {
     for(const result of results) {
       await knex(tableName).update({ orderId: result.type === 1 ? 0 : result.type }).where({ id: result.id });
     }    
-    const hasColumnUUID = await knex.schema.hasColumn(tableName, 'uuid');
     if(!hasColumnUUID) {
       await knex.schema.table(tableName, function(table) {
         table.string('uuid');
