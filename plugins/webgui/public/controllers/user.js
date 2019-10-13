@@ -712,7 +712,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.setTitle('连接方式');
       $scope.initloading = true;
       $scope.setMenuButton('arrow_back', 'user.settings');
-      $scope.typeList = ['SS', 'SSR'];
+      $scope.typeList = [{code:'SS',name:"SS"}, {code:'SSR',name:"SSR和V2Ray"}];
       $scope.protocolList = ['auth_chain_a', 'auth_aes128_md5', 'auth_aes128_sha1'];
       $scope.obfsList = ['http_simple', 'http_post', 'tls1.2_ticket_auth'];
       $scope.methods = [

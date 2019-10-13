@@ -45,7 +45,7 @@
                         <div flex="50" translate>连接方式</div>
                         <div flex="50" layout="row" layout-align="end center">
                             <md-select ng-model="data.connType" aria-label="data.connType">
-                                <md-option ng-repeat="type in typeList" value="{{type}}">{{ type }}
+                                <md-option ng-repeat="type in typeList" value="{{type.code}}">{{ type.name }}
                                 </md-option>
                             </md-select>
                         </div>

@@ -48,13 +48,26 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
         if (success.data.connType == "SSR") {
           publicInfo.linkType='ssr';
           $scope.publicInfo.types = [
-            'ssr',
+            'ssr','v2ray'
           ];
         } else {
           $scope.publicInfo.types = [
-            'shadowrocket', 'ssd', 'potatso', 'clash',
+            'ss'
           ];
         }
+        if(publicInfo.linkType=='ssr'){
+          $scope.publicInfo.app='ssr';
+          $scope.publicInfo.apps=[{code:'shadowrocket',name:'Shadowrocket/SSR/Quantumult'}];
+        }        
+        if(publicInfo.linkType=='ss'){
+          $scope.publicInfo.app='shadowrocket';
+          $scope.publicInfo.apps=[{code:'shadowrocket',name:'Shadowrocket/Quantumult'}, {code:'ssd',name:'ssd'}, {code:'potatso',name:'potatso'}, {code:'clash',name:'clash'}];
+        }
+        if(publicInfo.linkType=='v2ray'){
+          $scope.publicInfo.app='shadowrocket';
+          $scope.publicInfo.apps=[{code:'shadowrocket',name:'Shadowrocket/Quantumult'}, {code:'clash',name:'Clash/ClashX'}];
+        }
+        
         $scope.publicInfo.token = success.data.subscribe;
         $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
       });
