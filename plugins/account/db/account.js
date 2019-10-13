@@ -55,6 +55,12 @@ const createTable = async() => {
     const results = await knex(tableName).whereNull('orderId');
     for(const result of results) {
       await knex(tableName).update({ orderId: result.type === 1 ? 0 : result.type }).where({ id: result.id });
+    }    
+    const hasColumnUUID = await knex.schema.hasColumn(tableName, 'uuid');
+    if(!hasColumnUUID) {
+      await knex.schema.table(tableName, function(table) {
+        table.string('uuid');
+      });
     }
     return;
   }
@@ -81,6 +87,7 @@ const createTable = async() => {
     table.string('protocol_param');
     table.string('obfs');
     table.string('obfs_param');
+    table.string('uuid');
   });
 };
 

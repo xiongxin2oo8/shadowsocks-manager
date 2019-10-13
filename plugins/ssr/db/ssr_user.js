@@ -8,12 +8,12 @@ const createTable = async () => {
     //   table.index('id');
     //   table.index('accountId');
     // });
-    // const hasColumnAccountId = await knex.schema.hasColumn(tableName, 'accountId');
-    // if(!hasColumnAccountId) {
-    //   await knex.schema.table(tableName, function(table) {
-    //     table.integer('accountId').defaultTo(0);
-    //   });
-    // }
+    const hasColumnUUID = await knex.schema.hasColumn(tableName, 'uuid');
+    if(!hasColumnUUID) {
+      await knex.schema.table(tableName, function(table) {
+        table.string('uuid');
+      });
+    }
     return;
   }
   return knex.schema.createTable(tableName, function(table) {
@@ -33,6 +33,7 @@ const createTable = async () => {
     table.string('protocol_param');
     table.string('obfs');
     table.string('obfs_param');
+    table.string('uuid');
     table.index(['id', 'port'], 'index');
   });
 };

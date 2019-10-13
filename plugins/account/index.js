@@ -1,7 +1,8 @@
 const knex = appRequire('init/knex').knex;
 const serverManager = appRequire('plugins/flowSaver/server');
 const manager = appRequire('services/manager');
-const crypto = require('crypto');
+const crypto = require('crypto'); 
+const UUID = require('uuid');
 const macAccount = appRequire('plugins/macAccount/index');
 const orderPlugin = appRequire('plugins/webgui_order');
 const accountFlow = appRequire('plugins/account/accountFlow');
@@ -51,6 +52,7 @@ const addAccount = async (type, options) => {
       protocol_param: `32#${options.port}:${options.password}`,
       obfs: 'http_simple',
       obfs_param: 'download.windowsupdate.com',
+      uuid: UUID.v1()
     });
     await accountFlow.add(accountId);
     return accountId;
@@ -80,6 +82,7 @@ const addAccount = async (type, options) => {
       protocol_param: `32#${options.port}:${options.password}`,
       obfs: 'http_simple',
       obfs_param: 'download.windowsupdate.com',
+      uuid: UUID.v1()
     });
     await accountFlow.add(accountId);
     return accountId;
@@ -129,7 +132,8 @@ const getAccount = async (options = {}) => {
     'account_plugin.protocol_param as protocol_param',
     'account_plugin.obfs as obfs',
     'account_plugin.obfs_param as obfs_param',
-    'account_plugin.lastSubscribeTime as lastSubscribeTime'
+    'account_plugin.lastSubscribeTime as lastSubscribeTime',
+    'account_plugin.uuid'
   ])
     .leftJoin('user', 'user.id', 'account_plugin.userId')
     .where(where)
@@ -935,6 +939,7 @@ const getAccountAndPaging = async (opt) => {
     'account_plugin.multiServerFlow',
     'account_plugin.active',
     'account_plugin.connType',
+    'account_plugin.uuid',
     'user.id as userId',
     'user.email as user',
   ])
