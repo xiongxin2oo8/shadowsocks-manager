@@ -43,41 +43,66 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
       $scope.hideFlow = config.hideFlow;
       $scope.publicInfo.flow = 1;
       $scope.connType = '';
+      const changeType = (flag) => {
+        if (publicInfo.linkType == 'ssr') {
+          if (flag == 1) {
+            $scope.publicInfo.app = 'shadowrocket';
+          }
+          $scope.publicInfo.apps = [
+            { code: 'shadowrocket', name: 'Shadowrocket' },
+            { code: 'quantumult', name: 'Quantumult' },
+            { code: 'ssr', name: 'SSR' }
+          ];
+        }
+        if (publicInfo.linkType == 'ss') {
+          $scope.publicInfo.apps = [
+            { code: 'shadowrocket', name: 'Shadowrocket' },
+            { code: 'quantumult', name: 'Quantumult' },
+            { code: 'ssd', name: 'ssd' },
+            { code: 'potatso', name: 'potatso' },
+            { code: 'clash', name: 'clash' }
+          ];
+        }
+        if (publicInfo.linkType == 'v2ray') {
+          if (flag == 1) {
+            $scope.publicInfo.app = 'shadowrocket';
+          }
+          $scope.publicInfo.apps = [
+            { code: 'shadowrocket', name: 'Shadowrocket' },
+            { code: 'quantumult', name: 'Quantumult' },
+            { code: 'clash', name: 'Clash/ClashX' },
+            { code: 'v2rayng', name: 'V2RayNG' }
+          ];
+        }
+      }
       $scope.publicInfo.getSubscribe().then(success => {
         $scope.connType = success.data.connType;
         if (success.data.connType == "SSR") {
-          publicInfo.linkType='ssr';
+          publicInfo.linkType = 'ssr';
+          $scope.publicInfo.app = 'ssr';
           $scope.publicInfo.types = [
-            'ssr','v2ray'
+            'ssr', 'v2ray'
           ];
         } else {
+          publicInfo.linkType = 'ss';
+          $scope.publicInfo.app = 'shadowrocket';
           $scope.publicInfo.types = [
             'ss'
           ];
         }
-        if(publicInfo.linkType=='ssr'){
-          $scope.publicInfo.app='ssr';
-          $scope.publicInfo.apps=[{code:'shadowrocket',name:'Shadowrocket/SSR/Quantumult'}];
-        }        
-        if(publicInfo.linkType=='ss'){
-          $scope.publicInfo.app='shadowrocket';
-          $scope.publicInfo.apps=[{code:'shadowrocket',name:'Shadowrocket/Quantumult'}, {code:'ssd',name:'ssd'}, {code:'potatso',name:'potatso'}, {code:'clash',name:'clash'}];
-        }
-        if(publicInfo.linkType=='v2ray'){
-          $scope.publicInfo.app='shadowrocket';
-          $scope.publicInfo.apps=[{code:'shadowrocket',name:'Shadowrocket/Quantumult'}, {code:'clash',name:'Clash/ClashX'}];
-        }
-        
+        changeType();
         $scope.publicInfo.token = success.data.subscribe;
-        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
+        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&app=${$scope.publicInfo.app}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
       });
-      $scope.changeLinkType = () => {
-        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
+
+      $scope.changeLinkType = (flag) => {
+        changeType(flag);
+        $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&app=${$scope.publicInfo.app}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
       };
       $scope.publicInfo.updateLink = () => {
         $scope.publicInfo.updateSubscribe().then(success => {
           $scope.publicInfo.token = success.data.subscribe;
-          $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
+          $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&app=${$scope.publicInfo.app}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
         });
       };
       $scope.toast = () => {

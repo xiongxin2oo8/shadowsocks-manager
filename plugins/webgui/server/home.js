@@ -639,7 +639,7 @@ exports.status = async (req, res) => {
     let multiAccount;
     let simple;
     let hideFlow;
-    let ssr;
+    let moreType;
     if (status) {
       email = (await knex('user').select(['email']).where({ id }).then(s => s[0])).email;
       alipay = config.plugins.alipay && config.plugins.alipay.use;
@@ -648,7 +648,7 @@ exports.status = async (req, res) => {
       telegram = config.plugins.webgui_telegram && config.plugins.webgui_telegram.use;
       giftcard = config.plugins.giftcard && config.plugins.giftcard.use;
       hideFlow = config.plugins.webgui.hideFlow;
-      ssr = config.plugins.ssr;
+      moreType = config.plugins.moreType;
       refCode = (await knex('webguiSetting').select().where({
         key: 'webgui_ref',
       }).then(success => {
@@ -690,7 +690,7 @@ exports.status = async (req, res) => {
       facebook_login_client_id,
       github_login_client_id,
       crisp,
-      ssr,
+      moreType,
       singlePortOnly
     });
   } catch (err) {

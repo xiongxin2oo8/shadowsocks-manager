@@ -55,6 +55,8 @@ exports.addServer = async (req, res) => {
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
     req.checkBody('singlePort', 'Invalid singlePort').notEmpty();
     req.checkBody('singlePortOnly', 'Invalid singlePortOnly').isInt();
+    req.checkBody('v2rayPort', 'Invalid v2rayPort').isInt({ min: 1, max: 65535 });
+    req.checkBody('v2rayOnly', 'Invalid v2rayOnly').isInt();
     const result = await req.getValidationResult();
     if (!result.isEmpty()) { return Promise.reject(result.array()); }
     const type = req.body.type;
@@ -74,6 +76,8 @@ exports.addServer = async (req, res) => {
     const wgPort = isWG ? req.body.wgPort : null;
     const singlePort = req.body.singlePort;
     const singlePortOnly = +req.body.singlePortOnly;
+    const v2rayPort = +req.body.v2rayOnly;
+    const v2rayOnly = +req.body.v2rayOnly;
     await manager.send({
       command: 'flow',
       options: { clear: false, },
@@ -98,7 +102,9 @@ exports.addServer = async (req, res) => {
       net,
       wgPort,
       singlePort,
-      singlePortOnly
+      singlePortOnly,
+      v2rayPort,
+      v2rayOnly
     });
     res.send('success');
   } catch (err) {
@@ -121,6 +127,8 @@ exports.editServer = async (req, res) => {
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
     req.checkBody('singlePort', 'Invalid singlePort').notEmpty();
     req.checkBody('singlePortOnly', 'Invalid singlePortOnly').isInt();
+    req.checkBody('v2rayPort', 'Invalid v2rayPort').isInt({ min: 1, max: 65535 });
+    req.checkBody('v2rayOnly', 'Invalid v2rayOnly').isInt();
     const result = await req.getValidationResult();
     if (!result.isEmpty()) { return Promise.reject(result.array()); }
     const serverId = req.params.serverId;
@@ -138,9 +146,11 @@ exports.editServer = async (req, res) => {
     const resetday = req.body.resetday;
     const key = isWG ? req.body.key : null;
     const net = isWG ? req.body.net : null;
-    const wgPort = isWG ? req.body.wgPort : null;    
+    const wgPort = isWG ? req.body.wgPort : null;
     const singlePort = req.body.singlePort;
     const singlePortOnly = +req.body.singlePortOnly;
+    const v2rayPort = +req.body.v2rayPort;
+    const v2rayOnly = +req.body.v2rayOnly;
     const check = +req.body.check;
     await manager.send({
       command: 'flow',
@@ -168,6 +178,8 @@ exports.editServer = async (req, res) => {
       wgPort,
       singlePort,
       singlePortOnly,
+      v2rayPort,
+      v2rayOnly,
       check
     });
     res.send('success');

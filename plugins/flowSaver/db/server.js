@@ -41,6 +41,18 @@ const createTable = async () => {
         table.integer('singlePortOnly').defaultTo(0);
       });
     }
+    const v2rayPort = await knex.schema.hasColumn(tableName, 'v2rayPort');
+    if (!v2rayPort) {
+      await knex.schema.table(tableName, function (table) {
+        table.string('v2rayPort').defaultTo(801);
+      });
+    }
+    const v2rayOnly = await knex.schema.hasColumn(tableName, 'v2rayOnly');
+    if (!v2rayOnly) {
+      await knex.schema.table(tableName, function (table) {
+        table.integer('v2rayOnly').defaultTo(0);
+      });
+    }
   }
   else {
     await knex.schema.createTable(tableName, function (table) {

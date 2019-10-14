@@ -77,8 +77,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
             server.resetday = servers[index].resetday;
             server.useFlowStr = $filter('flowNum2Str')(servers[index].useflow);
             server.monthFlowStr = $filter('flowNum2Str')(servers[index].monthflow);
-            server.singlePortOnly=servers[index].singlePortOnly;
-            server.singlePort=servers[index].singlePort;
+            server.singlePortOnly = servers[index].singlePortOnly;
+            server.singlePort = servers[index].singlePort;
             adminApi.getServerFlow(server.id).then(flow => {
               if (!server.flow) {
                 server.flow = {};
@@ -501,7 +501,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           net: $scope.server.net,
           wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
           singlePort: $scope.server.singlePort || 80,
-          singlePortOnly: $scope.server.singlePortOnly || 0
+          singlePortOnly: $scope.server.singlePortOnly || 0,
+          v2rayPort: $scope.server.v2rayPort || 801,
+          v2rayOnly: $scope.server.v2rayOnly || 0
         }, {
           timeout: 15000,
         }).then(success => {
@@ -573,6 +575,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.wgPort = success.data.wgPort;
           $scope.server.singlePort = success.data.singlePort;
           $scope.server.singlePortOnly = success.data.singlePortOnly;
+          $scope.server.v2rayPort = success.data.v2rayPort;
+          $scope.server.v2rayOnly = success.data.v2rayOnly;
         });
       $scope.confirm = () => {
         alertDialog.loading();
@@ -594,7 +598,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           net: $scope.server.net,
           wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
           singlePort: $scope.server.singlePort || 80,
-          singlePortOnly: $scope.server.singlePortOnly || 0
+          singlePortOnly: $scope.server.singlePortOnly || 0,
+          v2rayPort: $scope.server.v2rayPort || 801,
+          v2rayOnly: $scope.server.v2rayOnly || 0
         }).then(success => {
           alertDialog.show('修改服务器成功', '确定');
           $state.go('admin.serverPage', { serverId: $stateParams.serverId });

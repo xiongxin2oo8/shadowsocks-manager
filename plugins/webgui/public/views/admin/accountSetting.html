@@ -192,7 +192,7 @@
                         <div flex="50" translate>默认连接方式</div>
                         <div flex="50" layout="row" layout-align="end center">
                             <md-select ng-model="accountData.connType" aria-label="connType">
-                                <md-option ng-repeat="type in typeList" value="{{type}}">{{ type }}
+                                <md-option ng-repeat="type in typeList" value="{{type.code}}">{{ type.name }}
                                 </md-option>
                             </md-select>
                         </div>
@@ -200,18 +200,18 @@
                 </md-list-item>
             </md-list>
             <md-divider></md-divider>
-            <md-list ng-if="config.ssr && config.ssr.singlePort">
+            <md-list ng-if="config.moreType.ssr">
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row"
                         layout-align="space-between center">
-                        <div flex="75" translate>强制使用单端口</div>
+                        <div flex="75" translate>强制使用SSR单端口</div>
                         <div flex layout="row" layout-align="end center">
                             <md-switch ng-model="accountData.singlePortOnly" aria-label="singlePortOnly"></md-switch>
                         </div>
                     </div>
                 </md-list-item>
             </md-list>
-            <md-divider  ng-if="config.ssr && config.ssr.singlePort"></md-divider>
+            <md-divider  ng-if="config.moreType.ssr"></md-divider>
             <md-list>
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row"

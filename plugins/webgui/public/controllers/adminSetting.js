@@ -69,7 +69,7 @@ app.controller('AdminSettingsController', ['$scope', '$state',
     ($scope, $http, $timeout, $state) => {
       $scope.setTitle('账号设置');
       $scope.setMenuButton('arrow_back', 'admin.settings');
-      $scope.typeList = ['SS', 'SSR'];
+      $scope.typeList = [{code:'SS',name:'SS'}, {code:'SSR',name:'SSR和V2Ray'}];
       let lastSave = 0;
       let lastSavePromise = null;
       const saveTime = 3500;

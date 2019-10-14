@@ -149,8 +149,8 @@ const urlsafeBase64 = str => {
 
 exports.getSubscribeAccountForUser = async (req, res) => {
   try {
-    const stype = req.query.stype;
-    let type = req.query.type || 'shadowrocket';
+    let type = req.query.type;
+    const app = req.query.app;
     const resolveIp = req.query.ip;
     const showFlow = req.query.flow || 0;
     const singlePort = req.query.port;
@@ -257,8 +257,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       let result = '';
       //SS 模式
       if (!accountInfo.connType || accountInfo.connType === "SS") {
-        // ssd
-        if (type === 'ssd') {
+        // ssd  为了兼容原来的写法
+        if ((!app && type === 'ssd') || app === 'ssd') {
           let obj = {
             airport: baseSetting.title,
             port: 12580,
@@ -286,7 +286,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           return res.send(result);
         }
         // clash
-        if (type === 'clash') {
+        if ((!app && type === 'clash') || app === 'clash') {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
           clashConfig.Proxy = subscribeAccount.server.map(server => {
@@ -316,38 +316,39 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           if (s.singlePortOnly) {
             s.comment = s.name + '[此节点只支持SSR]';
           }
-          if (type === 'shadowrocket') {
+          if ((!app && type === 'shadowrocket') || app === 'shadowrocket' || shadowrocket === 'quantumult') {
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
-          } else if (type === 'potatso') {
+          } else if ((!app && type === 'potatso') || app === 'potatso') {
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
           }
         }).join('\r\n');
       }
       //SSR 模式
       if (accountInfo.connType === "SSR") {
-        result = subscribeAccount.server.map(s => {
-          //强制单端口
-          if (accountSetting.singlePortOnly || s.singlePortOnly || +singlePort) {
-            //单端口，可以是多个
-            let p = s.singlePort ? s.singlePort.split(',') : [];
-            if (p.length > 0) {
-              let str = '';
-              for (var val of p) {
-                if (val) {
-                  str += 'ssr://' + urlsafeBase64(s.host + ':' + val + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + ' - ' + val) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
+        if (type === 'ssr') {
+          result = subscribeAccount.server.map(s => {
+            //强制单端口
+            if (accountSetting.singlePortOnly || s.singlePortOnly || +singlePort) {
+              //单端口，可以是多个
+              let p = s.singlePort ? s.singlePort.split(',') : [];
+              if (p.length > 0) {
+                let str = '';
+                for (var val of p) {
+                  if (val) {
+                    str += 'ssr://' + urlsafeBase64(s.host + ':' + val + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + ' - ' + val) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
+                  }
                 }
+                return str;
               }
-              return str;
+              return 'ssr://' + urlsafeBase64(s.host + ':' + (s.singlePort) + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + (s.singlePort ? (' - ' + s.singlePort) : '')) + '&group=' + urlsafeBase64(baseSetting.title));
+            } else {
+              return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(s.comment) + '&group=' + urlsafeBase64(baseSetting.title));
             }
-            return 'ssr://' + urlsafeBase64(s.host + ':' + (s.singlePort) + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + (s.singlePort ? (' - ' + s.singlePort) : '')) + '&group=' + urlsafeBase64(baseSetting.title));
-          } else {
-            return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(s.comment) + '&group=' + urlsafeBase64(baseSetting.title));
-          }
-        }).join('\r\n');
-      }
-      //V2 模式
-      if (accountInfo.connType === "V2Ray") {
+          }).join('\r\n');
+        }
+        if (type === 'v2ray') {
 
+        }
       }
 
       return res.send(Buffer.from(result).toString('base64'));
