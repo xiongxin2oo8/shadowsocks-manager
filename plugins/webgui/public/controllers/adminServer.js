@@ -471,8 +471,19 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         'chacha20-ietf-poly1305',
         'xchacha20-ietf-poly1305'
       ];
+      $scope.v2rayMethods = [
+        'none',
+        'auto',
+        'aes-128-cfb',
+        'aes-128-gcm',
+        'chacha20-poly1305'
+      ];
+      $scope.singleModes = [{ code: 'off', name: '关闭' }, { code: 'ssr_single_port', name: 'SSR单端口' }];
       $scope.setMethod = () => {
         $scope.server.method = $scope.methodSearch;
+      };
+      $scope.setV2rayMethod = () => {
+        $scope.server.v2rayMethod = $scope.v2rayMethodSearch;
       };
       $scope.server = {
         type: 'Shadowsocks',
@@ -480,8 +491,19 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         scale: 1,
         shift: 0,
         monthflow: 0,
-        resetday: 1
+        resetday: 1,
+        v2rayMethod: 'auto',
+        singleMode: 'off'
       };
+      $scope.v2rayChange = () => {
+        console.log('v2ray', $scope.server.v2ray);
+        let index = $scope.singleModes.findIndex(c => { return c.code == 'v2ray'; });
+        if ($scope.server.v2ray) {
+          if (index < 0) { $scope.singleModes.push({ code: 'v2ray', name: 'V2Ray' }) };
+        } else {
+          if (index > -1) { $scope.singleModes.splice(index, 1); $scope.server.singleMode = 'off'; };
+        }
+      }
       $scope.confirm = () => {
         alertDialog.loading();
         $scope.server.monthflow = $filter('flowStr2Num')($scope.server.monthflowStr);
@@ -501,9 +523,10 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           net: $scope.server.net,
           wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
           singlePort: $scope.server.singlePort || 80,
-          singlePortOnly: $scope.server.singlePortOnly || 0,
+          v2ray: $scope.server.v2ray,
+          v2rayMethod: $scope.server.v2rayMethod || 'auto',
           v2rayPort: $scope.server.v2rayPort || 801,
-          v2rayOnly: $scope.server.v2rayOnly || 0
+          singleMode: $scope.server.singleMode
         }, {
           timeout: 15000,
         }).then(success => {
@@ -547,9 +570,29 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         'chacha20-ietf-poly1305',
         'xchacha20-ietf-poly1305'
       ];
+      $scope.v2rayMethods = [
+        'none',
+        'auto',
+        'aes-128-cfb',
+        'aes-128-gcm',
+        'chacha20-poly1305'
+      ];
+      $scope.singleModes = [{ code: 'off', name: '关闭' }, { code: 'ssr_single_port', name: 'SSR单端口' }, { code: 'v2ray', name: 'V2Ray' }];
       $scope.setMethod = () => {
         $scope.server.method = $scope.methodSearch;
       };
+      $scope.setV2rayMethod = () => {
+        $scope.server.v2rayMethod = $scope.v2rayMethodSearch;
+      };
+      $scope.v2rayChange = () => {
+        console.log('v2ray', $scope.server.v2ray);
+        let index = $scope.singleModes.findIndex(c => { return c.code == 'v2ray'; });
+        if ($scope.server.v2ray) {
+          if (index < 0) { $scope.singleModes.push({ code: 'v2ray', name: 'V2Ray' }) };
+        } else {
+          if (index > -1) { $scope.singleModes.splice(index, 1); $scope.server.singleMode = 'off'; };
+        }
+      }
       $scope.serverInfoloaded = false;
       $http.get(`/api/admin/server/${serverId}`, {
         params: {
@@ -574,9 +617,11 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.net = success.data.net;
           $scope.server.wgPort = success.data.wgPort;
           $scope.server.singlePort = success.data.singlePort;
-          $scope.server.singlePortOnly = success.data.singlePortOnly;
+          $scope.server.v2ray = success.data.v2ray;
+          $scope.server.v2rayMethod = success.data.v2rayMethod || 'auto';
           $scope.server.v2rayPort = success.data.v2rayPort;
-          $scope.server.v2rayOnly = success.data.v2rayOnly;
+          $scope.server.singleMode = success.data.singleMode || 'off';
+          $scope.v2rayChange();
         });
       $scope.confirm = () => {
         alertDialog.loading();
@@ -598,9 +643,10 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           net: $scope.server.net,
           wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
           singlePort: $scope.server.singlePort || 80,
-          singlePortOnly: $scope.server.singlePortOnly || 0,
+          v2ray: $scope.server.v2ray,
+          v2rayMethod: $scope.server.v2rayMethod,
           v2rayPort: $scope.server.v2rayPort || 801,
-          v2rayOnly: $scope.server.v2rayOnly || 0
+          singleMode: $scope.server.singleMode
         }).then(success => {
           alertDialog.show('修改服务器成功', '确定');
           $state.go('admin.serverPage', { serverId: $stateParams.serverId });

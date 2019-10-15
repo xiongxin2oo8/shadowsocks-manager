@@ -4,7 +4,7 @@ const accountFlow = appRequire('plugins/account/accountFlow');
 const moment = require('moment');
 
 const add = async options => {
-  const { type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singlePort, singlePortOnly, v2rayPort, v2rayOnly } = options;
+  const { type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singlePort, v2ray, v2rayMethod, v2rayPort, singleMode } = options;
   const [serverId] = await knex('server').insert({
     type,
     name,
@@ -21,9 +21,10 @@ const add = async options => {
     net,
     wgPort,
     singlePort,
-    singlePortOnly,
+    v2ray,
+    v2rayMethod,
     v2rayPort,
-    v2rayOnly
+    singleMode
   });
   accountFlow.addServer(serverId);
   return [serverId];
@@ -40,7 +41,7 @@ const del = (id) => {
 
 const edit = async options => {
   const { id, type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort,
-    singlePort, singlePortOnly, v2rayPort, v2rayOnly } = options;
+    singlePort, v2ray, v2rayMethod, v2rayPort, singleMode } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
     const accounts = await knex('account_plugin').where({});
@@ -57,7 +58,7 @@ const edit = async options => {
       }
     })(serverInfo);
   }
-  if (serverInfo.singlePortOnly != singlePortOnly) {
+  if (serverInfo.singleMode != singleMode) {
     const accounts = await knex('account_plugin').whereNot({ connType: 'SSR' }).select('id');
     await knex('account_flow').update({ nextCheckTime: Date.now() }).where('serverId', serverInfo.id).whereIn('accountId', accounts);
   }
@@ -81,9 +82,10 @@ const edit = async options => {
     net,
     wgPort,
     singlePort,
-    singlePortOnly,
+    v2ray,
+    v2rayMethod,
     v2rayPort,
-    v2rayOnly
+    singleMode
   });
 };
 
@@ -105,9 +107,10 @@ const list = async (options = {}) => {
     'net',
     'wgPort',
     'singlePort',
-    'singlePortOnly',
+    'v2ray',
+    'v2rayMethod',
     'v2rayPort',
-    'v2rayOnly'
+    'singleMode'
   ]).orderBy('name');
   if (options.status) {
     const serverStatus = [];

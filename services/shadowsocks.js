@@ -240,47 +240,45 @@ const checkPortRange = (port) => {
 const addAccount = async (port, password) => {
   try {
     if (!checkPortRange(port)) {
-      return Promise.reject('error1');
+      return Promise.reject('error_addAccount1');
     }
     await sendMessage(`add: {"server_port": ${port}, "password": "${password}"}`);
     await knex('account').insert({ port, password });
     return { port, password };
   } catch (err) {
-    return Promise.reject('error2');
+    return Promise.reject('error_addAccount2');
   }
 };
 
 const removeAccount = async (port) => {
   try {
-    const deleteAccount = await knex('account').where({
-      port,
-    }).delete();
-    if (deleteAccount <= 0) {
-      return Promise.reject('error');
-    }
-    await knex('flow').where({
-      port,
-    }).delete();
+    //const deleteAccount = 
+    // if (deleteAccount <= 0) {
+    //   return Promise.reject('error');
+    // }
+    await knex('account').where({ port }).delete();
+    await knex('flow').where({ port }).delete();
     await sendMessage(`remove: {"server_port": ${port}}`);
     return { port };
   } catch (err) {
-    return Promise.reject('error');
+    return Promise.reject('error_removeAccount');
   }
 };
 
 const changePassword = async (port, password) => {
   try {
-    const updateAccount = await knex('account').where({ port }).update({
-      password,
-    });
-    if (updateAccount <= 0) {
-      return Promise.reject('error');
-    }
+    // const updateAccount = await knex('account').where({ port }).update({
+    //   password,
+    // });
+    // if (updateAccount <= 0) {
+    //   return Promise.reject('error');
+    // }
+    await knex('account').where({ port }).update({ password });
     await sendMessage(`remove: {"server_port": ${port}}`);
     await sendMessage(`add: {"server_port": ${port}, "password": "${password}"}`);
     return { port, password };
   } catch (err) {
-    return Promise.reject('error');
+    return Promise.reject('error_changePassword');
   }
 };
 
@@ -289,7 +287,7 @@ const listAccount = async () => {
     const accounts = await knex('account').select(['port as p', 'password as k']);
     return accounts;
   } catch (err) {
-    return Promise.reject('error');
+    return Promise.reject('error_listAccount');
   }
 };
 
@@ -298,7 +296,7 @@ const getAccount = async (port) => {
     const account = await knex('account').select(['port as p', 'password as k']).where('port', port).then(s => s[0]);
     return account;
   } catch (err) {
-    return Promise.reject('error');
+    return Promise.reject('error_getAccount');
   }
 };
 
@@ -328,7 +326,7 @@ const getFlow = async (options) => {
     return accounts;
   } catch (err) {
     logger.error(err);
-    return Promise.reject('error');
+    return Promise.reject('error_getFlow');
   }
 };
 

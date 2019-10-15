@@ -156,7 +156,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
     const singlePort = req.query.port;
     const token = req.params.token;
     const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
-    let subscribeAccount;
     if (isMacAddress(token)) {
       subscribeAccount = await macAccount.getMacAccountForSubscribe(token, ip);
     } else {
@@ -204,54 +203,68 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         method: 'chacha20',
         host: '127.0.0.1',
         shift: 2,
+        v2rayPort: 80,
         comment: `备用地址：` + (config.plugins.webgui.siteback ? `${config.plugins.webgui.siteback}` : `${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}`)
       };
       subscribeAccount.server.unshift(renew);
+      let insertFlow;
+      let tip = {};
       if (accountInfo.type == 1) {
-        const insert = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
-        subscribeAccount.server.unshift(insert);
+        insertFlow = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
+        tip.admin = '不限时不限量账号';
       } else if (config.plugins.webgui.hideFlow) {
         if (accountInfo.data.flow < 100 * 1000 * 1000 * 1000) {
-          let insertFlow = {
+          insertFlow = {
             method: 'chacha20',
             host: '127.0.0.1',
             shift: 1,
+            v2rayPort: 80,
             comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
           };
-          subscribeAccount.server.unshift(insertFlow);
+          tip.use = flowNumber(flowInfo[0]).replace(/\s*/g, "");
+          tip.sum = flowNumber(accountInfo.data.flow + accountInfo.data.flowPack).replace(/\s*/g, "");
         } else {
           if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
-            let insertFlow = {
+            insertFlow = {
               method: 'chacha20',
               host: '127.0.0.1',
               shift: 1,
+              v2rayPort: 80,
               comment: '已封停，请购买流量包或联系管理员'
             };
-            subscribeAccount.server.unshift(insertFlow);
+            tip.stop = '已封停，请购买流量包或联系管理员';
           }
         }
       } else {
         if (+showFlow) {
-          let insertFlow = {
+          insertFlow = {
             method: 'chacha20',
             host: '127.0.0.1',
             shift: 1,
+            v2rayPort: 80,
             comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
           };
-          subscribeAccount.server.unshift(insertFlow);
+          tip.use = flowNumber(flowInfo[0]).replace(/\s*/g, "");
+          tip.sum = flowNumber(accountInfo.data.flow + accountInfo.data.flowPack).replace(/\s*/g, "");
         }
       }
       let insertExpire = {
         method: 'chacha20',
         host: '127.0.0.1',
         shift: 0,
+        v2rayPort: 80,
         comment: accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
       };
+      tip.time = accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
+
 
       if (accountInfo.data.expire <= new Date()) {
         subscribeAccount.server = [insertExpire, renew]
       } else {
-        subscribeAccount.server.unshift(insertExpire);
+        if ((!app && type != 'shadowrocket') && app != 'shadowrocket') {
+          subscribeAccount.server.unshift(insertFlow);
+          subscribeAccount.server.unshift(insertExpire);
+        }
       }
 
       let result = '';
@@ -311,14 +324,28 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           };
           return res.send(yaml.safeDump(clashConfig));
         }
+
+        if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
+          result = subscribeAccount.server.map(s => {
+            if (s.singlePortOnly) {
+              s.comment = s.name + '[此节点只支持SSR]';
+            }
+            return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
+          }).join('\r\n');
+          let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
+          let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+          result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
+          return res.send(Buffer.from(result).toString('base64'));
+        }
         //其他方式
         result = subscribeAccount.server.map(s => {
           if (s.singlePortOnly) {
             s.comment = s.name + '[此节点只支持SSR]';
           }
-          if ((!app && type === 'shadowrocket') || app === 'shadowrocket' || shadowrocket === 'quantumult') {
+          if ((!app && type === 'quantumult') || app === 'quantumult') {
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
-          } else if ((!app && type === 'potatso') || app === 'potatso') {
+          }
+          if ((!app && type === 'potatso') || app === 'potatso') {
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + (s.comment || '这里显示备注');
           }
         }).join('\r\n');
@@ -345,9 +372,22 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(s.comment) + '&group=' + urlsafeBase64(baseSetting.title));
             }
           }).join('\r\n');
+
+          if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
+            let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
+            let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+            result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
+          }
         }
         if (type === 'v2ray') {
-
+          if (app === 'shadowrocket') {
+            result = subscribeAccount.server.map(s => {
+              return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
+            }).join('\r\n');
+            let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
+            let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+            result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
+          }
         }
       }
 
@@ -528,5 +568,5 @@ const flowNumber = (number) => {
   if (number < 1000) return number + ' B';
   else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' KB';
   else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' MB';
-  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(3) + ' GB';
+  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(2) + ' GB';
 };

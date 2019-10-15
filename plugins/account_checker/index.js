@@ -322,7 +322,8 @@ const addPortSSR = async (server, account) => {
       protocol: account.protocol,
       protocol_param: `32#${account.port}:${account.password}`,
       obfs: account.obfs,
-      obfs_param: account.obfs_param
+      obfs_param: account.obfs_param,
+      uuid: account.uuid
     });
   }
 };
