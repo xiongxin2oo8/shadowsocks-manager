@@ -282,7 +282,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
           };
           let servers = subscribeAccount.server.map((s, index) => {
-            if (s.singlePortOnly) {
+            if (s.singleMode != 'off') {
               s.comment = s.name + '[此节点只支持SSR]';
             }
             return {
@@ -303,7 +303,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
           clashConfig.Proxy = subscribeAccount.server.map(server => {
-            if (server.singlePortOnly) {
+            if (server.singleMode != 'off') {
               server.comment = server.name + '[此节点只支持SSR]';
             }
             return {
@@ -327,7 +327,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
         if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
           result = subscribeAccount.server.map(s => {
-            if (s.singlePortOnly) {
+            if (s.singleMode != 'off') {
               s.comment = s.name + '[此节点只支持SSR]';
             }
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
@@ -339,7 +339,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         }
         //其他方式
         result = subscribeAccount.server.map(s => {
-          if (s.singlePortOnly) {
+          if (s.singleMode != 'off') {
             s.comment = s.name + '[此节点只支持SSR]';
           }
           if ((!app && type === 'quantumult') || app === 'quantumult') {
@@ -354,8 +354,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (accountInfo.connType === "SSR") {
         if (type === 'ssr') {
           result = subscribeAccount.server.map(s => {
-            //强制单端口
-            if (accountSetting.singlePortOnly || s.singlePortOnly || +singlePort) {
+            //强制单一模式
+            if (accountSetting.singleMode != 'off' || s.singleMode != 'off' || +singlePort) {
               //单端口，可以是多个
               let p = s.singlePort ? s.singlePort.split(',') : [];
               if (p.length > 0) {
@@ -413,7 +413,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }];
         }
         let servers = subscribeAccount.server.map((s, index) => {
-          if (s.singlePortOnly) {
+          if (s.singleMode != 'off') {
             s.comment = s.name + '[此节点不支持SS]';
           }
           return {
@@ -494,7 +494,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
           clashConfig.Proxy = subscribeAccount.server.map(server => {
-            if (server.singlePortOnly) {
+            if (server.singleMode != 'off') {
               server.comment = server.name + '[此节点不支持SS]';
             }
             return {
@@ -518,8 +518,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
         if (accountInfo.connType == "SSR") {
           result = subscribeAccount.server.map(s => {
-            //强制单端口
-            if (accountSetting.singlePortOnly || s.singlePortOnly || +singlePort) {
+            //强制单一模式
+            if (accountSetting.singleMode != 'off' || s.singleMode != 'off' || +singlePort) {
               //单端口，可以是多个
               let p = s.singlePort ? s.singlePort.split(',') : [];
               if (p.length > 0) {
@@ -538,7 +538,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }).join('\r\n');
         } else {
           result = subscribeAccount.server.map(s => {
-            if (s.singlePortOnly) {
+            if (s.singleMode != 'off') {
               s.comment = s.name + '[此节点不支持SS]';
             }
             if (type === 'shadowrocket') {
@@ -549,7 +549,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               let index = method.indexOf(s.method);
               if (index > -1) {
                 s.comment = '[不支持SSR(请在网站中切换连接方式)]';
-              } else if (s.singlePortOnly) {
+              } else if (s.singleMode != 'off') {
                 s.comment = '[此节点不支持SS(请在网站中切换连接方式)]';
               }
               return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':origin:' + s.method + ':plain:' + urlsafeBase64(accountInfo.password) + '/?obfsparam=&remarks=' + urlsafeBase64(s.comment || '这里显示备注') + '&group=' + urlsafeBase64(baseSetting.title));

@@ -29,14 +29,14 @@
                 </md-tabs>
                 
                 
-                <div ng-show="(config.singlePortOnly || server.singlePortOnly) && (account.connType == 'SS' || !account.connType)">
+                <div ng-show="(config.singleMode!='off' || server.singleMode!='off' ) && (account.connType == 'SS' || !account.connType)">
                     <ul style="line-height: 25px;font-size:14px;">
                         <li style="color:red">抱歉，此服务器此时不支持SS</li>
                         <li style="color:green;">请在网站设置中切换为SSR</li>
                     </ul>
                 </div>
     
-                <div ng-hide="(config.singlePortOnly || server.singlePortOnly) && (account.connType == 'SS' || !account.connType)" layout="row" layout-align="center center" layout-wrap ng-if="servers.length">
+                <div ng-hide="(config.singleMode!='off'  || server.singleMode!='off' ) && (account.connType == 'SS' || !account.connType)" layout="row" layout-align="center center" layout-wrap ng-if="servers.length">
                     <div flex-lg="10"></div>
                     <div flex="60" flex-lg="50" flex-xs="100">
                         <md-list>
@@ -51,18 +51,18 @@
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>端口：</div>
                                     <div flex="60" style="text-align:right" ng-if="isWG(server)">{{ server.wgPort }}</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || server.singlePortOnly">
+                                    <div flex="60" style="text-align:right" ng-if="config.singleMode!='off'  || server.singleMode!='off' ">
                                         {{ server.singlePort.split(',').join('或') }}
                                     </div>
-                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!server.singlePortOnly">{{ account.port + server.shift }}</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singleMode!='off' &&!server.singleMode!='off' ">{{ account.port + server.shift }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
                             <md-list-item ng-hide="isWG(server)">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>密码：</div>
-                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!server.singlePortOnly">{{account.password}}</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || server.singlePortOnly">balala</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singleMode!='off' &&!server.singleMode!='off' ">{{account.password}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singleMode!='off'  || server.singleMode!='off' ">balala</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(server) || account.connType=='SSR'"></md-divider>
@@ -91,8 +91,8 @@
                             <md-list-item ng-hide="isWG(server) || account.connType!='SSR'">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '协议参数：' | translate }}</div>
-                                    <div flex="60" style="text-align:right" ng-if="!config.singlePortOnly&&!server.singlePortOnly"></div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || server.singlePortOnly">{{(account.port + server.shift)+':'+ account.password}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="!config.singleMode!='off' &&!server.singleMode!='off' "></div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singleMode!='off'  || server.singleMode!='off' ">{{(account.port + server.shift)+':'+ account.password}}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="isWG(server) || account.connType!='SSR'"></md-divider>

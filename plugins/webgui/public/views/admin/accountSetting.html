@@ -200,18 +200,6 @@
                 </md-list-item>
             </md-list>
             <md-divider></md-divider>
-            <md-list ng-if="config.moreType.ssr">
-                <md-list-item>
-                    <div class="md-list-item-text" style="width: 100%;" layout="row"
-                        layout-align="space-between center">
-                        <div flex="75" translate>强制使用SSR单端口</div>
-                        <div flex layout="row" layout-align="end center">
-                            <md-switch ng-model="accountData.singlePortOnly" aria-label="singlePortOnly"></md-switch>
-                        </div>
-                    </div>
-                </md-list-item>
-            </md-list>
-            <md-divider  ng-if="config.moreType.ssr"></md-divider>
             <md-list>
                 <md-list-item>
                     <div class="md-list-item-text" style="width: 100%;" layout="row"
@@ -236,6 +224,12 @@
                 </md-list-item>
             </md-list>
             <md-divider></md-divider>
+            <div style="margin:10px 0;" translate>单一模式</div>
+            <md-radio-group ng-model="accountData.singleMode" layout="row" layout-wrap layout-align="start center">
+                <md-radio-button ng-repeat="mode in singleModes" value="{{ mode.code }}">
+                    <div style="margin: 3px;">{{ mode.name }}</div>
+                </md-radio-button>
+            </md-radio-group>
         </md-card-content>
     </md-card>
 </div>

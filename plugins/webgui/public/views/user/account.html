@@ -53,14 +53,14 @@
                     </md-tab>
                 </md-tabs>
 
-                <div ng-show="(config.singlePortOnly || server.singlePortOnly) && (a.connType == 'SS' || !a.connType)">
+                <div ng-show="(config.singleMode!='off' || server.singleMode!='off') && (a.connType == 'SS' || !a.connType)">
                     <ul style="line-height: 25px;font-size:14px;">
                         <li style="color:red">抱歉，此服务器此时不支持SS</li>
                         <li style="color:green;">请在网站设置中切换为SSR</li>
                     </ul>
                 </div>
 
-                <div ng-hide="(config.singlePortOnly || server.singlePortOnly) && (a.connType == 'SS' || !a.connType)"
+                <div ng-hide="(config.singleMode!='off' || server.singleMode!='off') && (a.connType == 'SS' || !a.connType)"
                     layout="row" layout-align="center center" layout-wrap>
                     <div flex="60" flex-xs="100">
                         <!--SS模式-->
@@ -171,18 +171,18 @@
                             <md-list-item ng-hide="config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>端口：</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">
+                                    <div flex="60" style="text-align:right" ng-if="config.singleMode!='off' || a.serverInfo.singleMode!='off'">
                                         {{ a.serverInfo.singlePort.split(',').join('或') }}
                                     </div>
-                                    <div flex="60" style="text-align:right" ng-hide="config.singlePortOnly || a.serverInfo.singlePortOnly">{{ a.port + a.serverInfo.shift }}</div>
+                                    <div flex="60" style="text-align:right" ng-hide="config.singleMode!='off' || a.serverInfo.singleMode!='off'">{{ a.port + a.serverInfo.shift }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="config.simple"></md-divider>
                             <md-list-item ng-hide="config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>密码：</div>
-                                    <div flex="60" style="text-align:right" ng-hide="config.singlePortOnly || a.serverInfo.singlePortOnly">{{a.password}}</div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">balala</div>
+                                    <div flex="60" style="text-align:right" ng-hide="config.singleMode!='off' || a.serverInfo.singleMode!='off'">{{a.password}}</div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singleMode!='off' || a.serverInfo.singleMode!='off'">balala</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="config.simple"></md-divider>
@@ -203,8 +203,8 @@
                             <md-list-item ng-hide="config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40">{{ '协议参数：' | translate }}</div>
-                                    <div flex="60" style="text-align:right" ng-hide="config.singlePortOnly || a.serverInfo.singlePortOnly"></div>
-                                    <div flex="60" style="text-align:right" ng-if="config.singlePortOnly || a.serverInfo.singlePortOnly">
+                                    <div flex="60" style="text-align:right" ng-hide="config.singleMode!='off' || a.serverInfo.singleMode!='off'"></div>
+                                    <div flex="60" style="text-align:right" ng-if="config.singleMode!='off' || a.serverInfo.singleMode!='off'">
                                         {{(a.port + a.serverInfo.shift)+':'+ a.password}}
                                     </div>
                                 </div>

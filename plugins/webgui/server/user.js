@@ -144,7 +144,7 @@ exports.getServers = (req, res) => {
     });
   };
   let servers;
-  knex('server').select(['id', 'type', 'host', 'name', 'method', 'scale', 'comment', 'shift', 'key', 'net', 'wgPort', 'singlePort', 'singlePortOnly']).orderBy('name')
+  knex('server').select(['id', 'type', 'host', 'name', 'method', 'scale', 'comment', 'shift', 'key', 'net', 'wgPort', 'singlePort', 'singleMode', 'v2ray', 'v2rayPort']).orderBy('name')
     .then(success => {
       servers = serverAliasFilter(success);
       return account.getAccount({

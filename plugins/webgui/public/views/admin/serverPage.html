@@ -6,7 +6,7 @@
                     <span class="md-title">{{ server.name }}&nbsp;
                         <span style="color: #999" ng-if="portNumber">[ {{ onlineAccount.length }} / {{ portNumber }} ]</span>
                         <span ng-show="server.status === -1" style="color: #a33;">&nbsp;[离线]</span>
-                        <span ng-show="server.singlePortOnly">&nbsp;单端口 {{ server.singlePort }}</span>
+                        <span ng-show="server.singleMode!='off'">&nbsp;单端口 {{ server.singlePort }}</span>
                     </span>
                     <span class="md-subhead">{{server.host.split(':')[0]}}:{{server.port}}</span>
                 </md-card-header-text>

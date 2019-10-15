@@ -77,7 +77,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
             server.resetday = servers[index].resetday;
             server.useFlowStr = $filter('flowNum2Str')(servers[index].useflow);
             server.monthFlowStr = $filter('flowNum2Str')(servers[index].monthflow);
-            server.singlePortOnly = servers[index].singlePortOnly;
+            server.singleMode = servers[index].singleMode;
             server.singlePort = servers[index].singlePort;
             adminApi.getServerFlow(server.id).then(flow => {
               if (!server.flow) {
@@ -478,7 +478,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         'aes-128-gcm',
         'chacha20-poly1305'
       ];
-      $scope.singleModes = [{ code: 'off', name: '关闭' }, { code: 'ssr_single_port', name: 'SSR单端口' }];
+      $scope.singleModes = [{ code: 'off', name: '关闭' }, { code: 'ssr1port', name: 'SSR单端口' }];
       $scope.setMethod = () => {
         $scope.server.method = $scope.methodSearch;
       };
@@ -577,7 +577,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         'aes-128-gcm',
         'chacha20-poly1305'
       ];
-      $scope.singleModes = [{ code: 'off', name: '关闭' }, { code: 'ssr_single_port', name: 'SSR单端口' }, { code: 'v2ray', name: 'V2Ray' }];
+      $scope.singleModes = [{ code: 'off', name: '关闭' }, { code: 'ssr1port', name: 'SSR单端口' }, { code: 'v2ray', name: 'V2Ray' }];
       $scope.setMethod = () => {
         $scope.server.method = $scope.methodSearch;
       };
@@ -585,7 +585,6 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         $scope.server.v2rayMethod = $scope.v2rayMethodSearch;
       };
       $scope.v2rayChange = () => {
-        console.log('v2ray', $scope.server.v2ray);
         let index = $scope.singleModes.findIndex(c => { return c.code == 'v2ray'; });
         if ($scope.server.v2ray) {
           if (index < 0) { $scope.singleModes.push({ code: 'v2ray', name: 'V2Ray' }) };

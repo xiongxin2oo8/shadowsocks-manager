@@ -65,11 +65,12 @@ app.controller('AdminSettingsController', ['$scope', '$state',
     }
   }
 ])
-  .controller('AdminAccountSettingController', ['$scope', '$http', '$timeout', '$state', 
+  .controller('AdminAccountSettingController', ['$scope', '$http', '$timeout', '$state',
     ($scope, $http, $timeout, $state) => {
       $scope.setTitle('账号设置');
       $scope.setMenuButton('arrow_back', 'admin.settings');
-      $scope.typeList = [{code:'SS',name:'SS'}, {code:'SSR',name:'SSR和V2Ray'}];
+      $scope.typeList = [{ code: 'SS', name: 'SS和V2Ray' }, { code: 'SSR', name: 'SSR和V2Ray' }];
+      $scope.singleModes = [{ code: 'off', name: '关闭' }, { code: 'ssr1port', name: 'SSR单端口' }, { code: 'v2ray', name: 'V2ray' }];
       let lastSave = 0;
       let lastSavePromise = null;
       const saveTime = 3500;

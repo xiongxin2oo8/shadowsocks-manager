@@ -222,21 +222,25 @@ const deletePort = (server, account) => {
     command: 'del',
     port: portNumber,
   }, {
-    host: server.host,
-    port: server.port,
-    password: server.password,
-  }).then(c => {
-    let index = portList[server.id].ports.indexOf(c.port);
-    if (index > -1) {
-      portList[server.id].ports.splice(index, 1)
-    }
-  }).catch();
+      host: server.host,
+      port: server.port,
+      password: server.password,
+    }).then(c => {
+      let index = portList[server.id].ports.indexOf(c.port);
+      if (index > -1) {
+        portList[server.id].ports.splice(index, 1)
+      }
+    }).catch();
 };
 //设置SSR为不可用
 const deletePortSSR = async (server, account) => {
-  //await knex('ssr_user').update('enable', 0).where({ serverId: server.id, accountId: account.id });
   await knex('ssr_user').delete().where({ serverId: server.id, accountId: account.id });
 };
+//更新
+const updateSSR = async (server, account, type) => {
+  await knex('ssr_user').update('enable', type).where({ serverId: server.id, accountId: account.id });
+};
+
 const runCommand = async cmd => {
   const exec = require('child_process').exec;
   return new Promise((resolve, reject) => {
@@ -273,15 +277,15 @@ const addPort = async (server, account) => {
       port: portNumber,
       password: publicKey,
     }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    }).then(c => {
-      let index = portList[server.id].ports.indexOf(c.port);
-      if (index == -1) {
-        portList[server.id].ports.push(c.port);
-      }
-    }).catch();
+        host: server.host,
+        port: server.port,
+        password: server.password,
+      }).then(c => {
+        let index = portList[server.id].ports.indexOf(c.port);
+        if (index == -1) {
+          portList[server.id].ports.push(c.port);
+        }
+      }).catch();
 
   } else {
     const portNumber = server.shift + account.port;
@@ -290,18 +294,18 @@ const addPort = async (server, account) => {
       port: portNumber,
       password: account.password,
     }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    }).then(c => {
-      let index = portList[server.id].ports.indexOf(c.port);
-      if (index == -1) {
-        portList[server.id].ports.push(c.port);
-      }
-    }).catch();
+        host: server.host,
+        port: server.port,
+        password: server.password,
+      }).then(c => {
+        let index = portList[server.id].ports.indexOf(c.port);
+        if (index == -1) {
+          portList[server.id].ports.push(c.port);
+        }
+      }).catch();
   }
 };
-const addPortSSR = async (server, account) => {
+const addPortSSR = async (server, account, enable = 1) => {
   const ssr = await knex('ssr_user').where({ serverId: server.id, accountId: account.id }).then(s => s[0]);
   //如果已存在，设置为可用
   if (ssr) {
@@ -312,12 +316,12 @@ const addPortSSR = async (server, account) => {
       t: 0,
       u: 0,
       d: 0,
-      transfer_enable: 1000 * 1000 * 1000 * 500,//500G
+      transfer_enable: 1000 * 1000 * 1000 * 5000,//5000G
       accountId: account.id,
       serverId: server.id,
       port: server.shift + account.port,
       switch: 1,
-      enable: 1,
+      enable: enable,
       method: account.method,
       protocol: account.protocol,
       protocol_param: `32#${account.port}:${account.password}`,
@@ -354,28 +358,33 @@ const checkAccount = async (serverId, accountId) => {
     const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
     if (!serverInfo) {
       await knex('account_flow').delete().where({ serverId });
+      await knex('ssr_user').delete().where({ serverId });
       return;
     }
     const accountInfo = await knex('account_plugin').where({ id: accountId }).then(s => s[0]);
     if (!accountInfo) {
-      await knex('account_flow').delete().where({ serverId: serverInfo.id, accountId });
+      await knex('account_flow').delete().where({ accountId });
+      await knex('ssr_user').delete().where({ accountId });
       return;
     }
 
     // 检查当前端口是否存在
     const exists = await isPortExists(serverInfo, accountInfo);
-    // 是否配置了SSR
-    let ssr_exists = await knex('ssr_user').where({ serverId: serverInfo.id, accountId: accountInfo.id, enable: 1 }).then(s => s[0]);
-    //如果连接方式是SSR时有SS账号或者只能使用单端口   则删除SS账号
-    if ((accountInfo.connType == 'SSR' && exists) || serverInfo.singlePortOnly) {
+    // 是否加入ssr表  v2也读取此表
+    let ssr_exists = await knex('ssr_user').where({ serverId: serverInfo.id, accountId: accountInfo.id }).then(s => s[0]);
+    //如果连接方式是SSR时 有SS账号或者只能使用单端口   则删除SS账号
+    if ((accountInfo.connType == 'SSR' && exists) || serverInfo.singleMode != 'off') {
       deletePort(serverInfo, accountInfo);
+      exists = null;
     }
+    //如果端口不一致
     if (ssr_exists && ssr_exists.port != (serverInfo.shift + accountInfo.port)) {
       deletePortSSR(serverInfo, accountInfo);
       ssr_exists = null;
     }
     if (accountInfo.connType != 'SSR' && ssr_exists) {
-      deletePortSSR(serverInfo, accountInfo);
+      //deletePortSSR(serverInfo, accountInfo);
+      updateSSR(serverInfo, accountInfo, 0);
     }
     // 检查账号是否激活
     if (!isAccountActive(serverInfo, accountInfo)) {
@@ -413,9 +422,16 @@ const checkAccount = async (serverId, accountId) => {
       return;
     }
     if (accountInfo.connType == "SSR") {
-      !ssr_exists && addPortSSR(serverInfo, accountInfo);
+      if (!ssr_exists) {
+        addPortSSR(serverInfo, accountInfo);
+      }
+      if (ssr_exists && !ssr_exists.enable) {
+        //已添加但没启用SSR
+        updateSSR(serverInfo, accountInfo, 1)
+      }
     } else {
       !exists && addPort(serverInfo, accountInfo);
+      !ssr_exists && addPortSSR(serverInfo, accountInfo, 0);
     }
 
   } catch (err) {

@@ -404,7 +404,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
             `AllowedIPs = 0.0.0.0/0`,
           ].join('\n');
         } else if (account.connType == "SSR") {
-          if (config.singlePortOnly || server.singlePortOnly) {
+          if (config.singleMode!='off' || server.singleMode!='off') {
             let port = server.singlePort.split(',')[0];
             return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
           } else {
@@ -418,7 +418,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.SSRAddress = (server, account) => {
         let str = '';
         if (account.connType == "SSR") {
-          if (config.singlePortOnly || server.singlePortOnly) {
+          if (config.singleMode!='off' || server.singleMode!='off') {
             let port = server.singlePort.split(',')[0];
             return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
           } else {
