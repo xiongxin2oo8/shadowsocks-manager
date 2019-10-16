@@ -626,7 +626,7 @@ exports.status = async (req, res) => {
     const facebook_login_client_id = config.plugins.webgui.facebook_login_client_id || '';
     const github_login_client_id = config.plugins.webgui.github_login_client_id || '';
     const crisp = (config.plugins.webgui_crisp && config.plugins.webgui_crisp.use) ? config.plugins.webgui_crisp.websiteId : '';
-    const singleMode = accountSetting.singleMode;
+    const singleMode = accountSetting.singleMode || 'off';
 
     let alipay;
     let paypal;

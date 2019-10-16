@@ -200,6 +200,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       const flowInfo = await flow.getServerPortFlowWithScale(0, accountInfo.id, [accountInfo.data.from, accountInfo.data.to], 1);
       //插入提示信息
       let renew = {
+        flag: 1,
         method: 'chacha20',
         host: '127.0.0.1',
         shift: 2,
@@ -215,6 +216,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       } else if (config.plugins.webgui.hideFlow) {
         if (accountInfo.data.flow < 100 * 1000 * 1000 * 1000) {
           insertFlow = {
+            flag: 1,
             method: 'chacha20',
             host: '127.0.0.1',
             shift: 1,
@@ -226,6 +228,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         } else {
           if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
             insertFlow = {
+              flag: 1,
               method: 'chacha20',
               host: '127.0.0.1',
               shift: 1,
@@ -238,6 +241,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       } else {
         if (+showFlow) {
           insertFlow = {
+            flag: 1,
             method: 'chacha20',
             host: '127.0.0.1',
             shift: 1,
@@ -249,6 +253,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         }
       }
       let insertExpire = {
+        flag: 1,
         method: 'chacha20',
         host: '127.0.0.1',
         shift: 0,
@@ -327,7 +332,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
         if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
           result = subscribeAccount.server.map(s => {
-            if (s.singleMode != 'off') {
+            if (s.singleMode != 'off' && !s.flag) {
               s.comment = s.name + '[此节点只支持SSR]';
             }
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
@@ -382,7 +387,27 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (type === 'v2ray') {
           if (app === 'shadowrocket') {
             result = subscribeAccount.server.map(s => {
-              return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
+              if (s.v2ray === 1) {
+                let v = {
+                  "host": "",
+                  "path": "",
+                  "tls": "",
+                  "add": s.host,
+                  "port": s.v2rayPort,
+                  "aid": 0,
+                  "net": "tcp",
+                  "type": "none",
+                  "v": "2",
+                  "ps": s.comment,
+                  "id": accountInfo.uuid,
+                  "class": 1
+                }
+                return 'vmess://' + urlsafeBase64(JSON.stringify(v));
+                //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
+              }
+              if (s.flag) {
+                return 'vmess://' + urlsafeBase64(`aes-128-gcm:uuid${s.shift}@${s.host}:801`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
+              }
             }).join('\r\n');
             let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
             let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);

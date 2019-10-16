@@ -1,7 +1,7 @@
 const knex = appRequire('init/knex').knex;
 const serverManager = appRequire('plugins/flowSaver/server');
 const manager = appRequire('services/manager');
-const crypto = require('crypto'); 
+const crypto = require('crypto');
 const UUID = require('uuid');
 const macAccount = appRequire('plugins/macAccount/index');
 const orderPlugin = appRequire('plugins/webgui_order');
@@ -296,7 +296,7 @@ const changePassword = async (id, password) => {
     return Promise.reject('account not found');
   });
   await knex('account_plugin').update({
-    password,    
+    password,
     protocol_param: `32#${account.port}:${account.password}`,
   }).where({ id });
   await knex('ssr_user').update({
@@ -1047,11 +1047,11 @@ const setConnType = async (options) => {
       protocol_param: options.protocol_param || `32#${accountInfo.port}:${accountInfo.password}`,
       obfs: options.obfs,
       obfs_param: options.obfs_param
-    }).where({ id: accountInfo.id });
+    }).where({ accountId: accountInfo.id });
   } else {
     await knex('ssr_user').update({
       enable: 0
-    }).where({ id: accountInfo.id });
+    }).where({ accountId: accountInfo.id });
   }
   await accountFlow.edit(accountInfo.id);
 };

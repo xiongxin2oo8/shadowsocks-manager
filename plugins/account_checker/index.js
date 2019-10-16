@@ -222,23 +222,25 @@ const deletePort = (server, account) => {
     command: 'del',
     port: portNumber,
   }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    }).then(c => {
-      let index = portList[server.id].ports.indexOf(c.port);
-      if (index > -1) {
-        portList[server.id].ports.splice(index, 1)
-      }
-    }).catch();
+    host: server.host,
+    port: server.port,
+    password: server.password,
+  }).then(c => {
+    let index = portList[server.id].ports.indexOf(c.port);
+    if (index > -1) {
+      portList[server.id].ports.splice(index, 1)
+    }
+  }).catch();
 };
 //设置SSR为不可用
 const deletePortSSR = async (server, account) => {
+  console.log('deletePortSSR', server.id, account.id);
   await knex('ssr_user').delete().where({ serverId: server.id, accountId: account.id });
 };
 //更新
-const updateSSR = async (server, account, type) => {
-  await knex('ssr_user').update('enable', type).where({ serverId: server.id, accountId: account.id });
+const updateSSR = async (server, account, enable) => {
+  console.log('updateSSR', server.id, account.id, enable);
+  await knex('ssr_user').update('enable', enable).where({ serverId: server.id, accountId: account.id });
 };
 
 const runCommand = async cmd => {
@@ -277,15 +279,15 @@ const addPort = async (server, account) => {
       port: portNumber,
       password: publicKey,
     }, {
-        host: server.host,
-        port: server.port,
-        password: server.password,
-      }).then(c => {
-        let index = portList[server.id].ports.indexOf(c.port);
-        if (index == -1) {
-          portList[server.id].ports.push(c.port);
-        }
-      }).catch();
+      host: server.host,
+      port: server.port,
+      password: server.password,
+    }).then(c => {
+      let index = portList[server.id].ports.indexOf(c.port);
+      if (index == -1) {
+        portList[server.id].ports.push(c.port);
+      }
+    }).catch();
 
   } else {
     const portNumber = server.shift + account.port;
@@ -294,18 +296,19 @@ const addPort = async (server, account) => {
       port: portNumber,
       password: account.password,
     }, {
-        host: server.host,
-        port: server.port,
-        password: server.password,
-      }).then(c => {
-        let index = portList[server.id].ports.indexOf(c.port);
-        if (index == -1) {
-          portList[server.id].ports.push(c.port);
-        }
-      }).catch();
+      host: server.host,
+      port: server.port,
+      password: server.password,
+    }).then(c => {
+      let index = portList[server.id].ports.indexOf(c.port);
+      if (index == -1) {
+        portList[server.id].ports.push(c.port);
+      }
+    }).catch();
   }
 };
 const addPortSSR = async (server, account, enable = 1) => {
+  console.log('addPortSSR', server.id, account.id, enable);
   const ssr = await knex('ssr_user').where({ serverId: server.id, accountId: account.id }).then(s => s[0]);
   //如果已存在，设置为可用
   if (ssr) {
@@ -369,7 +372,7 @@ const checkAccount = async (serverId, accountId) => {
     }
 
     // 检查当前端口是否存在
-    const exists = await isPortExists(serverInfo, accountInfo);
+    let exists = await isPortExists(serverInfo, accountInfo);
     // 是否加入ssr表  v2也读取此表
     let ssr_exists = await knex('ssr_user').where({ serverId: serverInfo.id, accountId: accountInfo.id }).then(s => s[0]);
     //如果连接方式是SSR时 有SS账号或者只能使用单端口   则删除SS账号
@@ -382,7 +385,8 @@ const checkAccount = async (serverId, accountId) => {
       deletePortSSR(serverInfo, accountInfo);
       ssr_exists = null;
     }
-    if (accountInfo.connType != 'SSR' && ssr_exists) {
+    //设置连接方式时，已更新。这里可以不用判断
+    if (accountInfo.connType != 'SSR' && ssr_exists && ssr_exists.enable != 0) {
       //deletePortSSR(serverInfo, accountInfo);
       updateSSR(serverInfo, accountInfo, 0);
     }
@@ -425,6 +429,7 @@ const checkAccount = async (serverId, accountId) => {
       if (!ssr_exists) {
         addPortSSR(serverInfo, accountInfo);
       }
+      //设置连接方式时，已更新。这里可以不用判断
       if (ssr_exists && !ssr_exists.enable) {
         //已添加但没启用SSR
         updateSSR(serverInfo, accountInfo, 1)

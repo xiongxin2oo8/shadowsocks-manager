@@ -404,7 +404,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
             `AllowedIPs = 0.0.0.0/0`,
           ].join('\n');
         } else if (account.connType == "SSR") {
-          if (config.singleMode!='off' || server.singleMode!='off') {
+          //单端口模式
+          if (config.singleMode == 'ssr1port' || server.singleMode == 'ssr1port') {
             let port = server.singlePort.split(',')[0];
             return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
           } else {
@@ -418,7 +419,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.SSRAddress = (server, account) => {
         let str = '';
         if (account.connType == "SSR") {
-          if (config.singleMode!='off' || server.singleMode!='off') {
+          //单端口模式
+          if (config.singleMode == 'ssr1port' || server.singleMode == 'ssr1port') {
             let port = server.singlePort.split(',')[0];
             return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
           } else {
@@ -434,11 +436,10 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         }
         return str;
       };
-      $scope.shadowrocket = subscribe => {
+      $scope.shadowrocket = account => {
         let rss = config.rss || `${config.site}/api/user/account/subscribe`;
-        let base64 = urlsafeBase64(`${rss}/${subscribe}?type=shadowrocket&ip=0${config.hideFlow ? '' : '&flow=1'}`);
-        let remarks = encodeURIComponent((config.site.split('//')[1] || config.site) + '(左滑更新)');//config.title
-        let str = `shadowrocket://add/sub://${base64}?remarks=${remarks}`;
+        let base64 = urlsafeBase64(`${rss}/${account.subscribe}?type=${account.connType}&app=shadowrocket&ip=0${config.hideFlow ? '' : '&flow=1'}`);
+        let str = `shadowrocket://add/sub://${base64}`;
         return str;
       }
       $scope.getServerPortData = (account, serverId) => {
@@ -531,7 +532,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
       //检查流量是否超出
       $scope.isOverFlow = account => {
-        if(!account.data) return false;
+        if (!account.data) return false;
         return account.serverPortFlow > (account.data.flow + account.data.flowPack);
       };
       $scope.showQrcodeDialog = (server, account) => {
@@ -712,7 +713,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.setTitle('连接方式');
       $scope.initloading = true;
       $scope.setMenuButton('arrow_back', 'user.settings');
-      $scope.typeList = [{code:'SS',name:"SS"}, {code:'SSR',name:"SSR和V2Ray"}];
+      $scope.typeList = [{ code: 'SS', name: "SS" }, { code: 'SSR', name: "SSR和V2Ray" }];
       $scope.protocolList = ['auth_chain_a', 'auth_aes128_md5', 'auth_aes128_sha1'];
       $scope.obfsList = ['http_simple', 'http_post', 'tls1.2_ticket_auth'];
       $scope.methods = [

@@ -53,14 +53,14 @@
                     </md-tab>
                 </md-tabs>
 
-                <div ng-show="(config.singleMode!='off' || server.singleMode!='off') && (a.connType == 'SS' || !a.connType)">
+                <div ng-show="(config.singleMode!='off' || a.serverInfo.singleMode!='off') && (a.connType == 'SS' || !a.connType)">
                     <ul style="line-height: 25px;font-size:14px;">
                         <li style="color:red">抱歉，此服务器此时不支持SS</li>
                         <li style="color:green;">请在网站设置中切换为SSR</li>
                     </ul>
                 </div>
 
-                <div ng-hide="(config.singleMode!='off' || server.singleMode!='off') && (a.connType == 'SS' || !a.connType)"
+                <div ng-hide="(config.singleMode!='off' || a.serverInfo.singleMode!='off') && (a.connType == 'SS' || !a.connType)"
                     layout="row" layout-align="center center" layout-wrap>
                     <div flex="60" flex-xs="100">
                         <!--SS模式-->
@@ -419,7 +419,7 @@
                         {{'订阅' | translate }}({{'推荐' | translate }})
                     </md-button>
                     <md-button style="margin:6px 0;" class="md-primary" ng-if="config.subscribe">
-                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;" href="{{shadowrocket(a.subscribe)}}">
+                        <a class="md-primary" style="text-decoration:none;text-transform:capitalize;" href="{{shadowrocket(a)}}">
                             IPhone({{'一键订阅' | translate }})
                         </a>
                     </md-button>
