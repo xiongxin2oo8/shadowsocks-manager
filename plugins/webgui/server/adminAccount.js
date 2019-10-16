@@ -389,18 +389,18 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             result = subscribeAccount.server.map(s => {
               if (s.v2ray === 1) {
                 let v = {
-                  "host": "",
-                  "path": "",
-                  "tls": "",
-                  "add": s.host,
-                  "port": s.v2rayPort,
-                  "aid": 0,
-                  "net": "tcp",
-                  "type": "none",
-                  "v": "2",
-                  "ps": s.comment,
-                  "id": accountInfo.uuid,
-                  "class": 1
+                  host: "",
+                  path: "",
+                  tls: "",
+                  add: s.host,
+                  port: s.v2rayPort,
+                  aid: 0,
+                  net: "tcp",
+                  type: "none",
+                  v: "2",
+                  ps: s.comment,
+                  id: accountInfo.uuid,
+                  class: 1
                 }
                 return 'vmess://' + urlsafeBase64(JSON.stringify(v));
                 //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
