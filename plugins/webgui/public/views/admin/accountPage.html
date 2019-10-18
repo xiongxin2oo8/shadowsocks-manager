@@ -27,8 +27,6 @@
                         ng-disabled="account.server && account.server.indexOf(server.id) < 0">
                     </md-tab>
                 </md-tabs>
-                
-                
                 <div ng-show="(config.singleMode!='off' || server.singleMode!='off' ) && (account.connType == 'SS' || !account.connType)">
                     <ul style="line-height: 25px;font-size:14px;">
                         <li style="color:red">抱歉，此服务器此时不支持SS</li>

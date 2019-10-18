@@ -55,17 +55,12 @@
                     <label>WireGuard端口</label>
                     <input type="number" required name="wgPort" ng-model="server.wgPort">
                 </md-input-container>
-                <div ng-if="server.type === 'Shadowsocks'" class="md-block" layout="column" layout-align="center stretch" style="margin-bottom: 25px;">
+                <div ng-if="server.type === 'Shadowsocks'" class="md-block" layout="column"
+                    layout-align="center stretch" style="margin-bottom: 25px;">
                     <label flex style="color: rgba(0,0,0, 0.54); font-size: 13px;">加密方式</label>
-                    <md-autocomplete flex
-                        md-selected-item="server.method"
-                        md-items="method in methods"
-                        md-item-text="method"
-                        md-min-length="0"
-                        md-search-text="methodSearch"
-                        md-search-text-change="setMethod()"
-                        md-require-match="false"
-                        placeholder="请填写加密方式">
+                    <md-autocomplete flex md-selected-item="server.method" md-items="method in methods"
+                        md-item-text="method" md-min-length="0" md-search-text="methodSearch"
+                        md-search-text-change="setMethod()" md-require-match="false" placeholder="请填写加密方式">
                         <md-item-template>
                             <span md-highlight-text="methodSearch" md-highlight-flags="^i">{{method}}</span>
                         </md-item-template>
@@ -99,48 +94,92 @@
                         <div ng-message="required">流量重置日期不能为空</div>
                     </div>
                 </md-input-container>
-                <div style="width: 100%;" layout="row" layout-align="space-between center">
-                    <div flex="75">立即同步所有端口</div>
-                    <div flex layout="row" layout-align="end center">
-                        <md-switch ng-model="server.check" aria-label="check" ng-true-value="1" ng-false-value="0"></md-switch>
-                    </div>
-                </div>
                 <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks'">
                     <label>SSR单端口</label>
                     <input type="text" required name="singlePort" placeholder="多个用英文,隔开" ng-model="server.singlePort">
                     <div ng-messages="serverForm.singlePort.$error">
                         <div ng-message="required">SSR单端口端口号不能为空</div>
                     </div>
-                </md-input-container>                
-                <div style="width: 100%;" layout="row" ng-if="server.type === 'Shadowsocks'" layout-align="space-between center">
+                </md-input-container>
+                <div style="width: 100%;" layout="row" ng-if="server.type === 'Shadowsocks'"
+                    layout-align="space-between center">
                     <div flex="75" translate>开放V2Ray</div>
                     <div flex layout="row" layout-align="end center">
-                        <md-switch ng-model="server.v2ray" aria-label="v2ray" ng-true-value="1" ng-false-value="0" ng-change='v2rayChange()'></md-switch>
+                        <md-switch ng-model="server.v2ray" aria-label="v2ray" ng-true-value="1" ng-false-value="0"
+                            ng-change='v2rayChange()'></md-switch>
                     </div>
-                </div>            
-                <div ng-if="server.type === 'Shadowsocks' && server.v2ray == 1" class="md-block" layout="column" layout-align="center stretch" style="margin-bottom: 25px;">
-                    <label flex style="color: rgba(0,0,0, 0.54); font-size: 13px;">加密方式</label>
-                    <md-autocomplete flex md-selected-item="server.v2rayMethod" md-items="method in v2rayMethods"
-                        md-item-text="method" md-min-length="0" md-search-text="v2rayMethodSearch"
-                        md-search-text-change="setV2rayMethod()" md-require-match="false" placeholder="请填写加密方式">
-                        <md-item-template>
-                            <span md-highlight-text="v2rayMethodSearch" md-highlight-flags="^i">{{method}}</span>
-                        </md-item-template>
-                    </md-autocomplete>
                 </div>
-                <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks' && server.v2ray == 1">
-                    <label>V2Ray端口</label>
-                    <input type="text" required name="v2rayPort" placeholder="" ng-model="server.v2rayPort">
-                    <div ng-messages="serverForm.v2rayPort.$error">
-                        <div ng-message="required">V2Ray端口号不能为空</div>
+                <section ng-if="server.type === 'Shadowsocks' && server.v2ray == 1">
+                    <div class="md-block" layout="column" layout-align="center stretch" style="margin-bottom: 25px;">
+                        <label flex style="color: rgba(0,0,0, 0.54); font-size: 13px;">加密方式</label>
+                        <md-autocomplete flex md-selected-item="server.v2rayMethod" md-items="method in v2rayMethods"
+                            md-item-text="method" md-min-length="0" md-search-text="v2rayMethodSearch"
+                            md-search-text-change="setV2rayMethod()" md-require-match="false" placeholder="请填写加密方式">
+                            <md-item-template>
+                                <span md-highlight-text="v2rayMethodSearch" md-highlight-flags="^i">{{method}}</span>
+                            </md-item-template>
+                        </md-autocomplete>
                     </div>
-                </md-input-container>
-                <div style="margin:10px 0;" translate>单一模式</div>
-                <md-radio-group ng-model="server.singleMode" layout="row" layout-wrap layout-align="start center">
+                    <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks' && server.v2ray == 1">
+                        <label>V2Ray端口</label>
+                        <input type="text" required name="v2rayPort" placeholder="" ng-model="server.v2rayPort">
+                        <div ng-messages="serverForm.v2rayPort.$error">
+                            <div ng-message="required">V2Ray端口号不能为空</div>
+                        </div>
+                    </md-input-container>
+                    <md-input-container class="md-block">
+                        <label>AlterID</label>
+                        <input type="number" name="v2rayAID" ng-model="server.v2rayAID">
+                    </md-input-container>
+                    <div style="width: 100%;" style="margin-top: -18px" layout="row"
+                        layout-align="space-between center">
+                        <div flex="75" translate>开启TLS</div>
+                        <div flex layout="row" layout-align="end center">
+                            <md-switch ng-model="server.v2rayTLS" aria-label="v2rayTLS" ng-true-value="1"
+                                ng-false-value="0">
+                            </md-switch>
+                        </div>
+                    </div>
+                    <div class="md-block" layout="column" layout-align="center stretch" style="margin-bottom: 36px;">
+                        <label flex style="color: rgba(0,0,0, 0.54); font-size: 13px;">传输协议(Net)</label>
+                        <md-autocomplete flex md-selected-item="server.v2rayNet" md-items="net in v2rayNets"
+                            md-item-text="net" md-min-length="0" md-search-text="v2rayNetSearch"
+                            md-search-text-change="setv2rayNet()" md-require-match="true">
+                            <md-item-template>
+                                <span md-highlight-text="v2rayNetSearch" md-highlight-flags="^i">{{net}}</span>
+                            </md-item-template>
+                        </md-autocomplete>
+                    </div>
+                    <md-input-container class="md-block">
+                        <label>路径(Path)</label>
+                        <input type="text" name="v2rayPath" ng-model="server.v2rayPath">
+                    </md-input-container>
+                    <md-input-container class="md-block">
+                        <label>伪装域名(Host)</label>
+                        <input type="text" name="v2rayHost" ng-model="server.v2rayHost">
+                    </md-input-container>
+                </section>
+                <div style="margin:0 0 10px 0;" translate>单一模式</div>
+                <md-radio-group ng-model="server.singleMode" layout="row" layout-wrap layout-align="start center"
+                    style="font-size: 14px">
                     <md-radio-button ng-repeat="mode in singleModes" value="{{ mode.code }}">
                         <div style="margin: 3px;">{{ mode.name }}</div>
                     </md-radio-button>
                 </md-radio-group>
+                <md-input-container class="md-block" style="margin-top: 36px">
+                    <label>服务器排序</label>
+                    <input type="number" required name="sort" ng-model="server.sort">
+                    <div ng-messages="serverForm.sort.$error">
+                        <div ng-message="required">服务器排序不能为空</div>
+                    </div>
+                </md-input-container>
+                <div style="width: 100%;" layout="row" layout-align="space-between center">
+                    <div flex="75">立即同步所有端口</div>
+                    <div flex layout="row" layout-align="end center">
+                        <md-switch ng-model="server.check" aria-label="check" ng-true-value="1" ng-false-value="0">
+                        </md-switch>
+                    </div>
+                </div>
             </form>
         </div>
         <div flex="10" flex-gt-sm="30"></div>

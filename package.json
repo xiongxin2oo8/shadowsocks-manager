@@ -49,6 +49,7 @@
     "express": "^4.17.1",
     "express-session": "^1.16.2",
     "express-validator": "^5.3.1",
+    "flag-icon-css": "^3.4.2",
     "fs-extra": "^7.0.1",
     "inquirer": "^6.5.2",
     "ioredis": "^4.14.0",
@@ -69,9 +70,9 @@
     "socks": "^2.3.2",
     "sqlite3": "^4.1.0",
     "uuid": "^3.3.3",
+    "waliyun": "^3.2.2",
     "web-push": "^3.3.5",
-    "ws": "^6.2.1",
-    "waliyun": "^3.2.2"
+    "ws": "^6.2.1"
   },
   "repository": {
     "type": "git",

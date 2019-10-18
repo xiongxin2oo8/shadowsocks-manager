@@ -620,6 +620,7 @@ exports.status = async (req, res) => {
     const version = appRequire('package').version;
     const site = config.plugins.webgui.site;
     const rss = config.plugins.webgui.rss;
+    const doc = config.plugins.webgui.doc;
     const skin = config.plugins.webgui.skin || 'default';
     const language = config.plugins.webgui.language || '';
     const google_login_client_id = config.plugins.webgui.google_login_client_id || '';
@@ -673,6 +674,7 @@ exports.status = async (req, res) => {
       browserColor,
       site,
       rss,
+      doc,
       skin,
       language,
       alipay,

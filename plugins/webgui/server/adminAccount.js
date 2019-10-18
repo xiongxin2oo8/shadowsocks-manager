@@ -390,12 +390,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               if (s.v2ray === 1) {
                 let v = {
                   host: "",
-                  path: "",
-                  tls: "",
+                  path: "ray",
+                  tls: 1,
                   add: s.host,
                   port: s.v2rayPort,
                   aid: 0,
-                  net: "tcp",
+                  net: "none",
                   type: "none",
                   v: "2",
                   ps: s.comment,

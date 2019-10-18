@@ -36,32 +36,32 @@ const cdn = window.cdn || '';
 //   return sort;
 // }]);
 
-app.factory('accountSortDialog' , [ '$mdDialog', ($mdDialog) => {
+app.factory('accountSortDialog', ['$mdDialog', ($mdDialog) => {
   const publicInfo = {};
   const hide = () => {
     return $mdDialog.hide()
-    .then(success => {
-      dialogPromise = null;
-      return;
-    }).catch(err => {
-      dialogPromise = null;
-      return;
-    });
+      .then(success => {
+        dialogPromise = null;
+        return;
+      }).catch(err => {
+        dialogPromise = null;
+        return;
+      });
   };
   publicInfo.hide = hide;
   let dialogPromise = null;
   const isDialogShow = () => {
-    if(dialogPromise && !dialogPromise.$$state.status) {
+    if (dialogPromise && !dialogPromise.$$state.status) {
       return true;
     }
     return false;
   };
   const dialog = {
-    templateUrl: `${ cdn }/public/views/admin/accountSortAndFilterDialog.html`,
+    templateUrl: `${cdn}/public/views/admin/accountSortAndFilterDialog.html`,
     escapeToClose: false,
     locals: { bind: publicInfo },
     bindToController: true,
-    controller: ['$scope', '$mdDialog', '$localStorage', '$http', 'bind', function($scope, $mdDialog, $localStorage, $http, bind) {
+    controller: ['$scope', '$mdDialog', '$localStorage', '$http', 'bind', function ($scope, $mdDialog, $localStorage, $http, bind) {
       $scope.publicInfo = bind;
       $scope.publicInfo.accountFilter = $localStorage.admin.accountFilterSettings;
       $http.get('/api/admin/order').then(success => {
@@ -72,7 +72,7 @@ app.factory('accountSortDialog' , [ '$mdDialog', ($mdDialog) => {
     clickOutsideToClose: true,
   };
   const show = () => {
-    if(isDialogShow()) {
+    if (isDialogShow()) {
       return dialogPromise;
     }
     dialogPromise = $mdDialog.show(dialog);

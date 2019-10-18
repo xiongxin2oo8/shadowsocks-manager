@@ -4,7 +4,7 @@ const accountFlow = appRequire('plugins/account/accountFlow');
 const moment = require('moment');
 
 const add = async options => {
-  const { type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singlePort, v2ray, v2rayMethod, v2rayPort, singleMode } = options;
+  const { type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singlePort, singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
   const [serverId] = await knex('server').insert({
     type,
     name,
@@ -21,10 +21,9 @@ const add = async options => {
     net,
     wgPort,
     singlePort,
-    v2ray,
-    v2rayMethod,
-    v2rayPort,
-    singleMode
+    singleMode,
+    v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost,
+    sort
   });
   accountFlow.addServer(serverId);
   return [serverId];
@@ -41,7 +40,7 @@ const del = (id) => {
 
 const edit = async options => {
   const { id, type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort,
-    singlePort, v2ray, v2rayMethod, v2rayPort, singleMode } = options;
+    singlePort, singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
     const accounts = await knex('account_plugin').where({});
@@ -82,36 +81,14 @@ const edit = async options => {
     net,
     wgPort,
     singlePort,
-    v2ray,
-    v2rayMethod,
-    v2rayPort,
-    singleMode
+    singleMode,
+    v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost,
+    sort
   });
 };
 
 const list = async (options = {}) => {
-  const serverList = await knex('server').select([
-    'id',
-    'type',
-    'name',
-    'host',
-    'port',
-    'password',
-    'method',
-    'scale',
-    'comment',
-    'shift',
-    'monthflow',
-    'resetday',
-    'key',
-    'net',
-    'wgPort',
-    'singlePort',
-    'v2ray',
-    'v2rayMethod',
-    'v2rayPort',
-    'singleMode'
-  ]).orderBy('name');
+  const serverList = await knex('server').select().orderByRaw('sort,name');
   if (options.status) {
     const serverStatus = [];
     const getServerStatus = (server, index) => {

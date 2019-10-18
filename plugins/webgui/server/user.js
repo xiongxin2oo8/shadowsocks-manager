@@ -163,21 +163,24 @@ exports.getServers = (req, res) => {
       const isAll = success.some(account => {
         if (!account.server) { return true; }
       });
-      if (isAll) {
-        return res.send(servers);
-      } else {
-        let accountArray = [];
-        success.forEach(account => {
-          account.server.forEach(s => {
-            if (accountArray.indexOf(s) < 0) {
-              accountArray.push(s);
-            }
-          });
-        });
-        return res.send(servers.filter(f => {
-          return accountArray.indexOf(f.id) >= 0;
-        }));
-      }
+
+      //return res.send(new Buffer(JSON.stringify(servers)).toString('base64'));
+      return res.send(servers);
+      // if (isAll) {
+      //   return res.send(servers);
+      // } else {
+      //   let accountArray = [];
+      //   success.forEach(account => {
+      //     account.server.forEach(s => {
+      //       if (accountArray.indexOf(s) < 0) {
+      //         accountArray.push(s);
+      //       }
+      //     });
+      //   });
+      //   return res.send(servers.filter(f => {
+      //     return accountArray.indexOf(f.id) >= 0;
+      //   }));
+      // }
     }).catch(err => {
       console.log(err);
       res.status(500).end();
@@ -608,7 +611,7 @@ exports.getAccountSubscribe = async (req, res) => {
       userId
     }).then(s => s[0]);
     if (!account.subscribe) {
-      const subscribeToken = crypto.randomBytes(16).toString('hex');;
+      const subscribeToken = crypto.randomBytes(8).toString('hex');;
       await await knex('account_plugin').update({
         subscribe: subscribeToken
       }).where({
@@ -636,7 +639,7 @@ exports.updateAccountSubscribe = async (req, res) => {
       userId,
     }).then(s => s[0]);
     if (!account) { return Promise.reject('account not found'); }
-    const subscribeToken = crypto.randomBytes(16).toString('hex');;
+    const subscribeToken = crypto.randomBytes(8).toString('hex');
     await await knex('account_plugin').update({
       subscribe: subscribeToken
     }).where({

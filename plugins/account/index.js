@@ -40,7 +40,7 @@ const addAccount = async (type, options) => {
       orderId: 0,
       userId: options.user,
       port: options.port,
-      subscribe: crypto.randomBytes(16).toString('hex'),
+      subscribe: crypto.randomBytes(8).toString('hex'),
       password: options.password,
       status: 0,
       server: options.server ? options.server : null,
@@ -62,7 +62,7 @@ const addAccount = async (type, options) => {
       orderId: options.orderId || 0,
       userId: options.user,
       port: options.port,
-      subscribe: crypto.randomBytes(16).toString('hex'),
+      subscribe: crypto.randomBytes(8).toString('hex'),
       password: options.password,
       data: JSON.stringify({
         create: options.time || Date.now(),

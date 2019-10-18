@@ -229,8 +229,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
     }
   ])
-  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
-    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
+  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', 'accountServerDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
+    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, accountServerDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
       const config = $scope.config;
       $scope.setTitle('账号');
       $scope.setMenuSearchButton('search');
@@ -242,7 +242,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.setFabButton($scope.config.multiAccount ? () => {
         $scope.createOrder();
       } : null);
-      $scope.flexGtSm = 100;
+      $scope.flexGtSm1 = 100;
+      $scope.flexGtSm2 = 100;
       if (!$localStorage.user.serverInfo) {
         $localStorage.user.serverInfo = {
           time: Date.now(),
@@ -259,14 +260,20 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.account = $localStorage.user.accountInfo.data;
       $scope.accountResult = [];
       $scope.accountList = [];
-      if ($scope.account.length >= 2) {
-        $scope.flexGtSm = 50;
-      }
+      // if ($scope.account.length == 2) {
+      //   $scope.flexGtSm = 50;
+      // }
+      // if ($scope.account.length > 2) {
+      //   $scope.flexGtSm = 30;
+      // }
 
       const setAccountServerList = (account, server) => {
         account.forEach(a => {
           a.serverList = $scope.servers.filter(f => {
             return !a.server || a.server.indexOf(f.id) >= 0;
+          });
+          a.unServerList = $scope.servers.filter(f => {
+            return a.server && a.server.indexOf(f.id) < 0;
           });
         });
       };
@@ -299,6 +306,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       const getUserAccountInfo = () => {
         $scope.isUserLoading = true;
         userApi.getUserAccount().then(success => {
+          //success.servers = JSON.parse(new Buffer(success.servers, 'base64').toString());
+          console.log('success.servers', success.servers)
           $scope.servers = success.servers;
           if (success.account.map(m => m.id).join('') === $scope.account.map(m => m.id).join('')) {
             success.account.forEach((a, index) => {
@@ -323,8 +332,14 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           $localStorage.user.serverInfo.time = Date.now();
           $localStorage.user.accountInfo.data = success.account;
           $localStorage.user.accountInfo.time = Date.now();
-          if ($scope.account.length >= 2) {
-            $scope.flexGtSm = 50;
+
+          if ($scope.account.length == 2) {
+            $scope.flexGtSm1 = 50;
+            $scope.flexGtSm2 = 50;
+          }
+          if ($scope.account.length > 2) {
+            $scope.flexGtSm1 = 50;
+            $scope.flexGtSm2 = 33;
           }
           $scope.accountResult = angular.copy($scope.account)
           $scope.accountList = [];
@@ -495,6 +510,35 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         }
         return 180;
       };
+      //检查是否过期
+      const isExpire = (account) => {
+        if (account.type >= 2 && account.type <= 5) {
+          return Date.now() >= account.data.expire;
+        } else {
+          return false;
+        }
+      }
+      $scope.serverDetail = (account, serverId) => {
+        if (!account.isFlowOutOfLimit) { account.isFlowOutOfLimit = {}; }
+        account.expire = isExpire(account);
+        let servers = $scope.servers.filter(f => {
+          return f.id === serverId;
+        });
+        account.serverInfo = servers ? servers[0] : null;
+        if (account.serverInfo && account.server.indexOf(account.serverInfo.id) > -1) {
+          userApi.getServerPortData(account, serverId).then(success => {
+            account.lastConnect = success.lastConnect;
+            account.serverPortFlow = success.flow;
+            if (account.data) {
+              account.isFlowOutOfLimit[serverId] = ((account.data.flow + account.data.flowPack) <= account.serverPortFlow);
+            }
+          });
+          account.exist = true;
+        } else {
+          account.exist = false;
+        }
+        accountServerDialog.show(account);
+      };
       $scope.showChangePasswordDialog = (accountId, password) => {
         changePasswordDialog.show(accountId, password).then(() => {
           getUserAccountInfo();
@@ -523,13 +567,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         };
       };
       //检查是否过期
-      $scope.isAccountOutOfDate = account => {
-        if (account.type >= 2 && account.type <= 5) {
-          return Date.now() >= account.data.expire;
-        } else {
-          return false;
-        }
-      };
+      $scope.isAccountOutOfDate = isExpire;
       //检查流量是否超出
       $scope.isOverFlow = account => {
         if (!account.data) return false;
