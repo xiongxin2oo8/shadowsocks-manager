@@ -664,6 +664,34 @@ exports.status = async (req, res) => {
       const groupId = (await knex('user').select(['group']).where({ id }).then(s => s[0])).group;
       multiAccount = (await knex('group').where({ id: groupId }).then(s => s[0])).multiAccount;
     }
+    //检查手机操作系统
+    const checkOS = () => {
+      var ua = req.headers['user-agent'],
+        $ = {};
+
+      if (/mobile/i.test(ua))
+        $.Mobile = true;
+
+      if (/like Mac OS X/.test(ua)) {
+        $.iOS = /CPU( iPhone)? OS ([0-9\._]+) like Mac OS X/.exec(ua)[2].replace(/_/g, '.');
+        $.iPhone = /iPhone/.test(ua);
+        $.iPad = /iPad/.test(ua);
+      }
+
+      if (/Android/.test(ua))
+        $.Android = /Android ([0-9\.]+)[\);]/.exec(ua)[1];
+
+      if (/webOS\//.test(ua))
+        $.webOS = /webOS\/([0-9\.]+)[\);]/.exec(ua)[1];
+
+      if (/(Intel|PPC) Mac OS X/.test(ua))
+        $.Mac = /(Intel|PPC) Mac OS X ?([0-9\._]*)[\)\;]/.exec(ua)[2].replace(/_/g, '.') || true;
+
+      if (/Windows NT/.test(ua))
+        $.Windows = /Windows NT ([0-9\._]+)[\);]/.exec(ua)[1];
+      return $;
+    }
+    let os=checkOS();
     res.send({
       status,
       id,
@@ -693,7 +721,8 @@ exports.status = async (req, res) => {
       github_login_client_id,
       crisp,
       moreType,
-      singleMode
+      singleMode,
+      os
     });
   } catch (err) {
     logger.error(err);
@@ -801,9 +830,9 @@ exports.sendResetPasswordEmail = (req, res) => {
     return user.edit({
       username: email,
     }, {
-      resetPasswordId: token,
-      resetPasswordTime: Date.now(),
-    });
+        resetPasswordId: token,
+        resetPasswordTime: Date.now(),
+      });
   }).then(success => {
     res.send('success');
   }).catch(err => {
@@ -847,10 +876,10 @@ exports.resetPassword = (req, res) => {
     return user.edit({
       resetPasswordId: token,
     }, {
-      password,
-      resetPasswordId: null,
-      resetPasswordTime: null,
-    });
+        password,
+        resetPasswordId: null,
+        resetPasswordTime: null,
+      });
   }).then(success => {
     res.send('success');
   }).catch(err => {

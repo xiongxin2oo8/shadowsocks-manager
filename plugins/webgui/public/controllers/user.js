@@ -229,13 +229,14 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
     }
   ])
-  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', 'alertDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', 'accountServerDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
-    ($scope, $http, $mdMedia, userApi, alertDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, accountServerDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
+  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', '$mdDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', 'accountServerDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
+    ($scope, $http, $mdMedia, userApi, $mdDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, accountServerDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
       const config = $scope.config;
       $scope.setTitle('账号');
       $scope.setMenuSearchButton('search');
       $scope.currentPage = 1;
-      const getPageSize = 6;
+      const getPageSize = 18;
+      //是否加载中
       $scope.isUserLoading = false;
       $scope.isUserPageFinish = false;
       $scope.account = [];
@@ -260,12 +261,6 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.account = $localStorage.user.accountInfo.data;
       $scope.accountResult = [];
       $scope.accountList = [];
-      // if ($scope.account.length == 2) {
-      //   $scope.flexGtSm = 50;
-      // }
-      // if ($scope.account.length > 2) {
-      //   $scope.flexGtSm = 30;
-      // }
 
       const setAccountServerList = (account, server) => {
         account.forEach(a => {
@@ -307,7 +302,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         $scope.isUserLoading = true;
         userApi.getUserAccount().then(success => {
           //success.servers = JSON.parse(new Buffer(success.servers, 'base64').toString());
-          console.log('success.servers', success.servers)
+          //console.log('success.servers', success.servers)
           $scope.servers = success.servers;
           if (success.account.map(m => m.id).join('') === $scope.account.map(m => m.id).join('')) {
             success.account.forEach((a, index) => {
@@ -395,62 +390,62 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         }
         paging();
       };
-      const base64Encode = str => {
-        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
-          return String.fromCharCode('0x' + p1);
-        }));
-      };
+      // const base64Encode = str => {
+      //   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+      //     return String.fromCharCode('0x' + p1);
+      //   }));
+      // };
       const urlsafeBase64 = str => {
         return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
       };
-      $scope.createQrCode = (server, account) => {
-        if (!server) { return ''; }
-        if (server.type === 'WireGuard') {
-          const a = account.port % 254;
-          const b = (account.port - a) / 254;
-          return [
-            '[Interface]',
-            `Address = ${server.net.split('.')[0]}.${server.net.split('.')[1]}.${b}.${a + 1}/32`,
-            `PrivateKey = ${account.privateKey}`,
-            'DNS = 8.8.8.8',
-            '[Peer]',
-            `PublicKey = ${server.key}`,
-            `Endpoint = ${server.host}:${server.wgPort}`,
-            `AllowedIPs = 0.0.0.0/0`,
-          ].join('\n');
-        } else if (account.connType == "SSR") {
-          //单端口模式
-          if (config.singleMode == 'ssr1port' || server.singleMode == 'ssr1port') {
-            let port = server.singlePort.split(',')[0];
-            return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
-          } else {
-            return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
-          }
-        } else {
-          return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
-        }
-      };
-      const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
-      $scope.SSRAddress = (server, account) => {
-        let str = '';
-        if (account.connType == "SSR") {
-          //单端口模式
-          if (config.singleMode == 'ssr1port' || server.singleMode == 'ssr1port') {
-            let port = server.singlePort.split(',')[0];
-            return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
-          } else {
-            return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
-            //' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '
-          }
-        } else {
-          let index = method.indexOf(server.method);
-          if (index != -1) {
-            return "";
-          }
-          str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment));
-        }
-        return str;
-      };
+      // $scope.createQrCode = (server, account) => {
+      //   if (!server) { return ''; }
+      //   if (server.type === 'WireGuard') {
+      //     const a = account.port % 254;
+      //     const b = (account.port - a) / 254;
+      //     return [
+      //       '[Interface]',
+      //       `Address = ${server.net.split('.')[0]}.${server.net.split('.')[1]}.${b}.${a + 1}/32`,
+      //       `PrivateKey = ${account.privateKey}`,
+      //       'DNS = 8.8.8.8',
+      //       '[Peer]',
+      //       `PublicKey = ${server.key}`,
+      //       `Endpoint = ${server.host}:${server.wgPort}`,
+      //       `AllowedIPs = 0.0.0.0/0`,
+      //     ].join('\n');
+      //   } else if (account.connType == "SSR") {
+      //     //单端口模式
+      //     if (config.singleMode == 'ssr1port' || server.singleMode == 'ssr1port') {
+      //       let port = server.singlePort.split(',')[0];
+      //       return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
+      //     } else {
+      //       return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+      //     }
+      //   } else {
+      //     return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
+      //   }
+      // };
+      // const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
+      // $scope.SSRAddress = (server, account) => {
+      //   let str = '';
+      //   if (account.connType == "SSR") {
+      //     //单端口模式
+      //     if (config.singleMode == 'ssr1port' || server.singleMode == 'ssr1port') {
+      //       let port = server.singlePort.split(',')[0];
+      //       return 'ssr://' + urlsafeBase64(server.host + ':' + (port) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=' + urlsafeBase64((account.port + server.shift) + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + port));
+      //     } else {
+      //       return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+      //       //' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '
+      //     }
+      //   } else {
+      //     let index = method.indexOf(server.method);
+      //     if (index != -1) {
+      //       return "";
+      //     }
+      //     str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment));
+      //   }
+      //   return str;
+      // };
       $scope.shadowrocket = account => {
         let rss = config.rss || `${config.site}/api/user/account/subscribe`;
         let base64 = urlsafeBase64(`${rss}/${account.subscribe}?type=${account.connType}&app=shadowrocket&ip=0${config.hideFlow ? '' : '&flow=1'}`);
@@ -518,7 +513,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           return false;
         }
       }
-      $scope.serverDetail = (account, serverId) => {
+      //节点详情
+      $scope.serverDetail = (account, serverId) => {        
         if (!account.isFlowOutOfLimit) { account.isFlowOutOfLimit = {}; }
         account.expire = isExpire(account);
         let servers = $scope.servers.filter(f => {
@@ -539,6 +535,35 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         }
         accountServerDialog.show(account);
       };
+
+      //提示信息
+      $scope.serverTip = (ev, server) => {
+        $mdDialog.show({
+          contentElement: '#tip' + server.id,
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          openFrom: '#open_tip' + server.id,
+          closeTo: angular.element(document.querySelector('#open_tip' + server.id)),
+          clickOutsideToClose: true
+        });
+      };
+
+      //显示所有节点
+      $scope.showAll = (account) => {
+        account.show_all = !account.show_all;
+      };
+
+      $scope.accountInfo= (ev, account) => {
+        $mdDialog.show({
+          contentElement: '#tip_account' + account.id,
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          openFrom: '#open_tip_account' + account.id,
+          closeTo: angular.element(document.querySelector('#open_tip_account' + account.id)),
+          clickOutsideToClose: true
+        });
+      };
+
       $scope.showChangePasswordDialog = (accountId, password) => {
         changePasswordDialog.show(accountId, password).then(() => {
           getUserAccountInfo();

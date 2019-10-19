@@ -23,10 +23,10 @@
             请购买更高级的套餐！
         </div>
     </section>
-    <md-dialog-content style="max-height:810px;">
+    <md-dialog-content style="max-height:810px;font-size: 14px">
         <section ng-show="account.exist && !account.expire">
             <md-tabs md-dynamic-height md-border-bottom>
-                <md-tab label="连接信息"">
+                <md-tab label="连接信息">
                 <md-content class=" md-padding">
                     <!--SS模式-->
                     <md-list class="md-dense" flex style="margin: 0 5px;padding: 0">
@@ -124,7 +124,7 @@
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="20" translate>备注：</div>
-                                    <div flex="80" style="text-align:right">{{ server.comment || '无' }}</div>
+                                    <div flex="80" style="text-align:right;word-break:break-all;">{{ server.comment || '无' }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
@@ -200,7 +200,7 @@
                             <md-list-item ng-hide="config.simple">
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="30">{{ '混淆参数：' | translate }}</div>
-                                    <div flex="70" style="text-align:right">{{account.obfs_param}}</div>
+                                    <div flex="70" style="text-align:right;word-break:break-all;">{{account.obfs_param}}</div>
                                 </div>
                             </md-list-item>
                             <md-divider ng-hide="config.simple"></md-divider>
@@ -272,7 +272,7 @@
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="20" translate>备注：</div>
-                                    <div flex="80" style="text-align:right">{{ server.comment || '无' }}</div>
+                                    <div flex="80" style="text-align:right;word-break:break-all;">{{ server.comment || '无' }}</div>
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
