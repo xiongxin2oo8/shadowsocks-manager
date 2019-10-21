@@ -53,7 +53,6 @@ exports.addServer = async (req, res) => {
     req.checkBody('shift', 'Invalid shift').isInt();
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
-    req.checkBody('singlePort', 'Invalid singlePort').notEmpty();
     req.checkBody('singleMode', 'Invalid singleMode').isInt();
     req.checkBody('v2ray', 'Invalid v2ray').isInt();
     req.checkBody('v2rayMethod', 'Invalid v2rayMethod').notEmpty();
@@ -81,7 +80,6 @@ exports.addServer = async (req, res) => {
     const key = isWG ? req.body.key : null;
     const net = isWG ? req.body.net : null;
     const wgPort = isWG ? req.body.wgPort : null;
-    const singlePort = req.body.singlePort;
     const singleMode = req.body.singleMode;
     const v2ray = +req.body.v2ray;
     const v2rayMethod = req.body.v2rayMethod;
@@ -92,14 +90,14 @@ exports.addServer = async (req, res) => {
     const v2rayPath = req.body.v2rayPath;
     const v2rayHost = req.body.v2rayHost;
     const sort = +req.body.sort;
-    await manager.send({
-      command: 'flow',
-      options: { clear: false, },
-    }, {
-      host: address,
-      port,
-      password,
-    });
+    // await manager.send({
+    //   command: 'flow',
+    //   options: { clear: false, },
+    // }, {
+    //   host: address,
+    //   port,
+    //   password,
+    // });
     await serverManager.add({
       type,
       name,
@@ -115,7 +113,6 @@ exports.addServer = async (req, res) => {
       key,
       net,
       wgPort,
-      singlePort,
       singleMode,
       v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost,
       sort
@@ -139,7 +136,6 @@ exports.editServer = async (req, res) => {
     req.checkBody('shift', 'Invalid shift').isInt();
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
-    req.checkBody('singlePort', 'Invalid singlePort').notEmpty();
     req.checkBody('singleMode', 'Invalid singleMode').notEmpty();
     req.checkBody('v2ray', 'Invalid v2ray').isInt();
     req.checkBody('v2rayMethod', 'Invalid v2rayMethod').notEmpty();
@@ -168,7 +164,6 @@ exports.editServer = async (req, res) => {
     const key = isWG ? req.body.key : null;
     const net = isWG ? req.body.net : null;
     const wgPort = isWG ? req.body.wgPort : null;
-    const singlePort = req.body.singlePort;
     const singleMode = req.body.singleMode;
     const v2ray = +req.body.v2ray;
     const v2rayMethod = req.body.v2rayMethod;
@@ -180,14 +175,14 @@ exports.editServer = async (req, res) => {
     const v2rayHost = req.body.v2rayHost;
     const sort = +req.body.sort;
     const check = +req.body.check;
-    await manager.send({
-      command: 'flow',
-      options: { clear: false, },
-    }, {
-      host: address,
-      port,
-      password,
-    });
+    // await manager.send({
+    //   command: 'flow',
+    //   options: { clear: false, },
+    // }, {
+    //   host: address,
+    //   port,
+    //   password,
+    // });
     await serverManager.edit({
       id: serverId,
       type,
@@ -204,7 +199,7 @@ exports.editServer = async (req, res) => {
       key,
       net,
       wgPort,
-      singlePort, singleMode,
+      singleMode,
       v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost,
       sort,
       check

@@ -175,18 +175,18 @@ const delAccount = async id => {
   if (!accountInfo) {
     return Promise.reject('Account id[' + id + '] not found');
   }
-  const result = await knex('account_plugin').delete().where({ id });
-  const servers = await knex('server').where({});
-  servers.forEach(server => {
-    manager.send({
-      command: 'del',
-      port: accountInfo.port + server.shift,
-    }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    });
-  });
+  //const result = await knex('account_plugin').delete().where({ id });
+  // const servers = await knex('server').where({});
+  // servers.forEach(server => {
+  //   manager.send({
+  //     command: 'del',
+  //     port: accountInfo.port + server.shift,
+  //   }, {
+  //     host: server.host,
+  //     port: server.port,
+  //     password: server.password,
+  //   });
+  // });
   await accountFlow.del(id);
   return result;
 };
@@ -218,22 +218,22 @@ const editAccount = async (id, options) => {
       limit: options.limit || 1,
     });
   }
-  if (options.port) {
-    update.port = +options.port;
-    if (+options.port !== account.port) {
-      const servers = await knex('server').where({});
-      servers.forEach(server => {
-        manager.send({
-          command: 'del',
-          port: account.port + server.shift,
-        }, {
-          host: server.host,
-          port: server.port,
-          password: server.password,
-        });
-      });
-    }
-  }
+  // if (options.port) {
+  //   update.port = +options.port;
+  //   if (+options.port !== account.port) {
+  //     const servers = await knex('server').where({});
+  //     servers.forEach(server => {
+  //       manager.send({
+  //         command: 'del',
+  //         port: account.port + server.shift,
+  //       }, {
+  //         host: server.host,
+  //         port: server.port,
+  //         password: server.password,
+  //       });
+  //     });
+  //   }
+  // }
   await knex('account_plugin').update(update).where({ id });
   await accountFlow.edit(id);
   return;
@@ -300,10 +300,9 @@ const changePassword = async (id, password) => {
     protocol_param: `32#${account.port}:${account.password}`,
   }).where({ id });
   await knex('ssr_user').update({
-    passwd: password,
-    protocol_param: `32#${account.port}:${account.password}`,
+    passwd: password
   }).where({ accountId: id });
-  await accountFlow.pwd(id, password);
+  //await accountFlow.pwd(id, password);
   return;
 };
 
@@ -1035,25 +1034,14 @@ const setConnType = async (options) => {
     connType: options.connType,
     method: options.method,
     protocol: options.protocol,
-    protocol_param: options.protocol_param || `32#${accountInfo.port}:${accountInfo.password}`,
+    protocol_param: options.protocol_param,
     obfs: options.obfs,
     obfs_param: options.obfs_param
   }).where({ id: accountInfo.id });
-  if (options.connType == "SSR") {
-    await knex('ssr_user').update({
-      enable: 1,
-      method: options.method,
-      protocol: options.protocol,
-      protocol_param: options.protocol_param || `32#${accountInfo.port}:${accountInfo.password}`,
-      obfs: options.obfs,
-      obfs_param: options.obfs_param
-    }).where({ accountId: accountInfo.id });
-  } else {
-    await knex('ssr_user').update({
-      enable: 0
-    }).where({ accountId: accountInfo.id });
-  }
-  await accountFlow.edit(accountInfo.id);
+  //直接删除
+  await knex('ssr_user').where({ accountId: accountInfo.id }).del();
+  //优先检查 再添加
+  await knex('account_flow').update({ nextCheckTime: 100 }).where({ accountId });
 };
 
 exports.addAccount = addAccount;

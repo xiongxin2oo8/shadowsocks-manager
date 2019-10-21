@@ -6,7 +6,6 @@
                     <span class="md-title">{{ server.name }}&nbsp;
                         <span style="color: #999" ng-if="portNumber">[ {{ onlineAccount.length }} / {{ portNumber }} ]</span>
                         <span ng-show="server.status === -1" style="color: #a33;">&nbsp;[离线]</span>
-                        <span ng-show="server.singleMode!='off'">&nbsp;单端口 {{ server.singlePort }}</span>
                     </span>
                     <span class="md-subhead">{{server.host.split(':')[0]}}:{{server.port}}</span>
                 </md-card-header-text>
@@ -68,7 +67,7 @@
         </md-card>
     </div>
 </div>
-<div layout="row" layout-wrap ng-show="server">
+<!-- <div layout="row" layout-wrap ng-show="server">
     <md-card>
         <md-card-content layout="row">
             <md-icon hide-xs hide-sm class="material-icons" ng-click="prevServer()" style="margin-left: 15px; margin-right: 15px;">navigate_before</md-icon>
@@ -98,7 +97,7 @@
             </md-card-content>
         </md-card>
     </div>
-</div>
+</div> -->
 <div ng-hide="server">
     <div flex layout="row" class="zero-element" layout-align="center center">
         <md-progress-circular ng-show="!getServerInfoError" md-mode="indeterminate" class="md-accent"></md-progress-circular>

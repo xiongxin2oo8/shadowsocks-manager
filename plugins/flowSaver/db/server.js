@@ -29,12 +29,6 @@ const createTable = async () => {
         table.integer('resetday').defaultTo(1);
       });
     }
-    const singlePort = await knex.schema.hasColumn(tableName, 'singlePort');
-    if (!singlePort) {
-      await knex.schema.table(tableName, function (table) {
-        table.string('singlePort').defaultTo(80);
-      });
-    }
     const singleMode = await knex.schema.hasColumn(tableName, 'singleMode');
     if (!singleMode) {
       await knex.schema.table(tableName, function (table) {
@@ -114,7 +108,6 @@ const createTable = async () => {
       table.string('key');
       table.string('net');
       table.integer('wgPort');
-      table.string('singlePort');
       table.string('singleMode ');
       table.integer('v2ray');
       table.string('v2rayMethod');
@@ -132,19 +125,19 @@ const createTable = async () => {
     const host = config.manager.address.split(':')[0];
     const port = +config.manager.address.split(':')[1];
     const password = config.manager.password;
-    await manager.send({
-      command: 'flow',
-      options: {
-        clear: false,
-      },
-    }, {
-      host,
-      port,
-      password,
-    }).catch(() => {
-      logger.error(`connect to server ${password}@${host}:${port} fail.`);
-      // process.exit(1);
-    });
+    // await manager.send({
+    //   command: 'flow',
+    //   options: {
+    //     clear: false,
+    //   },
+    // }, {
+    //   host,
+    //   port,
+    //   password,
+    // }).catch(() => {
+    //   logger.error(`connect to server ${password}@${host}:${port} fail.`);
+    //   // process.exit(1);
+    // });
     await knex('server').insert({
       name: 'default',
       host,

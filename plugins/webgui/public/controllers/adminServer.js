@@ -78,7 +78,6 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
             server.useFlowStr = $filter('flowNum2Str')(servers[index].useflow);
             server.monthFlowStr = $filter('flowNum2Str')(servers[index].monthflow);
             server.singleMode = servers[index].singleMode;
-            server.singlePort = servers[index].singlePort;
             adminApi.getServerFlow(server.id).then(flow => {
               if (!server.flow) {
                 server.flow = {};
@@ -528,7 +527,6 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           key: $scope.server.key,
           net: $scope.server.net,
           wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
-          singlePort: $scope.server.singlePort || 80,
           singleMode: $scope.server.singleMode,
           v2ray: $scope.server.v2ray,
           v2rayMethod: $scope.server.v2rayMethod || 'auto',
@@ -631,7 +629,6 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.key = success.data.key;
           $scope.server.net = success.data.net;
           $scope.server.wgPort = success.data.wgPort;
-          $scope.server.singlePort = success.data.singlePort;
           $scope.server.singleMode = success.data.singleMode || 'off';
           $scope.server.v2ray = success.data.v2ray;;
           $scope.server.v2rayPort = success.data.v2rayPort;
@@ -663,7 +660,6 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           key: $scope.server.key,
           net: $scope.server.net,
           wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
-          singlePort: $scope.server.singlePort || 80,
           singleMode: $scope.server.singleMode,
           v2ray: $scope.server.v2ray,
           v2rayMethod: $scope.server.v2rayMethod,

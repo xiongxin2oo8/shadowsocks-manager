@@ -4,7 +4,7 @@ const accountFlow = appRequire('plugins/account/accountFlow');
 const moment = require('moment');
 
 const add = async options => {
-  const { type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singlePort, singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
+  const { type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
   const [serverId] = await knex('server').insert({
     type,
     name,
@@ -20,7 +20,6 @@ const add = async options => {
     key,
     net,
     wgPort,
-    singlePort,
     singleMode,
     v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost,
     sort
@@ -40,27 +39,28 @@ const del = (id) => {
 
 const edit = async options => {
   const { id, type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort,
-    singlePort, singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
+    singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
-    const accounts = await knex('account_plugin').where({});
-    (async server => {
-      for (account of accounts) {
-        await manager.send({
-          command: 'del',
-          port: account.port + server.shift,
-        }, {
-          host: server.host,
-          port: server.port,
-          password: server.password,
-        }).catch();
-      }
-    })(serverInfo);
+    // const accounts = await knex('account_plugin').where({});
+    // (async server => {
+    //   for (account of accounts) {
+    //     await manager.send({
+    //       command: 'del',
+    //       port: account.port + server.shift,
+    //     }, {
+    //       host: server.host,
+    //       port: server.port,
+    //       password: server.password,
+    //     }).catch();
+    //   }
+    // })(serverInfo);
   }
-  if (serverInfo.singleMode != singleMode) {
-    const accounts = await knex('account_plugin').whereNot({ connType: 'SSR' }).select('id');
-    await knex('account_flow').update({ nextCheckTime: Date.now() }).where('serverId', serverInfo.id).whereIn('accountId', accounts);
-  }
+
+  // if (serverInfo.singleMode != singleMode) {
+  //   const accounts = await knex('account_plugin').whereNot({ connType: 'SSR' }).select('id');
+  //   await knex('account_flow').update({ nextCheckTime: Date.now() }).where('serverId', serverInfo.id).whereIn('accountId', accounts);
+  // }
   //立即同步
   if (check) {
     accountFlow.editServer(id);
@@ -80,7 +80,6 @@ const edit = async options => {
     key,
     net,
     wgPort,
-    singlePort,
     singleMode,
     v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost,
     sort

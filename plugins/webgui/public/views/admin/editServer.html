@@ -94,13 +94,6 @@
                         <div ng-message="required">流量重置日期不能为空</div>
                     </div>
                 </md-input-container>
-                <md-input-container class="md-block" ng-if="server.type === 'Shadowsocks'">
-                    <label>SSR单端口</label>
-                    <input type="text" required name="singlePort" placeholder="多个用英文,隔开" ng-model="server.singlePort">
-                    <div ng-messages="serverForm.singlePort.$error">
-                        <div ng-message="required">SSR单端口端口号不能为空</div>
-                    </div>
-                </md-input-container>
                 <div style="width: 100%;" layout="row" ng-if="server.type === 'Shadowsocks'"
                     layout-align="space-between center">
                     <div flex="75" translate>开放V2Ray</div>

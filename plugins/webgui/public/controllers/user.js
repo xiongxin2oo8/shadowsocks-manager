@@ -514,7 +514,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         }
       }
       //节点详情
-      $scope.serverDetail = (account, serverId) => {        
+      $scope.serverDetail = (account, serverId) => {
         if (!account.isFlowOutOfLimit) { account.isFlowOutOfLimit = {}; }
         account.expire = isExpire(account);
         let servers = $scope.servers.filter(f => {
@@ -553,7 +553,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         account.show_all = !account.show_all;
       };
 
-      $scope.accountInfo= (ev, account) => {
+      $scope.accountInfo = (ev, account) => {
         $mdDialog.show({
           contentElement: '#tip_account' + account.id,
           parent: angular.element(document.body),
@@ -805,11 +805,11 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         $scope.data = {
           account: item.id,
           connType: item.connType || "SS",
-          method: item.method || 'chacha20-ietf',
-          protocol: item.protocol || 'auth_aes128_md5',
+          method: item.method || 'xchacha20-ietf-poly1305',
+          protocol: item.protocol || 'origin',
           protocol_param: item.protocol_param,
-          obfs: item.obfs || 'http_simple',
-          obfs_param: item.obfs_param || 'download.windowsupdate.com'
+          obfs: item.obfs || 'plain',
+          obfs_param: item.obfs_param
         };
       }
       userApi.getUserAccount().then(success => {
@@ -824,11 +824,21 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.confirm = () => {
         alertDialog.loading();
         //不允许修改
-        $scope.data.method = 'chacha20-ietf';
-        $scope.data.protocol = 'auth_aes128_md5'
-        $scope.data.protocol_param = ''
-        $scope.data.obfs = 'http_simple'
-        $scope.data.obfs_param = 'download.windowsupdate.com'
+        if ($scope.data.connType === 'SS') {
+          $scope.data.method = 'xchacha20-ietf-poly1305';
+          $scope.data.protocol = 'origin'
+          $scope.data.protocol_param = ''
+          $scope.data.obfs = 'plain'
+          $scope.data.obfs_param = ''
+        }
+        if ($scope.data.connType === 'SSR') {
+          $scope.data.method = 'chacha20-ietf';
+          $scope.data.protocol = 'auth_aes128_md5'
+          $scope.data.protocol_param = ''
+          $scope.data.obfs = 'http_simple'
+          $scope.data.obfs_param = 'download.windowsupdate.com'
+        }
+        
 
         $http.put('/api/user/setConnType/' + $scope.data.account, $scope.data).then(success => {
           alertDialog.show(`设置成功，请重新添加订阅后等待两分钟，再使用${$scope.data.connType}客户端连接`, '确定')

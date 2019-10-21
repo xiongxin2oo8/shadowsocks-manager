@@ -48,20 +48,20 @@ const pwd = async (accountId, password) => {
         port: accountInfo.port + server.shift,
         password: publicKey,
       }, {
-          host: server.host,
-          port: server.port,
-          password: server.password,
-        });
+        host: server.host,
+        port: server.port,
+        password: server.password,
+      });
     } else {
-      manager.send({
-        command: 'pwd',
-        port: accountInfo.port + server.shift,
-        password,
-      }, {
-          host: server.host,
-          port: server.port,
-          password: server.password,
-        });
+      // manager.send({
+      //   command: 'pwd',
+      //   port: accountInfo.port + server.shift,
+      //   password,
+      // }, {
+      //   host: server.host,
+      //   port: server.port,
+      //   password: server.password,
+      // });
     }
   });
 };

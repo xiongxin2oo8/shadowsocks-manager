@@ -142,10 +142,6 @@
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>端口：</div>
                                     <div flex="60" style="text-align:right"
-                                        ng-if="config.singleMode!='off' || server.singleMode!='off'">
-                                        {{ server.singlePort.split(',').join('或') }}
-                                    </div>
-                                    <div flex="60" style="text-align:right"
                                         ng-hide="config.singleMode!='off' || server.singleMode!='off'">
                                         {{ account.port + server.shift }}</div>
                                 </div>

@@ -40,29 +40,29 @@ const modifyAccountFlow = async (serverId, accountId, nextCheckTime) => {
 };
 
 var portList = {};
-const updatePorts = async server => {
-  if (!portList[server.id] || Date.now() - portList[server.id].update >= 120 * 1000) {
-    const ports = (await manager.send({ command: 'portlist' }, {
-      host: server.host,
-      port: server.port,
-      password: server.password,
-    }));
-    portList[server.id] = {
-      ports,
-      update: Date.now(),
-    };
-  }
-  return portList[server.id].ports;
-};
+// const updatePorts = async server => {
+//   if (!portList[server.id] || Date.now() - portList[server.id].update >= 120 * 1000) {
+//     const ports = (await manager.send({ command: 'portlist' }, {
+//       host: server.host,
+//       port: server.port,
+//       password: server.password,
+//     }));
+//     portList[server.id] = {
+//       ports,
+//       update: Date.now(),
+//     };
+//   }
+//   return portList[server.id].ports;
+// };
 
-const isPortExists = async (server, account) => {
-  const ports = await updatePorts(server);
-  if (ports.includes(server.shift + account.port)) {
-    return true;
-  } else {
-    return false;
-  }
-};
+// const isPortExists = async (server, account) => {
+//   const ports = await updatePorts(server);
+//   if (ports.includes(server.shift + account.port)) {
+//     return true;
+//   } else {
+//     return false;
+//   }
+// };
 
 const isAccountActive = (server, account) => {
   return !!account.active;
@@ -322,14 +322,15 @@ const addPortSSR = async (server, account, enable = 1) => {
       transfer_enable: 1000 * 1000 * 1000 * 5000,//5000G
       accountId: account.id,
       serverId: server.id,
-      port: server.shift + account.port,
+      port: account.is_multi_user == 0 ? (server.shift + account.port) : account.port,
       switch: 1,
       enable: enable,
       method: account.method,
       protocol: account.protocol,
-      protocol_param: `32#${account.port}:${account.password}`,
+      protocol_param: account.protocol_param,
       obfs: account.obfs,
       obfs_param: account.obfs_param,
+      is_multi_user: account.is_multi_user,//是否是承载多用户的端口 0/不是  1/混淆式 2、协议式
       uuid: account.uuid
     });
   }
@@ -372,27 +373,27 @@ const checkAccount = async (serverId, accountId) => {
     }
 
     // 检查当前端口是否存在
-    let exists = await isPortExists(serverInfo, accountInfo);
+    // let exists = await isPortExists(serverInfo, accountInfo);
     // 是否加入ssr表  v2也读取此表
     let ssr_exists = await knex('ssr_user').where({ serverId: serverInfo.id, accountId: accountInfo.id }).then(s => s[0]);
     //如果连接方式是SSR时 有SS账号或者只能使用单端口   则删除SS账号
-    if ((accountInfo.connType == 'SSR' && exists) || serverInfo.singleMode != 'off') {
-      deletePort(serverInfo, accountInfo);
-      exists = null;
-    }
+    // if ((accountInfo.connType == 'SSR' && exists) || serverInfo.singleMode != 'off') {
+    //   deletePort(serverInfo, accountInfo);
+    //   exists = null;
+    // }
     //如果端口不一致
     if (ssr_exists && ssr_exists.port != (serverInfo.shift + accountInfo.port)) {
       deletePortSSR(serverInfo, accountInfo);
       ssr_exists = null;
     }
     //设置连接方式时，已更新。这里可以不用判断
-    if (accountInfo.connType != 'SSR' && ssr_exists && ssr_exists.enable != 0) {
-      //deletePortSSR(serverInfo, accountInfo);
-      updateSSR(serverInfo, accountInfo, 0);
-    }
+    // if (accountInfo.connType != 'SSR' && ssr_exists && ssr_exists.enable != 0) {
+    //   //deletePortSSR(serverInfo, accountInfo);
+    //   updateSSR(serverInfo, accountInfo, 0);
+    // }
     // 检查账号是否激活
     if (!isAccountActive(serverInfo, accountInfo)) {
-      exists && deletePort(serverInfo, accountInfo);
+      // exists && deletePort(serverInfo, accountInfo);
       ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
@@ -400,53 +401,55 @@ const checkAccount = async (serverId, accountId) => {
     // 检查账号是否包含该服务器
     if (!hasServer(serverInfo, accountInfo)) {
       // await modifyAccountFlow(serverInfo.id, accountInfo.id, 20 * 60 * 1000 + randomInt(30000));
-      exists && deletePort(serverInfo, accountInfo);
+      // exists && deletePort(serverInfo, accountInfo);
       ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否过期
     if (isExpired(serverInfo, accountInfo)) {
-      exists && deletePort(serverInfo, accountInfo);
+      // exists && deletePort(serverInfo, accountInfo);
       ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否被ban
     if (await isBaned(serverInfo, accountInfo)) {
-      exists && deletePort(serverInfo, accountInfo);
+      // exists && deletePort(serverInfo, accountInfo);
       ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
 
     // 检查账号是否超流量
     if (await isOverFlow(serverInfo, accountInfo)) {
-      exists && deletePort(serverInfo, accountInfo);
+      // exists && deletePort(serverInfo, accountInfo);
       ssr_exists && deletePortSSR(serverInfo, accountInfo);
       return;
     }
-    if (accountInfo.connType == "SSR") {
-      if (!ssr_exists) {
-        addPortSSR(serverInfo, accountInfo);
-      }
-      //设置连接方式时，已更新。这里可以不用判断
-      if (ssr_exists && !ssr_exists.enable) {
-        //已添加但没启用SSR
-        updateSSR(serverInfo, accountInfo, 1)
-      }
-    } else {
-      !exists && addPort(serverInfo, accountInfo);
-      !ssr_exists && addPortSSR(serverInfo, accountInfo, 0);
-    }
 
+    !ssr_exists && addPortSSR(serverInfo, accountInfo, 1);
+
+    // if (accountInfo.connType == "SSR") {
+    //   if (!ssr_exists) {
+    //     addPortSSR(serverInfo, accountInfo);
+    //   }
+    //   //设置连接方式时，已更新。这里可以不用判断
+    //   if (ssr_exists && !ssr_exists.enable) {
+    //     //已添加但没启用SSR
+    //     updateSSR(serverInfo, accountInfo, 1)
+    //   }
+    // } else {
+    //   !exists && addPort(serverInfo, accountInfo);
+    //   !ssr_exists && addPortSSR(serverInfo, accountInfo, 0);
+    // }
   } catch (err) {
     //if (err.toString().toLowerCase().indexOf('timeout') > -1) {
-    let count = error_count[serverId] || 0;
-    error_count[serverId] = count + 1;
-    //掉线提醒
-    if (error_count[serverId] == 5) {
-      isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
-    }
+    // let count = error_count[serverId] || 0;
+    // error_count[serverId] = count + 1;
+    // //掉线提醒
+    // if (error_count[serverId] == 5) {
+    //   isTelegram && telegram.push(`[${serverInfo.name}]似乎掉线了，快来看看吧！`);
+    // }
     console.log('line-271', `count-${error_count[serverId]}`, serverId, accountId);
     logger.error(err);
     //}
@@ -460,7 +463,7 @@ cron.loop(
     try {
       await sleep(sleepTime);
       const servers = await knex('server').where({});
-      const totalAccounts = await knex('account_plugin').select(['id']);
+      //const totalAccounts = await knex('account_plugin').select(['id']);
       for (const server of servers) {
         await sleep(1000);
         await deleteExtraPorts(server);
