@@ -464,10 +464,10 @@ cron.loop(
       await sleep(sleepTime);
       const servers = await knex('server').where({});
       //const totalAccounts = await knex('account_plugin').select(['id']);
-      for (const server of servers) {
-        await sleep(1000);
-        await deleteExtraPorts(server);
-      }
+      // for (const server of servers) {
+      //   await sleep(1000);
+      //   await deleteExtraPorts(server);
+      // }
       await sleep(sleepTime);
       // if (servers.length * totalAccounts.length > 1000) {
       //   const ids = await knex('account_flow')

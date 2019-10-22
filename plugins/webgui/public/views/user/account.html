@@ -125,7 +125,7 @@
                         ng-if="accountList.length>2">{{!a.show_all?'查看':'收起'}}全部</a>
                 </md-subheader>
             </section>
-            <section ng-if="accountList.length>2 && a.show_all">
+            <section ng-if="accountList.length<=2 || a.show_all">
                 <md-list-item class="secondary-button-padding" ng-click="serverDetail(a,server.id)"
                     style="padding: 0;min-height: 40px;" id="open_tip{{a.id}}}{{server.id}}"
                     ng-repeat="server in a.serverList track by server.id">
@@ -173,11 +173,11 @@
                     </div>
                 </md-list-item>
             </section>
-            <section ng-if="!a.unServerList.length && accountList.length>2 && a.show_all">
+            <section ng-if="!a.unServerList.length && (accountList.length<=2 || a.show_all)">
                 <md-subheader class="md-no-sticky">您已经拥有了全部节点，好棒棒~
                 </md-subheader>
             </section>
-            <section ng-if="a.unServerList.length && accountList.length>2 && a.show_all">
+            <section ng-if="a.unServerList.length && (accountList.length<=2 || a.show_all)">
                 <md-subheader class="md-no-sticky">更高级套餐节点
                     <span ng-if='!isAccountOutOfDate(a)' style="color:green">&nbsp;({{a.unServerList.length}}个)</span>
                 </md-subheader>
