@@ -143,9 +143,43 @@ const getAddress = (address, ip) => {
   });
 };
 
+//base64
 const urlsafeBase64 = str => {
   return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 };
+//ssd
+const ssd = (account, server, index) => {
+  return {
+    id: index,//这是客户端排序的顺序
+    server: server.host,
+    port: account.port + server.shift,
+    encryption: server.method,
+    ratio: server.scale,
+    remarks: server.comment + (server.name || '这里显示备注')
+  }
+}
+const clash = (account, server) => {
+  return {
+    cipher: server.method,
+    name: server.comment + erver.name,
+    password: String(account.password),
+    port: account.port + server.shift,
+    server: server.host,
+    type: 'ss'
+  };
+}
+//小火箭
+const ss_shadowrocket = (account, server) => {
+  return 'ss://' + Buffer.from(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
+}
+//SS 默认链接
+const ss = (account, server) => {
+
+}
+//ssr 默认链接
+const ssr = (account, server) => {
+
+}
 
 exports.getSubscribeAccountForUser = async (req, res) => {
   try {
@@ -165,6 +199,14 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       for (const s of subscribeAccount.server) {
+        if (s.singleMode === 'ssr1port') {
+          s.comment = '[只支持SSR单端口]'
+        } else if (s.singleMode === 'v2ray') {
+          s.comment = '[只支持V2Ray]'
+        } else {
+          s.comment = '';
+        }
+        s.name = s.singleMode
         s.host = await getAddress(s.host, +resolveIp);
       }
       const baseSetting = await knex('webguiSetting').where({
@@ -199,7 +241,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
       const flowInfo = await flow.getServerPortFlowWithScale(0, accountInfo.id, [accountInfo.data.from, accountInfo.data.to], 1);
       //插入提示信息
-      let renew = {
+      let tip_addr = {
         flag: 1,
         method: 'chacha20',
         host: '127.0.0.1',
@@ -207,52 +249,36 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         v2rayPort: 80,
         comment: `备用地址：` + (config.plugins.webgui.siteback ? `${config.plugins.webgui.siteback}` : `${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}`)
       };
-      subscribeAccount.server.unshift(renew);
-      let insertFlow;
+      let tip_flow = {
+        flag: 1,
+        method: 'chacha20',
+        host: '127.0.0.1',
+        shift: 1,
+        v2rayPort: 80
+      };
       let tip = {};
       if (accountInfo.type == 1) {
-        insertFlow = { method: 'chacha20', host: '127.0.0.1', shift: 0, comment: '不限时不限量账号' };
+        tip_flow.comment = '不限时不限量账号';
         tip.admin = '不限时不限量账号';
       } else if (config.plugins.webgui.hideFlow) {
         if (accountInfo.data.flow < 100 * 1000 * 1000 * 1000) {
-          insertFlow = {
-            flag: 1,
-            method: 'chacha20',
-            host: '127.0.0.1',
-            shift: 1,
-            v2rayPort: 80,
-            comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
-          };
+          tip_flow.comment = '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack);
           tip.use = flowNumber(flowInfo[0]).replace(/\s*/g, "");
           tip.sum = flowNumber(accountInfo.data.flow + accountInfo.data.flowPack).replace(/\s*/g, "");
         } else {
           if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
-            insertFlow = {
-              flag: 1,
-              method: 'chacha20',
-              host: '127.0.0.1',
-              shift: 1,
-              v2rayPort: 80,
-              comment: '已封停，请购买流量包或联系管理员'
-            };
+            tip_flow.comment = '已封停，请购买流量包或联系管理员';
             tip.stop = '已封停，请购买流量包或联系管理员';
           }
         }
       } else {
         if (+showFlow) {
-          insertFlow = {
-            flag: 1,
-            method: 'chacha20',
-            host: '127.0.0.1',
-            shift: 1,
-            v2rayPort: 80,
-            comment: '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
-          };
+          tip_flow.comment = '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack);
           tip.use = flowNumber(flowInfo[0]).replace(/\s*/g, "");
           tip.sum = flowNumber(accountInfo.data.flow + accountInfo.data.flowPack).replace(/\s*/g, "");
         }
       }
-      let insertExpire = {
+      let tip_date = {
         flag: 1,
         method: 'chacha20',
         host: '127.0.0.1',
@@ -264,12 +290,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
 
       if (accountInfo.data.expire <= new Date()) {
-        subscribeAccount.server = [insertExpire, renew]
-      } else {
-        if ((!app && type != 'shadowrocket') && app != 'shadowrocket') {
-          subscribeAccount.server.unshift(insertFlow);
-          subscribeAccount.server.unshift(insertExpire);
-        }
+        subscribeAccount.server = [tip_date, tip_addr]
       }
 
       let result = '';
@@ -281,23 +302,14 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             airport: baseSetting.title,
             port: 12580,
             encryption: 'chacha20',
-            password: subscribeAccount.account.password,
+            password: accountInfo.password,
             traffic_used: ((flowInfo[0] || 10) / 1000000000).toFixed(2),
             traffic_total: accountInfo.type == 1 || config.plugins.webgui.hideFlow ? 500 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
             expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
           };
+          subscribeAccount.server.unshift(tip_addr);
           let servers = subscribeAccount.server.map((s, index) => {
-            if (s.singleMode != 'off') {
-              s.comment = s.name + '[此节点只支持SSR]';
-            }
-            return {
-              id: index,//这是客户端排序的顺序
-              server: s.host,
-              port: (subscribeAccount.account.port + s.shift),
-              encryption: s.method,
-              ratio: s.scale,
-              remarks: s.comment || '这里显示备注'
-            }
+            return ssd(accountInfo, s, index);
           });
           obj.servers = servers;
           result = 'ssd://' + new Buffer(JSON.stringify(obj)).toString('base64');
@@ -307,18 +319,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if ((!app && type === 'clash') || app === 'clash') {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
+          subscribeAccount.server.unshift(tip_date);
+          subscribeAccount.server.unshift(tip_addr);
           clashConfig.Proxy = subscribeAccount.server.map(server => {
-            if (server.singleMode != 'off') {
-              server.comment = server.name + '[此节点只支持SSR]';
-            }
-            return {
-              cipher: server.method,
-              name: server.subscribeName || server.comment || server.name,
-              password: String(subscribeAccount.account.password),
-              port: subscribeAccount.account.port + server.shift,
-              server: server.host,
-              type: 'ss'
-            };
+            return clash(account, server);
           });
           clashConfig['Proxy Group'][0] = {
             name: 'Proxy',
@@ -331,11 +335,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         }
 
         if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
+          subscribeAccount.server.unshift(tip_addr);
           result = subscribeAccount.server.map(s => {
-            if (s.singleMode != 'off' && !s.flag) {
-              s.comment = s.name + '[此节点只支持SSR]';
-            }
-            return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
+            return ss_shadowrocket(accountInfo, s);
           }).join('\r\n');
           let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
           let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
@@ -343,10 +345,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           return res.send(Buffer.from(result).toString('base64'));
         }
         //其他方式
+        subscribeAccount.server.unshift(tip_date);
+        subscribeAccount.server.unshift(tip_addr);
         result = subscribeAccount.server.map(s => {
-          if (s.singleMode != 'off') {
-            s.comment = s.name + '[此节点只支持SSR]';
-          }
           if ((!app && type === 'quantumult') || app === 'quantumult') {
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent((s.comment || '这里显示备注'));
           }
@@ -358,21 +359,16 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       //SSR 模式
       if (accountInfo.connType === "SSR") {
         if (type === 'ssr') {
+          const singlePorts = await knex('account_plugin').select().where('is_multi_user', '>', 0);
           result = subscribeAccount.server.map(s => {
             //强制单一模式
-            if (accountSetting.singleMode != 'off' || s.singleMode != 'off' || +singlePort) {
+            if (accountSetting.singleMode === 'ssr1port' || s.singleMode === 'ssr1port' || +singlePort) {
+              let str = '';
               //单端口，可以是多个
-              let p = s.singlePort ? s.singlePort.split(',') : [];
-              if (p.length > 0) {
-                let str = '';
-                for (var val of p) {
-                  if (val) {
-                    str += 'ssr://' + urlsafeBase64(s.host + ':' + val + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + ' - ' + val) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
-                  }
-                }
-                return str;
+              for (let item of singlePorts) {
+                str += 'ssr://' + urlsafeBase64(s.host + ':' + item.port + ':' + item.protocol + ':' + item.method + ':' + item.obfs + ':' + urlsafeBase64(item.password) + '/?obfsparam=' + (item.obfs_param ? urlsafeBase64(item.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + ' - ' + item.port) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
               }
-              return 'ssr://' + urlsafeBase64(s.host + ':' + (s.singlePort) + ':' + accountInfo.protocol + ':chacha20-ietf:' + accountInfo.obfs + ':' + urlsafeBase64('balala') + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.comment + (s.singlePort ? (' - ' + s.singlePort) : '')) + '&group=' + urlsafeBase64(baseSetting.title));
+              return str;
             } else {
               return 'ssr://' + urlsafeBase64(s.host + ':' + (accountInfo.port + s.shift) + ':' + accountInfo.protocol + ':' + accountInfo.method + ':' + accountInfo.obfs + ':' + urlsafeBase64(accountInfo.password) + '/?obfsparam=' + (accountInfo.obfs_param ? urlsafeBase64(accountInfo.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(s.comment) + '&group=' + urlsafeBase64(baseSetting.title));
             }
