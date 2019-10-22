@@ -89,11 +89,19 @@ gulp.task('webguiBuild', () => {
 //gulp.task('default', gulp.series('clean', gulp.parallel('webguiBuild', 'webguiLib')));
 gulp.task('webguiCss', () => {
   return gulp.src([
-    'plugins/webgui/public/styles/**/*.css',
+    'plugins/webgui/public/styles/**/*.css'
   ])
   .pipe(cleanCSS({compatibility: '*'}))
   .pipe(concat('style.css'))
   .pipe(gulp.dest('plugins/webgui/libs'));
 });
 
+/* 插件样式 */
+// gulp.task('pluginStyles', function() {
+//   var fic_css = gulp.src(['./node_modules/flag-icon-css/css/flag-icon.min.css'])
+//      .pipe(gulp.dest('plugins/webgui/libs/flag-icon-css/css'));
+//   return gulp.src(['./node_modules/flag-icon-css/flags/**/*'])
+//       .pipe(gulp.dest('plugins/webgui/libs/flag-icon-css/flags'));
+//   return merge(fic_css, fic_icon);merge-stream
+// });
 gulp.task('default', gulp.series('clean', gulp.parallel('webguiBuild', 'webguiLib', 'webguiCss')));

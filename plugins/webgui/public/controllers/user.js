@@ -537,12 +537,12 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
 
       //提示信息
-      $scope.serverTip = (ev, server) => {
+      $scope.serverTip = (ev,aid, server) => {
         $mdDialog.show({
-          contentElement: '#tip' + server.id,
+          contentElement: `#tip${aid}${server.id}`,
           parent: angular.element(document.body),
           targetEvent: ev,
-          openFrom: '#open_tip' + server.id,
+          openFrom: `#open_tip${aid}${server.id}`,
           closeTo: angular.element(document.querySelector('#open_tip' + server.id)),
           clickOutsideToClose: true
         });

@@ -1,6 +1,7 @@
 const manager = appRequire('services/manager');
 const serverManager = appRequire('plugins/flowSaver/server');
 const knex = appRequire('init/knex').knex;
+const rp = require('request-promise');
 
 exports.getServers = (req, res) => {
   serverManager.list({
@@ -38,6 +39,25 @@ exports.getOneServer = (req, res) => {
   }).catch(err => {
     console.log('line-39', err);
     res.status(500).end();
+  });
+};
+
+//获得服务器的ip信息  国家或地区
+const serverIpInfo = async ip => {
+  const uri = `http://ip-api.com/json/${ip}`;
+  return rp({ uri, timeout: 10 * 1000 }).then(success => {
+    const decode = (s) => {
+      return unescape(s.replace(/\\u/g, '%u'));
+    };
+    let data = JSON.parse(decode(success));
+    if (data.status === 'success') {
+      data.countryCode = data.countryCode.toLowerCase();
+    } else {
+      data.countryCode = 'cn';
+    }
+    return data;
+  }).catch(err => {
+    console.log(err);
   });
 };
 
@@ -90,6 +110,7 @@ exports.addServer = async (req, res) => {
     const v2rayPath = req.body.v2rayPath;
     const v2rayHost = req.body.v2rayHost;
     const sort = +req.body.sort;
+    const area = (await serverIpInfo(address.split(':')[0])).countryCode;
     // await manager.send({
     //   command: 'flow',
     //   options: { clear: false, },
@@ -102,6 +123,7 @@ exports.addServer = async (req, res) => {
       type,
       name,
       host: address,
+      area,
       port,
       password,
       method,
@@ -175,6 +197,8 @@ exports.editServer = async (req, res) => {
     const v2rayHost = req.body.v2rayHost;
     const sort = +req.body.sort;
     const check = +req.body.check;
+    const area = (await serverIpInfo(address.split(':')[0])).countryCode;
+    console.log('area',area);
     // await manager.send({
     //   command: 'flow',
     //   options: { clear: false, },
@@ -188,6 +212,7 @@ exports.editServer = async (req, res) => {
       type,
       name,
       host: address,
+      area,
       port,
       password,
       method,

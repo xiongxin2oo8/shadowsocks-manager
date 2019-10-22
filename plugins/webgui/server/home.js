@@ -75,7 +75,7 @@ const getNewPort = async () => {
   });
 };
 
-const createUser = async (email, password, from = '') => {
+const createUser = async (email, password, ip = '', from = '') => {
   let type = 'normal';
   await knex('user').count('id AS count').then(success => {
     if (!success[0].count) {
@@ -95,6 +95,7 @@ const createUser = async (email, password, from = '') => {
   const [userId] = await user.add({
     username: email,
     email,
+    ip,
     password,
     type,
     group,
@@ -280,6 +281,7 @@ exports.login = async (req, res) => {
 
 exports.googleLogin = async (req, res) => {
   try {
+    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
     const { code, redirect_uri } = req.body;
     const {
       google_login_client_id: client_id,
@@ -322,7 +324,7 @@ exports.googleLogin = async (req, res) => {
         return res.send({ id: user.id, type: user.type });
       } else {
         const password = Math.random().toString();
-        const user = await createUser(email, password, 'Google');
+        const user = await createUser(email, password, ip, 'Google');
         req.session.user = user.id;
         req.session.type = user.type;
         return res.send({ id: user.id, type: user.type });
@@ -358,6 +360,7 @@ const getFacebookAppToken = async () => {
 
 exports.facebookLogin = async (req, res) => {
   try {
+    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
     const { code, redirect_uri } = req.body;
     const {
       facebook_login_client_id: client_id,
@@ -409,7 +412,7 @@ exports.facebookLogin = async (req, res) => {
         return res.send({ id: user.id, type: user.type });
       } else {
         const password = Math.random().toString();
-        const user = await createUser(email, password, 'Facebook');
+        const user = await createUser(email, password, ip, 'Facebook');
         req.session.user = user.id;
         req.session.type = user.type;
         return res.send({ id: user.id, type: user.type });
@@ -424,6 +427,7 @@ exports.facebookLogin = async (req, res) => {
 
 exports.githubLogin = async (req, res) => {
   try {
+    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
     const { code, redirect_uri, state } = req.body;
     const {
       github_login_client_id: client_id,
@@ -474,7 +478,7 @@ exports.githubLogin = async (req, res) => {
         return res.send({ id: user.id, type: user.type });
       } else {
         const password = Math.random().toString();
-        const user = await createUser(email, password, 'Github');
+        const user = await createUser(email, password, ip, 'Github');
         req.session.user = user.id;
         req.session.type = user.type;
         return res.send({ id: user.id, type: user.type });
@@ -517,6 +521,7 @@ exports.getTwitterLoginUrl = async (req, res) => {
 
 exports.twitterLogin = async (req, res) => {
   try {
+    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
     const { oauth_token, oauth_verifier, callbackUrl } = req.body;
     const time = callbackUrl.split('?time=')[1];
     if (Math.abs(Date.now() - (+time)) >= 10 * 60 * 1000) {
@@ -544,7 +549,7 @@ exports.twitterLogin = async (req, res) => {
       return res.send({ id: user.id, type: user.type });
     } else {
       const password = Math.random().toString();
-      const user = await createUser(email, password, 'Twitter');
+      const user = await createUser(email, password, ip, 'Twitter');
       req.session.user = user.id;
       req.session.type = user.type;
       return res.send({ id: user.id, type: user.type });
@@ -628,6 +633,7 @@ exports.status = async (req, res) => {
     const github_login_client_id = config.plugins.webgui.github_login_client_id || '';
     const crisp = (config.plugins.webgui_crisp && config.plugins.webgui_crisp.use) ? config.plugins.webgui_crisp.websiteId : '';
     const singleMode = accountSetting.singleMode || 'off';
+    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
     let alipay;
     let paypal;
@@ -691,9 +697,10 @@ exports.status = async (req, res) => {
         $.Windows = /Windows NT ([0-9\._]+)[\);]/.exec(ua)[1];
       return $;
     }
-    let os=checkOS();
+    let os = checkOS();
     res.send({
       status,
+      ip,
       id,
       email,
       version,
@@ -830,9 +837,9 @@ exports.sendResetPasswordEmail = (req, res) => {
     return user.edit({
       username: email,
     }, {
-        resetPasswordId: token,
-        resetPasswordTime: Date.now(),
-      });
+      resetPasswordId: token,
+      resetPasswordTime: Date.now(),
+    });
   }).then(success => {
     res.send('success');
   }).catch(err => {
@@ -876,10 +883,10 @@ exports.resetPassword = (req, res) => {
     return user.edit({
       resetPasswordId: token,
     }, {
-        password,
-        resetPasswordId: null,
-        resetPasswordTime: null,
-      });
+      password,
+      resetPasswordId: null,
+      resetPasswordTime: null,
+    });
   }).then(success => {
     res.send('success');
   }).catch(err => {

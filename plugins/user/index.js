@@ -56,6 +56,7 @@ const addUser = async (options) => {
     if (options.telegramId) {
       Object.assign(insert, { telegram: options.telegramId });
     }
+    insert.regIp=options.ip;
     const user = await knex('user').insert(insert);
     return user;
   } catch (err) {

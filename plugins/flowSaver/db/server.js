@@ -85,9 +85,21 @@ const createTable = async () => {
       });
     }
     const sort = await knex.schema.hasColumn(tableName, 'sort');
-    if (!v2rayHost) {
+    if (!sort) {
       await knex.schema.table(tableName, function (table) {
         table.integer('sort').defaultTo(99);
+      });
+    }
+    const area = await knex.schema.hasColumn(tableName, 'area');
+    if (!area) {
+      await knex.schema.table(tableName, function (table) {
+        table.string('area');
+      });
+    }
+    const status = await knex.schema.hasColumn(tableName, 'status');
+    if (!status) {
+      await knex.schema.table(tableName, function (table) {
+        table.integer('status').defaultTo(0);
       });
     }
   }
@@ -97,6 +109,8 @@ const createTable = async () => {
       table.string('type').defaultTo('Shadowsocks');
       table.string('name');
       table.string('host');
+      table.string('area');//所属国家或地区
+      table.integer('status');//状态 0正常 1/维护中 2/流量耗尽
       table.integer('port');
       table.string('password');
       table.float('scale').defaultTo(1);
@@ -143,6 +157,7 @@ const createTable = async () => {
       host,
       port,
       password,
+      area: 'cn'
     });
   }
   return;

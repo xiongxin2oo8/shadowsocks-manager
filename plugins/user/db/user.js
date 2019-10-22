@@ -18,6 +18,7 @@ const createTable = async() => {
       table.bigInteger('resetPasswordTime');
       table.integer('group').defaultTo(0);
       table.string('comment').defaultTo('');
+      table.string('regIp');
       table.string('crisp');
     });
   }
@@ -36,6 +37,12 @@ const createTable = async() => {
   if(!hasCrisp) {
     await knex.schema.table(tableName, function(table) {
       table.string('crisp');
+    });
+  }
+  const regIp = await knex.schema.hasColumn(tableName, 'regIp');
+  if(!hasCrisp) {
+    await knex.schema.table(tableName, function(table) {
+      table.string('regIp');
     });
   }
 };

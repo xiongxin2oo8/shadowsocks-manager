@@ -14,6 +14,12 @@ const createTable = async () => {
         table.string('uuid');
       });
     }
+    const is_multi_user = await knex.schema.hasColumn(tableName, 'is_multi_user');
+    if(!is_multi_user) {
+      await knex.schema.table(tableName, function(table) {
+        table.integer('is_multi_user').defaultTo(0);
+      });
+    }
     return;
   }
   return knex.schema.createTable(tableName, function(table) {
@@ -34,6 +40,7 @@ const createTable = async () => {
     table.string('obfs');
     table.string('obfs_param');
     table.string('uuid');
+    table.integer('is_multi_user').defaultTo(0);
     table.index(['id', 'port'], 'index');
   });
 };

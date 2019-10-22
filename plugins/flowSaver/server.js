@@ -4,12 +4,12 @@ const accountFlow = appRequire('plugins/account/accountFlow');
 const moment = require('moment');
 
 const add = async options => {
-  const { type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
+  const { type = 'Shadowsocks', name, host, area, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
   const [serverId] = await knex('server').insert({
     type,
     name,
     comment,
-    host,
+    host, area,
     port,
     password,
     method,
@@ -38,7 +38,7 @@ const del = (id) => {
 };
 
 const edit = async options => {
-  const { id, type = 'Shadowsocks', name, host, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort,
+  const { id, type = 'Shadowsocks', name, host, area, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort,
     singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
@@ -69,7 +69,7 @@ const edit = async options => {
     type,
     name,
     comment,
-    host,
+    host, area,
     port,
     password,
     method,

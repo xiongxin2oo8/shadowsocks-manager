@@ -1,6 +1,6 @@
 <style>
     md-list-item._md-button-wrap>div.md-button:first-child {
-        padding: 8px;
+        padding: 0 8px;
     }
 </style>
 <div ng-if="accountResult.length>0"
@@ -58,22 +58,37 @@
                                     <span ng-if="a.type === 1" translate>不限时</span><br>
                                     <span ng-if="a.type >=2 && a.type <= 5">
                                         <span>{{ a.data.expire | date : 'yyyy-MM-dd HH:mm' }}</span>
-                                        <span ng-style="fontColor(a)">({{  a.data.expire | timeago | translateTime }})</span>
+                                        <span
+                                            ng-style="fontColor(a)">({{  a.data.expire | timeago | translateTime }})</span>
                                     </span>
                                 </div>
-                                <div style="font-size: 14px;margin: 0"> 下次流量重置时间：<br>
+                                <div style="font-size: 14px;margin: 0" ng-if="!isAccountOutOfDate(a)"> 下次流量重置时间：<br>
                                     <span ng-if="a.type === 1">{{ '无' | translate }}</span>
                                     <span ng-if="a.type >=2 && a.type <= 5">
                                         <span>{{a.data.to | date : 'yyyy-MM-dd HH:mm'}}</span>
                                     </span>
                                 </div>
-                                <div style="font-size: 14px;margin: 0">
+                                <div style="font-size: 14px;margin: 0" ng-if="!isAccountOutOfDate(a)">
                                     使用量：
                                     <span ng-if="a.type === 1">{{ '不限量' | translate }}</span>
                                     <span ng-if="a.type >=2 && a.type <= 5">
-                                        <span ng-style="a.isFlowOutOfLimit[server.id] ? {color: '#a33'} : {color: '#333'}">{{ a.serverPortFlow | flow }} / {{ a.data.flow + a.data.flowPack | flow }}
+                                        <span
+                                            ng-style="a.isFlowOutOfLimit[server.id] ? {color: '#a33'} : {color: '#333'}">{{ a.serverPortFlow | flow }}
+                                            / {{ a.data.flow + a.data.flowPack | flow }}
                                         </span>
                                     </span>
+                                </div>
+                                <div style="font-size: 14px;margin: 0"  ng-if="!isAccountOutOfDate(a)">
+                                    在线设备数：
+                                    <span>0 / 2</span>
+                                </div>
+                                <div style="font-size: 14px;margin: 0">
+                                    当前IP：
+                                    <span>未知</span>
+                                </div>
+                                <div style="font-size: 14px;margin: 0">
+                                    状态：
+                                    <span>正常</span>
                                 </div>
                             </md-dialog>
                         </div>
@@ -111,39 +126,40 @@
                 </md-subheader>
             </section>
             <section ng-if="accountList.length>2 && a.show_all">
-                <md-list-item class="secondary-button-padding" ng-click="serverDetail(a,server.id)" style="padding: 0;"
-                    id="open_tip{{server.id}}" ng-repeat="server in a.serverList track by server.id">
-                    <p>{{server.name }}</p>
+                <md-list-item class="secondary-button-padding" ng-click="serverDetail(a,server.id)"
+                    style="padding: 0;min-height: 40px;" id="open_tip{{a.id}}}{{server.id}}"
+                    ng-repeat="server in a.serverList track by server.id">
+                    <span class="flag-icon flag-icon-{{server.area}}"></span>
+                    <p style="margin-left: 5px;">{{server.name }}</p>
                     <div class="md-primary">
                         <!-- <span style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #cc4d4d;min-height: 20px;                    color: white;margin: 0 2px;">维护中</span> -->
-                        <md-button class="md-secondary" ng-if="server.bad"
+                        <md-button class="md-secondary" ng-if="server.status==1"
                             style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #cc4d4d;min-height: 20px;                    color: white;margin: 0 2px;"
-                            ng-click="serverTip($event,server)">维护中
+                            ng-click="serverTip($event,a.id,server)">维护中
                         </md-button>
                         <md-button class="md-secondary" ng-if="server.v2ray"
                             style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #0fb30f;min-height: 20px;                    color: white;margin: 0 2px;"
-                            ng-click="serverTip($event,server)">V2Ray
+                            ng-click="serverTip($event,a.id,server)">V2Ray
                         </md-button>
                         <md-button class="md-secondary" ng-if="server.scale<=0.5"
                             style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #0fb30f;min-height: 20px;                    color: white;margin: 0 2px"
-                            ng-click="serverTip($event,server)">倍率 {{server.scale}}
+                            ng-click="serverTip($event,a.id,server)">倍率 {{server.scale}}
                         </md-button>
                         <md-button class="md-secondary" ng-if="server.scale>0.5 && server.scale<=1"
                             style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #47af75;min-height: 20px;                    color: white;margin: 0 2px"
-                            ng-click="serverTip($event,server)">倍率 {{server.scale}}
+                            ng-click="serverTip($event,a.id,server)">倍率 {{server.scale}}
                         </md-button>
                         <md-button class="md-secondary" ng-if="server.scale>1 && server.scale<2"
                             style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #ce7948;min-height: 20px;                    color: white;margin: 0 2px"
-                            ng-click="serverTip($event,server)">倍率 {{server.scale}}
+                            ng-click="serverTip($event,a.id,server)">倍率 {{server.scale}}
                         </md-button>
                         <md-button class="md-secondary" ng-if="server.scale>=2"
                             style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #000000;min-height: 20px;                    color: white;margin: 0 2px"
-                            ng-click="serverTip($event,server)">倍率 {{server.scale}}
+                            ng-click="serverTip($event,a.id,server)">倍率 {{server.scale}}
                         </md-button>
-
                     </div>
                     <div style="visibility: hidden">
-                        <div class="md-dialog-container" id="tip{{server.id}}">
+                        <div class="md-dialog-container" id="tip{{a.id}}{{server.id}}">
                             <md-dialog layout-padding>
                                 <h3 style="margin: 0">{{server.name}}</h3>
                                 <p style="font-size: 14px;margin: 0">此节点倍率为 {{server.scale}}，即使用 1G流量，按
@@ -166,14 +182,50 @@
                     <span ng-if='!isAccountOutOfDate(a)' style="color:green">&nbsp;({{a.unServerList.length}}个)</span>
                 </md-subheader>
                 <md-list-item class="secondary-button-padding" ng-click="serverDetail(a,server.id)"
+                    style="padding: 0;min-height: 40px;" id="open_tip{{a.id}}}{{server.id}}"
                     ng-repeat="server in a.unServerList track by server.id">
-                    <p>{{server.comment }}</p>
-                    <!-- <button class="md-button" type="button"  md-colors="{background: 'teal'}">
-                        V2Ray config.themePrimary
-                    </button> -->
-                    <md-button class="md-secondary" style="min-width: 20px">倍率
-                        {{server.scale}}
-                    </md-button>
+                    <span class="flag-icon flag-icon-{{server.area}}"></span>
+                    <p style="margin-left: 5px;">{{server.name }}</p>
+                    <div class="md-primary">
+                        <!-- <span style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #cc4d4d;min-height: 20px;                    color: white;margin: 0 2px;">维护中</span> -->
+                        <md-button class="md-secondary" ng-if="server.status==1"
+                            style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #cc4d4d;min-height: 20px;                    color: white;margin: 0 2px;"
+                            ng-click="serverTip($event,a.id,server)">维护中
+                        </md-button>
+                        <md-button class="md-secondary" ng-if="server.v2ray"
+                            style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #0fb30f;min-height: 20px;                    color: white;margin: 0 2px;"
+                            ng-click="serverTip($event,a.id,server)">V2Ray
+                        </md-button>
+                        <md-button class="md-secondary" ng-if="server.scale<=0.5"
+                            style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #0fb30f;min-height: 20px;                    color: white;margin: 0 2px"
+                            ng-click="serverTip($event,a.id,server)">倍率 {{server.scale}}
+                        </md-button>
+                        <md-button class="md-secondary" ng-if="server.scale>0.5 && server.scale<=1"
+                            style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #47af75;min-height: 20px;                    color: white;margin: 0 2px"
+                            ng-click="serverTip($event,a.id,server)">倍率 {{server.scale}}
+                        </md-button>
+                        <md-button class="md-secondary" ng-if="server.scale>1 && server.scale<2"
+                            style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #ce7948;min-height: 20px;                    color: white;margin: 0 2px"
+                            ng-click="serverTip($event,a.id,server)">倍率 {{server.scale}}
+                        </md-button>
+                        <md-button class="md-secondary" ng-if="server.scale>=2"
+                            style="min-width: 20px;font-size: 12px;line-height: 25px;border-radius: 3px;padding: 0 4px;background: #000000;min-height: 20px;                    color: white;margin: 0 2px"
+                            ng-click="serverTip($event,a.id,server)">倍率 {{server.scale}}
+                        </md-button>
+                    </div>
+                    <div style="visibility: hidden">
+                        <div class="md-dialog-container" id="tip{{a.id}}{{server.id}}">
+                            <md-dialog layout-padding>
+                                <h3 style="margin: 0">{{server.name}}</h3>
+                                <p style="font-size: 14px;margin: 0">此节点倍率为 {{server.scale}}，即使用 1G流量，按
+                                    {{server.scale}}G计算。</p>
+                                <p style="font-size: 14px;margin: 0">{{server.comment}}</p>
+                                <p style="font-size: 14px;margin: 0;color: red" ng-if="server.bad">
+                                    此节点在维护中，暂时无法使用。
+                                </p>
+                            </md-dialog>
+                        </div>
+                    </div>
                 </md-list-item>
             </section>
         </md-card>
