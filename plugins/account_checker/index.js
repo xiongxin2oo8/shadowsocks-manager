@@ -382,9 +382,11 @@ const checkAccount = async (serverId, accountId) => {
     //   exists = null;
     // }
     //如果端口不一致
-    if (ssr_exists && ssr_exists.port != (serverInfo.shift + accountInfo.port)) {
-      deletePortSSR(serverInfo, accountInfo);
-      ssr_exists = null;
+    if (accountInfo.is_multi_user === 0) {
+      if (ssr_exists && ssr_exists.port != (serverInfo.shift + accountInfo.port)) {
+        deletePortSSR(serverInfo, accountInfo);
+        ssr_exists = null;
+      }
     }
     //设置连接方式时，已更新。这里可以不用判断
     // if (accountInfo.connType != 'SSR' && ssr_exists && ssr_exists.enable != 0) {
@@ -804,6 +806,10 @@ const remind = async () => {
   }
 }
 cron.cron(() => {
-  logger.info('每天10点执行');
-  remind();
+  if (config.plugins.email && config.plugins.email.use) {
+    logger.info('每天10点执行，过期提醒');
+    remind();
+  } else {
+    logger.info('未启用邮件功能');
+  }
 }, 'Remind', '2 10 * * *', 23 * 3600);

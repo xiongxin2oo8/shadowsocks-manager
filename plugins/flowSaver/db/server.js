@@ -101,6 +101,12 @@ const createTable = async () => {
       await knex.schema.table(tableName, function (table) {
         table.integer('status').defaultTo(0);
       });
+    }    
+    const node_speedlimit = await knex.schema.hasColumn(tableName, 'node_speedlimit');
+    if (!node_speedlimit) {
+      await knex.schema.table(tableName, function (table) {
+        table.float('node_speedlimit').defaultTo(0);
+      });
     }
   }
   else {
@@ -131,6 +137,7 @@ const createTable = async () => {
       table.string('v2rayNet');
       table.string('v2rayPath');
       table.string('v2rayHost');
+      table.float('node_speedlimit').defaultTo(0);
       table.integer('sort').defaultTo(99);
     });
   }

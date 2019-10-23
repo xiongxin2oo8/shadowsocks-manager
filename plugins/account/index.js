@@ -34,56 +34,58 @@ const addAccount = async (type, options) => {
   const connType = await knex('webguiSetting').where({
     key: 'account'
   }).then(s => s[0]).then(s => JSON.parse(s.value).connType || '');
+
+  //默认
+  if (connType === 'SS') {
+    options.method = 'xchacha20-ietf-poly1305';
+    options.protocol = 'origin'
+    options.protocol_param = ''
+    options.obfs = 'plain'
+    options.obfs_param = ''
+  }
+  if (options.connType === 'SSR' || options.is_multi_user > 0) {
+    options.method = 'chacha20-ietf';
+    options.protocol = 'auth_aes128_md5'
+    options.protocol_param = ''
+    options.obfs = 'http_simple'
+    options.obfs_param = 'download.windowsupdate.com'
+  }
+  let entity = {
+    type,
+    userId: options.user,
+    port: options.port,
+    subscribe: crypto.randomBytes(8).toString('hex'),
+    password: options.password,
+    status: 0,
+    server: options.server ? options.server : null,
+    key,
+    connType: connType,
+    method: options.method,
+    protocol: options.protocol,
+    protocol_param: options.protocol_param,
+    obfs: options.obfs,
+    obfs_param: options.obfs_param,
+    is_multi_user: options.is_multi_user,
+    uuid: UUID.v1()
+  }
   if (type === 1) {
-    const [accountId] = await knex('account_plugin').insert({
-      type,
-      orderId: 0,
-      userId: options.user,
-      port: options.port,
-      subscribe: crypto.randomBytes(8).toString('hex'),
-      password: options.password,
-      status: 0,
-      server: options.server ? options.server : null,
-      autoRemove: 0,
-      key,
-      connType: connType,
-      method: 'chacha20-ietf',
-      protocol: 'auth_aes128_md5',
-      protocol_param: `32#${options.port}:${options.password}`,
-      obfs: 'http_simple',
-      obfs_param: 'download.windowsupdate.com',
-      uuid: UUID.v1()
-    });
+    entity.orderId = 0;
+    entity.autoRemove = 0
+    const [accountId] = await knex('account_plugin').insert(entity);
     await accountFlow.add(accountId);
     return accountId;
   } else if (type >= 2 && type <= 5) {
-    const [accountId] = await knex('account_plugin').insert({
-      type,
-      orderId: options.orderId || 0,
-      userId: options.user,
-      port: options.port,
-      subscribe: crypto.randomBytes(8).toString('hex'),
-      password: options.password,
-      data: JSON.stringify({
-        create: options.time || Date.now(),
-        flow: options.flow || 1 * 1000 * 1000 * 1000,
-        limit: options.limit || 1,
-      }),
-      status: 0,
-      server: options.server ? options.server : null,
-      autoRemove: options.autoRemove || 0,
-      autoRemoveDelay: options.autoRemoveDelay || 0,
-      multiServerFlow: options.multiServerFlow || 0,
-      active: options.active,
-      key,
-      connType: connType,
-      method: 'chacha20-ietf',
-      protocol: 'auth_aes128_md5',
-      protocol_param: `32#${options.port}:${options.password}`,
-      obfs: 'http_simple',
-      obfs_param: 'download.windowsupdate.com',
-      uuid: UUID.v1()
+    entity.orderId = options.orderId || 0;
+    entity.data = JSON.stringify({
+      create: options.time || Date.now(),
+      flow: options.flow || 1 * 1000 * 1000 * 1000,
+      limit: options.limit || 1,
     });
+    entity.autoRemove = options.autoRemove || 0;
+    entity.autoRemoveDelay = options.autoRemoveDelay || 0;
+    entity.multiServerFlow = options.multiServerFlow || 0;
+    entity.active = options.active;
+    const [accountId] = await knex('account_plugin').insert(entity);
     await accountFlow.add(accountId);
     return accountId;
   }
@@ -133,7 +135,8 @@ const getAccount = async (options = {}) => {
     'account_plugin.obfs as obfs',
     'account_plugin.obfs_param as obfs_param',
     'account_plugin.lastSubscribeTime as lastSubscribeTime',
-    'account_plugin.uuid'
+    'account_plugin.uuid',
+    'account_plugin.is_multi_user'
   ])
     .leftJoin('user', 'user.id', 'account_plugin.userId')
     .where(where)
@@ -175,7 +178,7 @@ const delAccount = async id => {
   if (!accountInfo) {
     return Promise.reject('Account id[' + id + '] not found');
   }
-  //const result = await knex('account_plugin').delete().where({ id });
+  const result = await knex('account_plugin').delete().where({ id });
   // const servers = await knex('server').where({});
   // servers.forEach(server => {
   //   manager.send({
@@ -687,7 +690,7 @@ const addAccountTime = async (userId, accountId, accountType, accountPeriod = 1)
       userId,
       server: getPaymentInfo(accountType).server ? JSON.stringify(getPaymentInfo(accountType).server) : null,
       port,
-      password: Math.random().toString().substr(2, 10),
+      password: Math.ceil(Math.random() * 9) + Math.random().toString().substr(2, 3),//防止密码首位出现0
       data: JSON.stringify({
         create: Date.now(),
         flow: getPaymentInfo(accountType).flow * 1000 * 1000,
@@ -841,6 +844,7 @@ const getAccountForSubscribe = async (token, ip) => {
     //loginFail(token, ip);//由于订阅使用了反向代理，都是同一ip请求
     return Promise.reject('can not find account');
   }
+  await knex('subscribe_log').insert({ accountId: account.id, userId: account.userId, ip: ip, datetime: Date.now() });
   if (account.data) {
     account.data = JSON.parse(account.data);
   } else {
@@ -1041,7 +1045,7 @@ const setConnType = async (options) => {
   //直接删除
   await knex('ssr_user').where({ accountId: accountInfo.id }).del();
   //优先检查 再添加
-  await knex('account_flow').update({ nextCheckTime: 100 }).where({ accountId });
+  await knex('account_flow').update({ nextCheckTime: 100 }).where({ accountId: accountInfo.id });
 };
 
 exports.addAccount = addAccount;

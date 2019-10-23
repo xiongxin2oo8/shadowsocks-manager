@@ -16,7 +16,8 @@
                     <label translate>类型</label>
                     <div layout="row">
                         <md-select ng-model="account.type" flex="75">
-                            <md-option ng-repeat="type in typeList" value="{{type.value}}" translate>{{ type.key }}</md-option>
+                            <md-option ng-repeat="type in typeList" value="{{type.value}}" translate>{{ type.key }}
+                            </md-option>
                         </md-select>
                         <div ng-if="+account.type >= 2 && +account.type <= 5" layout="row" layout-align="end center">
                             <md-button ng-click="pickTime()">
@@ -29,7 +30,8 @@
                     <label translate>类型</label>
                     <div layout="row">
                         <md-select ng-model="account.orderId" flex="75">
-                            <md-option ng-repeat="order in orders" value="{{order.id}}" translate>{{ order.name }}</md-option>
+                            <md-option ng-repeat="order in orders" value="{{order.id}}" translate>{{ order.name }}
+                            </md-option>
                         </md-select>
                         <div layout="row" layout-align="end center">
                             <md-button ng-click="pickTime()">
@@ -61,41 +63,44 @@
                 </md-input-container>
                 <md-input-container class="md-block">
                     <label translate>自动删除延迟</label>
-                    <input type="text" required name="autoRemoveDelay" ng-model="account.autoRemoveDelayStr" ng-disabled="!account.autoRemove">
+                    <input type="text" required name="autoRemoveDelay" ng-model="account.autoRemoveDelayStr"
+                        ng-disabled="!account.autoRemove">
                 </md-input-container>
             </form>
-            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%; height: 52px;" layout="row" layout-align="space-between center" ng-click="setAccountServer()">
+            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%; height: 52px;" layout="row"
+                layout-align="space-between center" ng-click="setAccountServer()">
                 <div flex="75" translate>
                     <span>自定义服务器&nbsp;[{{ account.server ? account.server.length : '∞' }}]</span>
                 </div>
                 <div flex layout="row" layout-align="end center">
-                    <md-button class="md-icon-button"><md-icon>keyboard_arrow_right</md-icon></md-button>
+                    <md-button class="md-icon-button">
+                        <md-icon>keyboard_arrow_right</md-icon>
+                    </md-button>
                 </div>
             </div>
-            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%;" layout="row" layout-align="space-between center">
+            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%;" layout="row"
+                layout-align="space-between center">
                 <div flex="75">合并多服务器流量统计</div>
                 <div flex layout="row" layout-align="end center">
-                    <md-switch ng-model="account.multiServerFlow" aria-label="multiServerFlow" ng-true-value="1" ng-false-value="0">
+                    <md-switch ng-model="account.multiServerFlow" aria-label="multiServerFlow" ng-true-value="1"
+                        ng-false-value="0">
                     </md-switch>
                 </div>
             </div>
-            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%;" layout="row" layout-align="space-between center">
+            <div ng-if="account.fromOrder === 1 || +account.type !== 1" style="width: 100%;" layout="row"
+                layout-align="space-between center">
                 <div flex="75">到期自动删除</div>
                 <div flex layout="row" layout-align="end center">
-                    <md-switch ng-model="account.autoRemove" aria-label="autoRemove" ng-true-value="1" ng-false-value="0">
+                    <md-switch ng-model="account.autoRemove" aria-label="autoRemove" ng-true-value="1"
+                        ng-false-value="0">
                     </md-switch>
                 </div>
             </div>
-            <md-autocomplete
-                md-selected-item="accountUser.selectedItem"
-                md-search-text-change="accountUser.searchChange(accountUser.search)"
-                md-search-text="accountUser.search"
+            <md-autocomplete md-selected-item="accountUser.selectedItem"
+                md-search-text-change="accountUser.searchChange(accountUser.search)" md-search-text="accountUser.search"
                 md-selected-item-change="accountUser.selectedItemChange(item)"
-                md-items="item in accountUser.querySearch(accountUser.search)"
-                md-item-text="item.username"
-                md-delay="750"
-                md-require-match="true"
-                placeholder="指定用户(可选)">
+                md-items="item in accountUser.querySearch(accountUser.search)" md-item-text="item.username"
+                md-delay="750" md-require-match="true" placeholder="指定用户(可选)">
                 <md-item-template>
                     <span md-highlight-text="accountUser.search" md-highlight-flags="^i">{{ item.username }}</span>
                 </md-item-template>
@@ -103,6 +108,20 @@
                     没有匹配的用户
                 </md-not-found>
             </md-autocomplete>
+            
+            <div style="margin:10px 0 10px 0;" translate>单端口承载账号</div>
+            <md-radio-group ng-model="account.is_multi_user" layout="row" layout-wrap layout-align="start center"
+                style="font-size: 14px">
+                <md-radio-button value="0">
+                    <div style="margin: 3px;">否</div>
+                </md-radio-button>
+                <md-radio-button value="1">
+                    <div style="margin: 3px;">混淆式</div>
+                </md-radio-button>
+                <md-radio-button value="2">
+                    <div style="margin: 3px;">协议式</div>
+                </md-radio-button>
+            </md-radio-group>
         </div>
         <div flex="10" flex-gt-sm="30"></div>
     </div>
@@ -112,7 +131,8 @@
             <div flex="10" flex-gt-sm="30"></div>
             <div layout="row" flex layout-align="space-around center">
                 <md-button class="md-primary" ng-click="cancel()">取消</md-button>
-                <md-button class="md-raised md-primary" ng-click="confirm()" ng-disabled="!account.password || !account.port">确认</md-button>
+                <md-button class="md-raised md-primary" ng-click="confirm()"
+                    ng-disabled="!account.password || !account.port">确认</md-button>
             </div>
             <div flex="10" flex-gt-sm="30"></div>
         </div>

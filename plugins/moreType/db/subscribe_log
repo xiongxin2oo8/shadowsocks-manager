@@ -1,7 +1,7 @@
-/* ip黑名单 解除 */
+/* 订阅记录 */
 
 const knex = appRequire('init/knex').knex;
-const tableName = 'unblockip';
+const tableName = 'subscribe_log';
 
 const createTable = async () => {
   const exist = await knex.schema.hasTable(tableName);
@@ -11,8 +11,9 @@ const createTable = async () => {
   }
   return knex.schema.createTable(tableName, function(table) {
     table.increments('id');
-    table.string('ip');
+    table.integer('accountId');
     table.integer('userid');
+    table.string('ip');
     table.bigInteger('datetime');
   });
 };

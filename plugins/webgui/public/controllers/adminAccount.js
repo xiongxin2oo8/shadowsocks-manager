@@ -481,7 +481,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       });
       $http.get('/api/admin/account/newPort').then(success => {
         $scope.account.port = success.data.port;
-        $scope.account.password = Math.random().toString().substr(2, 10);
+        $scope.account.password = Math.ceil(Math.random() * 9) + Math.random().toString().substr(2, 3);//防止密码首位出现0
       });
       $scope.typeList = [
         { key: '不限量', value: 1 },
@@ -507,6 +507,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         autoRemoveDelayStr: '0',
         multiServerFlow: 0,
         accountServer: false,
+        is_multi_user: 0,
         accountServerObj: {},
       };
       $scope.account.flowStr = $filter('flowNum2Str')($scope.account.flow);
@@ -564,6 +565,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
           multiServerFlow: $scope.account.multiServerFlow ? 1 : 0,
           server: $scope.account.server,
           user: $scope.account.user,
+          is_multi_user: $scope.account.is_multi_user
         }).then(success => {
           alertDialog.show('添加账号成功', '确定');
           $state.go('admin.accountPage', { accountId: success.data.id });
@@ -708,6 +710,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       }
       $scope.account.server = success[1].data.server;
       $scope.account.accountServer = !!$scope.account.server;
+      $scope.account.is_multi_user = success[1].data.is_multi_user;
       $scope.account.accountServerObj = {};
       if ($scope.account.server) {
         $scope.servers.forEach(server => {
@@ -742,6 +745,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         autoRemoveDelay: $scope.account.autoRemoveDelay,
         multiServerFlow: $scope.account.multiServerFlow ? 1 : 0,
         server: $scope.account.server,
+        is_multi_user: $scope.account.is_multi_user
       }).then(success => {
         alertDialog.show('修改账号成功', '确定');
         $state.go('admin.accountPage', { accountId: $stateParams.accountId });

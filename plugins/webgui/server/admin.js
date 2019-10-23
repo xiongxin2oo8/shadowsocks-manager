@@ -132,11 +132,11 @@ exports.addAccount = (req, res) => {
       const autoRemove = +req.body.autoRemove || 0;
       const autoRemoveDelay = +req.body.autoRemoveDelay || 0;
       const multiServerFlow = +req.body.multiServerFlow || 0;
+      const is_multi_user = +req.body.is_multi_user || 0;
       const server = req.body.server ? JSON.stringify(req.body.server) : null;
       const user = req.body.user || null;
       return account.addAccount(type, {
-        port, password, time, limit, flow, autoRemove, autoRemoveDelay, server, multiServerFlow, orderId,
-        user,
+        port, password, time, limit, flow, autoRemove, autoRemoveDelay, server, multiServerFlow, orderId, is_multi_user, user,
       });
     }
     result.throw();
@@ -190,6 +190,7 @@ exports.changeAccountData = (req, res) => {
     multiServerFlow: +req.body.multiServerFlow,
     server: req.body.server,
     active: 1,
+    is_multi_user: +req.body.is_multi_user || 0
   }).then(success => {
     if (req.body.cleanFlow) {
       flow.cleanAccountFlow(accountId);
