@@ -66,6 +66,7 @@ const addAccount = async (type, options) => {
     obfs: options.obfs,
     obfs_param: options.obfs_param,
     is_multi_user: options.is_multi_user,
+    connector: options.connector,
     uuid: UUID.v1()
   }
   if (type === 1) {
@@ -136,7 +137,8 @@ const getAccount = async (options = {}) => {
     'account_plugin.obfs_param as obfs_param',
     'account_plugin.lastSubscribeTime as lastSubscribeTime',
     'account_plugin.uuid',
-    'account_plugin.is_multi_user'
+    'account_plugin.is_multi_user',
+    'account_plugin.connector'
   ])
     .leftJoin('user', 'user.id', 'account_plugin.userId')
     .where(where)
@@ -529,6 +531,7 @@ const setAccountLimit = async (userId, accountId, orderId) => {
       autoRemoveDelay: orderInfo.autoRemoveDelay,
       multiServerFlow: orderInfo.multiServerFlow ? 1 : 0,
       active: orderInfo.active,
+      connector: orderInfo.connector
     });
     return accountId;
   }
@@ -947,6 +950,7 @@ const getAccountAndPaging = async (opt) => {
     'account_plugin.active',
     'account_plugin.connType',
     'account_plugin.uuid',
+    'account_plugin.connector',
     'user.id as userId',
     'user.email as user',
   ])
