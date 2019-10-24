@@ -18,6 +18,7 @@ const crypto = require('crypto');
 const flowPack = appRequire('plugins/webgui_order/flowPack');
 const alipayPlugin = appRequire('plugins/alipay/index');
 const macAccountPlugin = appRequire('plugins/macAccount/index');
+const moreType = appRequire('plugins/moreType/index');
 
 const alipay = appRequire('plugins/alipay/index');
 
@@ -144,7 +145,7 @@ exports.getServers = (req, res) => {
     });
   };
   let servers;
-  knex('server').select(['id', 'type', 'host', 'name', 'method', 'scale', 'comment', 'shift', 'key', 'net', 'wgPort', 'singleMode', 'v2ray', 'v2rayPort','area','status']).orderByRaw('sort,name')
+  knex('server').select(['id', 'type', 'host', 'name', 'method', 'scale', 'comment', 'shift', 'key', 'net', 'wgPort', 'singleMode', 'v2ray', 'v2rayPort', 'area', 'status']).orderByRaw('sort,name')
     .then(success => {
       servers = serverAliasFilter(success);
       return account.getAccount({
@@ -640,7 +641,7 @@ exports.updateAccountSubscribe = async (req, res) => {
     }).then(s => s[0]);
     if (!account) { return Promise.reject('account not found'); }
     const subscribeToken = crypto.randomBytes(8).toString('hex');
-    await await knex('account_plugin').update({
+    await knex('account_plugin').update({
       subscribe: subscribeToken
     }).where({
       id: accountId,
@@ -723,6 +724,7 @@ exports.addMacAccount = async (req, res) => {
     res.status(403).end();
   }
 };
+//设置连接方式
 exports.setConnType = async (req, res) => {
   const accountId = req.params.accountId;
   const connType = req.body.connType;
@@ -755,5 +757,16 @@ exports.setConnType = async (req, res) => {
     console.log(err);
     res.status(403).end();
   });
+};
+//设置连接方式
+exports.getAliveIps = async (req, res) => {
+  try {
+    const accountId = req.params.accountId;
+    const result =await moreType.getAliveIP(accountId);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(403).end();
+  }
 };
 

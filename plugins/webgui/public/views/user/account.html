@@ -45,54 +45,11 @@
                     <span class="md-title">{{a.port}} - {{a.connType||'SS'}}
                     </span>
                     <md-button style="min-width: 20px;text-transform:capitalize;color: #29af29" class="md-primary"
-                        id="open_tip_account{{a.id}}" ng-click="accountInfo($event,a)">{{ '查询' | translate }}
+                        id="open_tip_account{{a.id}}" ng-click="accountInfo(a)">{{ '查询' | translate }}
                     </md-button>
                     <md-button style="min-width: 20px;text-transform:capitalize;color: #29af29" class="md-primary"
                         ng-show="config.alipay || config.paypal || config.giftcard" ng-if="a.type >= 2 && a.type <= 5"
                         ng-click="createOrder(a)">{{ '点我续费' | translate }}</md-button>
-                    <div style="visibility: hidden">
-                        <div class="md-dialog-container" id="tip_account{{a.id}}">
-                            <md-dialog layout-padding>
-                                <h3 style="margin: 0">端口号：{{a.port}}</h3>
-                                <div style="font-size: 14px;margin: 0">过期时间：
-                                    <span ng-if="a.type === 1" translate>不限时</span><br>
-                                    <span ng-if="a.type >=2 && a.type <= 5">
-                                        <span>{{ a.data.expire | date : 'yyyy-MM-dd HH:mm' }}</span>
-                                        <span
-                                            ng-style="fontColor(a)">({{  a.data.expire | timeago | translateTime }})</span>
-                                    </span>
-                                </div>
-                                <div style="font-size: 14px;margin: 0" ng-if="!isAccountOutOfDate(a)"> 下次流量重置时间：<br>
-                                    <span ng-if="a.type === 1">{{ '无' | translate }}</span>
-                                    <span ng-if="a.type >=2 && a.type <= 5">
-                                        <span>{{a.data.to | date : 'yyyy-MM-dd HH:mm'}}</span>
-                                    </span>
-                                </div>
-                                <div style="font-size: 14px;margin: 0" ng-if="!isAccountOutOfDate(a)">
-                                    使用量：
-                                    <span ng-if="a.type === 1">{{ '不限量' | translate }}</span>
-                                    <span ng-if="a.type >=2 && a.type <= 5">
-                                        <span
-                                            ng-style="a.isFlowOutOfLimit[server.id] ? {color: '#a33'} : {color: '#333'}">{{ a.serverPortFlow | flow }}
-                                            / {{ a.data.flow + a.data.flowPack | flow }}
-                                        </span>
-                                    </span>
-                                </div>
-                                <div style="font-size: 14px;margin: 0"  ng-if="!isAccountOutOfDate(a)">
-                                    在线设备数：
-                                    <span>0 / 2</span>
-                                </div>
-                                <div style="font-size: 14px;margin: 0">
-                                    当前IP：
-                                    <span>未知</span>
-                                </div>
-                                <div style="font-size: 14px;margin: 0">
-                                    状态：
-                                    <span>正常</span>
-                                </div>
-                            </md-dialog>
-                        </div>
-                    </div>
                 </md-card-header-text>
                 <div class="btns" style="display: flex;justify-content: center;flex-wrap: wrap;">
                     <md-button style="margin:6px 0;text-transform:capitalize;" class="md-primary"

@@ -87,6 +87,7 @@ app.get('/api/admin/account/:serverId(\\d+)/:accountId(\\d+)/ip', isAdmin, admin
 app.get('/api/admin/account/:serverId(\\d+)/:accountId(\\d+)/ban', isSuperAdmin, adminAccount.getBanAccount);
 app.post('/api/admin/account/:serverId(\\d+)/:accountId(\\d+)/ban', isSuperAdmin, adminAccount.banAccount);
 app.get('/api/admin/account/ip/:ip', isAdmin, admin.getAccountIpInfo);
+app.get('/api/user/account/ip/:ip', isUser, admin.getAccountIpInfo);
 app.get('/api/admin/account/:accountId(\\d+)/ip', isAdmin, admin.getAccountIpFromAllServer);
 app.post('/api/admin/account', isAdmin, isSuperAdmin, admin.addAccount);
 app.get('/api/admin/account/newPort', isAdmin, isSuperAdmin, admin.newPortForAddAccount);
@@ -197,6 +198,7 @@ app.post('/api/admin/order', isAdmin, isSuperAdmin, adminOrder.newOrder);
 app.put('/api/admin/order/:orderId(\\d+)', isAdmin, isSuperAdmin, adminOrder.editOrder);
 app.delete('/api/admin/order/:orderId(\\d+)', isAdmin, isSuperAdmin, adminOrder.deleteOrder);
 
+app.get('/api/user/account/:accountId(\\d+)/aliveIps', isUser, user.getAliveIps);
 app.get('/api/user/notice', isUser, user.getNotice);
 app.get('/api/user/account', isUser, user.getAccount);
 app.get('/api/user/usage', isUser, user.getAccountUsage);

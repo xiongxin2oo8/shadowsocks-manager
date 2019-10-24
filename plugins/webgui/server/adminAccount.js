@@ -190,7 +190,15 @@ exports.getSubscribeAccountForUser = async (req, res) => {
     const showFlow = req.query.flow || 0;
     const singlePort = req.query.port;
     const token = req.params.token;
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    //const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    //获得反向代理的真实ip
+    const ips = req.headers['x-forwarded-for'];
+    let ip = '';
+    if (ips) {
+      ip = ips.split(',')[0];
+    } else {
+      ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    }
     if (isMacAddress(token)) {
       subscribeAccount = await macAccount.getMacAccountForSubscribe(token, ip);
     } else {

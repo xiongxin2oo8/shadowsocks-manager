@@ -229,8 +229,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
     }
   ])
-  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', '$mdDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', 'accountServerDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
-    ($scope, $http, $mdMedia, userApi, $mdDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, accountServerDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
+  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', '$mdDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', 'accountServerDialog','accountInfoDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
+    ($scope, $http, $mdMedia, userApi, $mdDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, accountServerDialog,accountInfoDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
       const config = $scope.config;
       $scope.setTitle('账号');
       $scope.setMenuSearchButton('search');
@@ -553,15 +553,10 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         account.show_all = !account.show_all;
       };
 
-      $scope.accountInfo = (ev, account) => {
-        $mdDialog.show({
-          contentElement: '#tip_account' + account.id,
-          parent: angular.element(document.body),
-          targetEvent: ev,
-          openFrom: '#open_tip_account' + account.id,
-          closeTo: angular.element(document.querySelector('#open_tip_account' + account.id)),
-          clickOutsideToClose: true
-        });
+      //账号信息
+      $scope.accountInfo = (account) => {        
+        account.expire = isExpire(account);
+        accountInfoDialog.show(account);
       };
 
       $scope.showChangePasswordDialog = (accountId, password) => {

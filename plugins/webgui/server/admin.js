@@ -582,7 +582,7 @@ exports.getAccountIpInfo = (req, res) => {
 
   const taobao = ip => {
     const uri = `http://ip.taobao.com/service/getIpInfo.php?ip=${ip}`;
-    return rp({ uri, timeout: 10 * 1000 }).then(success => {
+    return rp({ uri, timeout: 3 * 1000 }).then(success => {
       const decode = (s) => {
         return unescape(s.replace(/\\u/g, '%u'));
       };
@@ -598,7 +598,7 @@ exports.getAccountIpInfo = (req, res) => {
 
   const sina = ip => {
     const uri = `https://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js&ip=${ip}`;
-    return rp({ uri, timeout: 10 * 1000 }).then(success => {
+    return rp({ uri, timeout: 3 * 1000 }).then(success => {
       const decode = (s) => {
         return unescape(s.replace(/\\u/g, '%u'));
       };
@@ -611,7 +611,7 @@ exports.getAccountIpInfo = (req, res) => {
 
   const ipip = ip => {
     const uri = `https://freeapi.ipip.net/${ip}`;
-    return rp({ uri, timeout: 10 * 1000 }).then(success => {
+    return rp({ uri, timeout: 3 * 1000 }).then(success => {
       const decode = (s) => {
         return unescape(s.replace(/\\u/g, '%u'));
       };
