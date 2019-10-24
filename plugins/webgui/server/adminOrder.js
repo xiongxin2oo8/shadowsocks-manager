@@ -9,14 +9,14 @@ exports.getOrders = async (req, res) => {
     orders.filter(f => f.baseId).forEach(order => {
       let spliceMark;
       ordersSorted.forEach((os, index) => {
-        if(order.baseId === os.id) {
+        if (order.baseId === os.id) {
           spliceMark = index + 1;
         }
       });
       ordersSorted.splice(spliceMark, 0, order);
     });
     res.send(ordersSorted);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -27,7 +27,7 @@ exports.getOneOrder = async (req, res) => {
     const orderId = +req.params.orderId;
     const order = await orderPlugin.getOneOrder(orderId);
     res.send(order);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -53,10 +53,11 @@ exports.newOrder = async (req, res) => {
     data.multiServerFlow = req.body.multiServerFlow;
     data.changeOrderType = req.body.changeOrderType;
     data.active = req.body.active;
+    data.connector = req.body.connector;
     const orderId = await orderPlugin.newOrder(data);
     await groupPlugin.editMultiGroupForOrder(orderId, req.body.group || []);
     res.send('success');
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -83,16 +84,18 @@ exports.editOrder = async (req, res) => {
     data.multiServerFlow = req.body.multiServerFlow;
     data.changeOrderType = req.body.changeOrderType;
     data.active = req.body.active;
+    data.connector = req.body.connector;
     await orderPlugin.editOrder(data);
     const changeCurrentAccount = req.body.changeCurrentAccount;
     const update = {};
-    if(changeCurrentAccount.flow) { update.flow = data.flow; }
-    if(changeCurrentAccount.server) { update.server = data.server; }
-    if(changeCurrentAccount.autoRemove) { update.autoRemove = data.autoRemove; }
+    update.connector = data.connector;
+    if (changeCurrentAccount.flow) { update.flow = data.flow; }
+    if (changeCurrentAccount.server) { update.server = data.server; }
+    if (changeCurrentAccount.autoRemove) { update.autoRemove = data.autoRemove; }
     await groupPlugin.editMultiGroupForOrder(data.id, req.body.group || []);
     accountPlugin.editMultiAccounts(data.id, update);
     res.send('success');
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(403).end();
   }
@@ -103,10 +106,10 @@ exports.deleteOrder = async (req, res) => {
     const orderId = +req.params.orderId;
     await orderPlugin.deleteOrder(orderId);
     res.send('success');
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     const errorData = ['account with this order exists', 'giftcard with this order exists'];
-    if(errorData.indexOf(err) < 0) {
+    if (errorData.indexOf(err) < 0) {
       return res.status(403).end();
     } else {
       return res.status(403).end(err);

@@ -9,7 +9,8 @@
                     <md-radio-button value="normal">普通订单</md-radio-button>
                     <md-radio-button value="flow">流量包</md-radio-button>
                 </md-radio-group>
-                <div layout="row" layout-align="center stretch" style="width: 100%;" ng-show="order.orderType === 'flow'">
+                <div layout="row" layout-align="center stretch" style="width: 100%;"
+                    ng-show="order.orderType === 'flow'">
                     <md-select ng-model="order.baseId" style="width: 100%;" aria-label="baseId">
                         <md-option ng-repeat="o in orders" ng-value="o.id">
                             {{ o.name }}
@@ -31,12 +32,17 @@
                     <label>备注</label>
                     <textarea ng-model="order.comment" rows="3" md-no-autogrow md-select-on-focus></textarea>
                 </md-input-container>
+                <md-input-container class="md-block">
+                    <label>同时连接ip数</label>
+                    <input type="number" name="connector" ng-model="order.connector">
+                </md-input-container>
                 <div layout="row" layout-align="space-between start" ng-show="order.orderType === 'normal'">
                     <md-input-container class="md-block" flex="45">
                         <label translate>类型</label>
                         <div layout="row">
                             <md-select ng-model="order.type" style="width: 100%;">
-                                <md-option ng-repeat="type in typeList" value="{{type.value}}" translate>{{type.key}}</md-option>
+                                <md-option ng-repeat="type in typeList" value="{{type.value}}" translate>{{type.key}}
+                                </md-option>
                             </md-select>
                         </div>
                     </md-input-container>
@@ -74,7 +80,8 @@
                 <div layout="row" layout-align="space-between center" ng-show="order.orderType === 'normal'">
                     <md-input-container class="md-block" flex="45">
                         <label>自动删除延迟</label>
-                        <input type="text" name="autoRemoveDelay" ng-model="order.autoRemoveDelayStr" ng-disabled="!order.autoRemove">
+                        <input type="text" name="autoRemoveDelay" ng-model="order.autoRemoveDelayStr"
+                            ng-disabled="!order.autoRemove">
                     </md-input-container>
                     <md-input-container class="md-block" flex="45">
                         <label>端口分配范围</label>
@@ -82,28 +89,34 @@
                     </md-input-container>
                 </div>
             </form>
-            <div style="width: 100%;" layout="row" layout-align="space-between center" ng-show="order.orderType === 'normal'">
+            <div style="width: 100%;" layout="row" layout-align="space-between center"
+                ng-show="order.orderType === 'normal'">
                 <div flex="75">到期自动删除</div>
                 <div flex layout="row" layout-align="end center">
                     <md-switch ng-model="order.autoRemove" aria-label="autoRemove" ng-true-value="1" ng-false-value="0">
                     </md-switch>
                 </div>
             </div>
-            <div style="width: 100%;" layout="row" layout-align="space-between center" ng-show="order.orderType === 'normal'">
+            <div style="width: 100%;" layout="row" layout-align="space-between center"
+                ng-show="order.orderType === 'normal'">
                 <div flex="75">合并多服务器流量统计</div>
                 <div flex layout="row" layout-align="end center">
-                    <md-switch ng-model="order.multiServerFlow" aria-label="multiServerFlow" ng-true-value="1" ng-false-value="0">
+                    <md-switch ng-model="order.multiServerFlow" aria-label="multiServerFlow" ng-true-value="1"
+                        ng-false-value="0">
                     </md-switch>
                 </div>
             </div>
-            <div style="width: 100%;" layout="row" layout-align="space-between center" ng-show="order.orderType === 'normal'">
+            <div style="width: 100%;" layout="row" layout-align="space-between center"
+                ng-show="order.orderType === 'normal'">
                 <div flex="75">续费允许更换套餐</div>
                 <div flex layout="row" layout-align="end center">
-                    <md-switch ng-model="order.changeOrderType" aria-label="changeOrderType" ng-true-value="1" ng-false-value="0">
+                    <md-switch ng-model="order.changeOrderType" aria-label="changeOrderType" ng-true-value="1"
+                        ng-false-value="0">
                     </md-switch>
                 </div>
             </div>
-            <div style="width: 100%;" layout="row" layout-align="space-between center" ng-show="order.orderType === 'normal'">
+            <div style="width: 100%;" layout="row" layout-align="space-between center"
+                ng-show="order.orderType === 'normal'">
                 <div flex="75">自动激活</div>
                 <div flex layout="row" layout-align="end center">
                     <md-switch ng-model="order.active" aria-label="active" ng-true-value="1" ng-false-value="0">
@@ -133,10 +146,13 @@
             <div ng-click="setOrderServer()" ng-show="order.orderType === 'normal'">
                 <div style="width: 100%;" layout="row" layout-align="space-between center">
                     <div flex="75" translate>
-                        <span>自定义服务器&nbsp;</span><span style="color: #777">[{{ order.orderServer ? orderServer.length : '∞' }}]</span>
+                        <span>自定义服务器&nbsp;</span><span
+                            style="color: #777">[{{ order.orderServer ? orderServer.length : '∞' }}]</span>
                     </div>
                     <div flex layout="row" layout-align="end center">
-                        <md-button class="md-icon-button"><md-icon>keyboard_arrow_right</md-icon></md-button>
+                        <md-button class="md-icon-button">
+                            <md-icon>keyboard_arrow_right</md-icon>
+                        </md-button>
                     </div>
                 </div>
             </div>
@@ -147,7 +163,9 @@
                         <span>自定义分组&nbsp;</span><span style="color: #777">[{{ orderGroup.length }}]</span>
                     </div>
                     <div flex layout="row" layout-align="end center">
-                        <md-button class="md-icon-button"><md-icon>keyboard_arrow_right</md-icon></md-button>
+                        <md-button class="md-icon-button">
+                            <md-icon>keyboard_arrow_right</md-icon>
+                        </md-button>
                     </div>
                 </div>
             </div>

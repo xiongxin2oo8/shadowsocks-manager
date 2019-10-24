@@ -78,6 +78,13 @@ const createTable = async () => {
         table.integer('active').defaultTo(1);
       });
     }
+    //同时在线设备数
+    const hasConnector = await knex.schema.hasColumn(tableName, 'connector');
+    if (!hasConnector) {
+      await knex.schema.table(tableName, function (table) {
+        table.integer('connector').defaultTo(2);
+      });
+    }
     // const hasChangeOrderType= await knex.schema.hasColumn(tableName, 'changeOrderType');
     // if (!hasChangeOrderType) {
     //   await knex.schema.table(tableName, function (table) {
@@ -107,6 +114,7 @@ const createTable = async () => {
     table.integer('multiServerFlow').defaultTo(0);
     table.integer('changeOrderType').defaultTo(0);
     table.integer('active').defaultTo(1);
+    table.integer('connector').defaultTo(2);//同时在线设备数
   });
   await addDefaultOrder();
   return;

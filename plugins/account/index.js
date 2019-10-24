@@ -878,6 +878,10 @@ const editMultiAccounts = async (orderId, update) => {
     if (update.hasOwnProperty('autoRemove')) {
       updateData.autoRemove = update.autoRemove;
     }
+    if (update.hasOwnProperty('connector')) {
+      updateData.connector = update.connector;
+      await knex('ssr_user').update({ connector: update.connector }).where({ accountId: account.id });
+    }
     if (Object.keys(updateData).length === 0) { break; }
     await knex('account_plugin').update(updateData).where({ id: account.id });
     if (updateData.server) {
