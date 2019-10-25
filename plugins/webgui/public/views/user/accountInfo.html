@@ -8,80 +8,78 @@
         min-height: 32px;
     }
 </style>
-<div id="tip_account{{account.id}}">
-    <md-dialog layout-padding style="max-width:95%;min-width: 280px;">
-        <h3 style="margin: 0">端口号：{{account.port}}</h3>
-        <md-list style="font-size: 14px;margin: 0;padding: 0px;">
-            <md-list-item ng-if="account.type === 1">
-                <strong>过期时间：</strong>
-                <span translate>不限时</span><br>
-            </md-list-item>
-            <md-list-item ng-if="account.type >=2 && account.type <= 5">
-                <strong>过期时间：</strong>
-                <span ng-if="!account.expire">{{ account.data.expire | date : 'yyyy-MM-dd HH:mm' }}</span>
-                <span ng-if="!account.expire"
-                    style=" color: '#333'">({{  account.data.expire | timeago | translateTime }})</span>
-                <span ng-if="account.expire" style=" color: red">已过期
-                    ({{  account.data.expire | timeago | translateTime }})</span>
-            </md-list-item>
-            <md-list-item ng-if="!account.expire && account.data.expire!=account.data.to">
-                <strong>下次流量重置时间：</strong>
-                <span ng-if="account.type === 1">{{ '无' | translate }}</span>
-                <span ng-if="account.type >=2 && account.type <= 5">
-                    <span>{{account.data.to | date : 'yyyy-MM-dd HH:mm'}}</span>
-                    <span style=" color: '#333'">({{  account.data.to | timeago | translateTime }})</span>
-                </span>
-            </md-list-item>
-            <md-list-item ng-if="!account.expire && !account.hideFlow">
-                <strong>使用量：</strong>
-                <span ng-if="account.type === 1">{{ '不限量' | translate }}</span>
-                <span ng-if="account.type >=2 && account.type <= 5">
-                    <span
-                        ng-style="account.serverPortFlow>(account.data.flow + account.data.flowPack)?{color:'red'}:{color:'green'}">{{ account.serverPortFlow | flow }}</span>
-                    /
-                    <span>{{ account.data.flow + account.data.flowPack | flow }}</span>
-                </span>
-            </md-list-item>
-            <md-list-item>
-                <strong> 当前IP：</strong>
-                <span>{{account.ip}} {{ account.ipInfo[0] }} {{ account.ipInfo[1] }}</span>
-            </md-list-item>
-            <md-list-item ng-if="!account.expire">
-                <strong> 在线设备数：</strong>
-                <span ng-style="aliveIps.length>5?{color:'red'}:{color:'green'}">{{aliveIps.length}}&nbsp;</span>
-                <span> / 5</span>
-            </md-list-item>
-            <md-list-litem ng-if="aliveIps.length" style="margin: 3px 0;">
-                <div ng-if="aliveIps.length>5" style="padding: 0 8px;">
-                    <span style="color: red;">警告：在线设备过多，随时会被封停</span>
+<md-dialog layout-padding style="max-width:95%;min-width: 280px;" id="tip_account{{account.id}}">
+    <h3 style="margin: 0">端口号：{{account.port}}</h3>
+    <md-list style="font-size: 14px;margin: 0;padding: 0px;">
+        <md-list-item ng-if="account.type === 1">
+            <strong>过期时间：</strong>
+            <span translate>不限时</span><br>
+        </md-list-item>
+        <md-list-item ng-if="account.type >=2 && account.type <= 5">
+            <strong>过期时间：</strong>
+            <span ng-if="!account.expire">{{ account.data.expire | date : 'yyyy-MM-dd HH:mm' }}</span>
+            <span ng-if="!account.expire"
+                style=" color: '#333'">({{  account.data.expire | timeago | translateTime }})</span>
+            <span ng-if="account.expire" style=" color: red">已过期
+                ({{  account.data.expire | timeago | translateTime }})</span>
+        </md-list-item>
+        <md-list-item ng-if="!account.expire && account.data.expire!=account.data.to && !account.hideFlow">
+            <strong>下次流量重置时间：</strong>
+            <span ng-if="account.type === 1">{{ '无' | translate }}</span>
+            <span ng-if="account.type >=2 && account.type <= 5">
+                <span>{{account.data.to | date : 'yyyy-MM-dd HH:mm'}}</span>
+                <span style=" color: '#333'">({{  account.data.to | timeago | translateTime }})</span>
+            </span>
+        </md-list-item>
+        <md-list-item ng-if="!account.expire && !account.hideFlow">
+            <strong>使用量：</strong>
+            <span ng-if="account.type === 1">{{ '不限量' | translate }}</span>
+            <span ng-if="account.type >=2 && account.type <= 5">
+                <span
+                    ng-style="account.serverPortFlow>(account.data.flow + account.data.flowPack)?{color:'red'}:{color:'green'}">{{ account.serverPortFlow | flow }}</span>
+                /
+                <span>{{ account.data.flow + account.data.flowPack | flow }}</span>
+            </span>
+        </md-list-item>
+        <md-list-item>
+            <strong> 当前IP：</strong>
+            <span>{{account.ip}} {{ account.ipInfo[0] }} {{ account.ipInfo[1] }}</span>
+        </md-list-item>
+        <md-list-item ng-if="!account.expire">
+            <strong> 在线设备数：</strong>
+            <span ng-style="aliveIps.length>5?{color:'red'}:{color:'green'}">{{aliveIps.length}}&nbsp;</span>
+            <span> / 5</span>
+        </md-list-item>
+        <md-list-litem ng-if="aliveIps.length" style="margin: 3px 0;">
+            <div ng-if="aliveIps.length>5" style="padding: 0 8px;">
+                <span style="color: red;">警告：在线设备过多，随时会被封停</span>
+            </div>
+            <div flex ng-if="aliveIps.length<6" layout="row" layout-align="space-between center"
+                style="line-height: 28px;padding: 0 8px;" ng-repeat="item in aliveIps">
+                <div flex="40">{{item.ip}}</div>
+                <div flex="60" style="text-align:right">
+                    <span style="font-size: 0.9em;">{{ item.info[0] }}</span>
+                    <span style="font-size: 0.9em;">{{ item.info[1] }}</span>
                 </div>
-                <div flex ng-if="aliveIps.length<6" layout="row" layout-align="space-between center"
-                    style="line-height: 28px;padding: 0 8px;" ng-repeat="item in aliveIps">
-                    <div flex="40">{{item.ip}}</div>
-                    <div flex="60" style="text-align:right">
-                        <span style="font-size: 0.9em;">{{ item.info[0] }}</span>
-                        <span style="font-size: 0.9em;">{{ item.info[1] }}</span>
-                    </div>
+            </div>
+        </md-list-litem>
+        <md-list-item ng-if="!account.expire">
+            <strong> 最近订阅记录：</strong>
+            <span ng-if="!subIps.length">无&nbsp;&nbsp;(请使用订阅)</span>
+        </md-list-item>
+        <md-list-litem ng-if="subIps.length">
+            <div flex layout="row" layout-align="space-between center" style="line-height: 28px;padding: 0 8px;"
+                ng-repeat="item in subIps">
+                <div flex="40">{{item.ip}}</div>
+                <div flex="60" style="text-align:right">
+                    <span style="font-size: 0.9em;">{{ item.info[0] }}</span>
+                    <span style="font-size: 0.9em;">{{ item.info[1] }}</span>
                 </div>
-            </md-list-litem>
-            <md-list-item ng-if="!account.expire">
-                <strong> 最近订阅记录：</strong>
-                <span ng-if="!subIps.length">无&nbsp;&nbsp;(请使用订阅)</span>
-            </md-list-item>
-            <md-list-litem ng-if="subIps.length">
-                <div flex layout="row" layout-align="space-between center" style="line-height: 28px;padding: 0 8px;"
-                    ng-repeat="item in subIps">
-                    <div flex="40">{{item.ip}}</div>
-                    <div flex="60" style="text-align:right">
-                        <span style="font-size: 0.9em;">{{ item.info[0] }}</span>
-                        <span style="font-size: 0.9em;">{{ item.info[1] }}</span>
-                    </div>
-                </div>
-            </md-list-litem>
-            <md-list-item>
-                <strong> 状态：</strong>
-                <span style="color: green;">正常</span>
-            </md-list-item>
-        </md-list>
-    </md-dialog>
-</div>
+            </div>
+        </md-list-litem>
+        <md-list-item>
+            <strong> 状态：</strong>
+            <span style="color: green;">正常</span>
+        </md-list-item>
+    </md-list>
+</md-dialog>

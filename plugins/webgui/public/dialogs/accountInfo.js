@@ -33,7 +33,7 @@ app.factory('accountInfoDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
             $scope.account = bind.account;
             const config = configManager.getConfig();
             $scope.config = config;
-            if (config.hideFlow && accountInfo.data.flow < 100 * 1000 * 1000 * 1000) {
+            if (config.hideFlow && $scope.account.data.flow > 100 * 1000 * 1000 * 1000) {
                 $scope.account.hideFlow = true;
             }
             $scope.account.ip = config.ip;

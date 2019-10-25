@@ -4,12 +4,17 @@ const flow = appRequire('plugins/flowSaver/flow');
 const flowPack = appRequire('plugins/webgui_order/flowPack');
 const dns = require('dns');
 const net = require('net');
+const crypto = require('crypto');
 const knex = appRequire('init/knex').knex;
 const moment = require('moment');
 const config = appRequire('services/config').all();
 
 const formatMacAddress = mac => mac.replace(/-/g, '').replace(/:/g, '').toLowerCase();
 
+
+const md5 = function (text) {
+  return crypto.createHash('md5').update(text).digest('hex');
+};
 exports.getMacAccount = (req, res) => {
   const userId = +req.query.userId;
   macAccount.getAccount(userId, -1).then(success => {
@@ -366,7 +371,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (accountInfo.connType === "SSR") {
         if (type === 'ssr') {
           const singlePorts = await knex('account_plugin').select().where('is_multi_user', '>', 0);
-
+          //格式 str(row['id']) + row['passwd'] + row['method'] + row['obfs'] + row['protocol'])
+          // let acc_md5 = md5(`${accountInfo.id}${accountInfo.password}${accountInfo.method}${accountInfo.obfs}${accountInfo.protocol}`).substring(0,5);
+          // let obfsparam=`${acc_md5}${accountInfo.id}.catalog.update.microsoft.com`
           if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
             let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
             let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
@@ -381,7 +388,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               let str = '';
               //单端口，可以是多个
               for (let item of singlePorts) {
-                str += 'ssr://' + urlsafeBase64(s.host + ':' + item.port + ':' + item.protocol + ':' + item.method + ':' + item.obfs + ':' + urlsafeBase64(item.password) + '/?obfsparam=' + (item.obfs_param ? urlsafeBase64(item.obfs_param) : '') + '&protoparam=' + urlsafeBase64(`${accountInfo.port + s.shift}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.name + ' - ' + item.port) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
+                str += 'ssr://' + urlsafeBase64(s.host + ':' + item.port + ':' + item.protocol + ':' + item.method + ':' + item.obfs + ':' + urlsafeBase64(item.password) + '/?obfsparam=' + urlsafeBase64('catalog.update.microsoft.com') + '&protoparam=' + urlsafeBase64(`${accountInfo.id}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.name + ' - ' + item.port) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
               }
               return str;
             } else {
