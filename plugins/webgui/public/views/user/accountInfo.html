@@ -48,19 +48,12 @@
         <md-list-item ng-if="!account.expire">
             <strong> 在线设备数：</strong>
             <span ng-style="aliveIps.length>5?{color:'red'}:{color:'green'}">{{aliveIps.length}}&nbsp;</span>
-            <span> / 5</span>
+            <span> / {{account.connector}}</span>
         </md-list-item>
         <md-list-litem ng-if="aliveIps.length" style="margin: 3px 0;">
             <div ng-if="aliveIps.length>5" style="padding: 0 8px;">
                 <span style="color: red;">警告：在线设备过多，随时会被封停</span>
             </div>
-            <div flex ng-if="aliveIps.length<6" layout="row" layout-align="space-between center"
-                style="line-height: 28px;padding: 0 8px;" ng-repeat="item in aliveIps">
-                <div flex="40">{{item.ip}}</div>
-                <div flex="60" style="text-align:right">
-                    <span style="font-size: 0.9em;">{{ item.info[0] }}</span>
-                    <span style="font-size: 0.9em;">{{ item.info[1] }}</span>
-                </div>
             </div>
         </md-list-litem>
         <md-list-item ng-if="!account.expire">

@@ -331,7 +331,8 @@ const addPortSSR = async (server, account, enable = 1) => {
       obfs: account.obfs,
       obfs_param: account.obfs_param,
       is_multi_user: account.is_multi_user,//是否是承载多用户的端口 0/不是  1/混淆式 2、协议式
-      uuid: account.uuid
+      uuid: account.uuid,
+      connector: account.connector //连接设备数
     });
   }
 };

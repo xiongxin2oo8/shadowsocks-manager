@@ -68,6 +68,13 @@ const createTable = async() => {
         table.integer('is_multi_user').defaultTo(0);
       });
     }
+    //同时在线设备数
+    const hasConnector = await knex.schema.hasColumn(tableName, 'connector');
+    if (!hasConnector) {
+      await knex.schema.table(tableName, function (table) {
+        table.integer('connector').defaultTo(2);
+      });
+    }
     return;
   }
   return knex.schema.createTable(tableName, function(table) {
@@ -95,6 +102,7 @@ const createTable = async() => {
     table.string('obfs_param');
     table.string('uuid');
     table.string('is_multi_user').defaultTo(0);
+    table.integer('connector').defaultTo(2);//同时在线设备数
   });
 };
 
