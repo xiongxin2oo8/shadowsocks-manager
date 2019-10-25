@@ -353,11 +353,11 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             return ss_shadowrocket(accountInfo, s);
           }).join('\r\n');
           let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
-          let status = tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
-          // if (tip.admin) status = tip.admin;
-          // else if (tip.stop) status = tip.stop;
-          // else if (accountInfo.hideFlow) status = tip.time;
-          // else status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+          let status = '';//tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+          if (tip.admin) status = tip.admin;
+          else if (tip.stop) status = tip.stop + `❤${tip.time}`;
+          else if (accountInfo.hideFlow) status = tip.time;
+          else status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
 
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
           return res.send(Buffer.from(result).toString('base64'));
@@ -382,7 +382,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           // let obfsparam=`${acc_md5}${accountInfo.id}.catalog.update.microsoft.com`
           if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
             let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
-            let status = tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+            let status = '';// tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+
+            if (tip.admin) status = tip.admin;
+            else if (tip.stop) status = tip.stop + `❤${tip.time}`;
+            else if (accountInfo.hideFlow) status = tip.time;
+            else status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+
             result += `STATUS=${status}\r\nREMARKS=${remarks}\r\n`.toString('base64')
           } else {
             //其他方式
@@ -394,7 +400,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               let str = '';
               //单端口，可以是多个
               for (let item of singlePorts) {
-                str += 'ssr://' + urlsafeBase64(s.host + ':' + item.port + ':' + item.protocol + ':' + item.method + ':' + item.obfs + ':' + urlsafeBase64(item.password) + '/?obfsparam=' + urlsafeBase64('catalog.update.microsoft.com') + '&protoparam=' + urlsafeBase64(`${accountInfo.id}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.name + ' - ' + item.port) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
+                if (!item.server || JSON.parse(item.server).indexOf(s.id) > -1) {
+                  str += 'ssr://' + urlsafeBase64(s.host + ':' + item.port + ':' + item.protocol + ':' + item.method + ':' + item.obfs + ':' + urlsafeBase64(item.password) + '/?obfsparam=' + urlsafeBase64(item.obfs_param) + '&protoparam=' + urlsafeBase64(`${accountInfo.id}:${accountInfo.password}`) + '&remarks=' + urlsafeBase64(s.name + ' - ' + item.port) + '&group=' + urlsafeBase64(baseSetting.title)) + '\r\n';
+                }
               }
               return str;
             } else {

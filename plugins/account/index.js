@@ -43,12 +43,15 @@ const addAccount = async (type, options) => {
     options.obfs = 'plain'
     options.obfs_param = ''
   }
-  if (options.connType === 'SSR' || options.is_multi_user > 0) {
+  if (options.connType === 'SSR') {
     options.method = 'chacha20-ietf';
     options.protocol = 'auth_aes128_md5'
     options.protocol_param = ''
     options.obfs = 'http_simple'
     options.obfs_param = 'download.windowsupdate.com'
+  }
+  if (options.is_multi_user > 0) {
+    options.obfs_param = 'catalog.update.microsoft.com'
   }
   let entity = {
     type,
@@ -1041,6 +1044,9 @@ const getAccountAndPaging = async (opt) => {
 };
 //设置连接方式
 const setConnType = async (options) => {
+  if (options === "SSR" && options.is_multi_user > 0) {
+    options.obfs_param = 'catalog.update.microsoft.com'
+  }
   const accountInfo = await getAccount({ id: options.accountId }).then(s => s[0]);
   await knex('account_plugin').update({
     connType: options.connType,
