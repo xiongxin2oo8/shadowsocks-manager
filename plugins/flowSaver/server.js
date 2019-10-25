@@ -5,6 +5,7 @@ const moment = require('moment');
 
 const add = async options => {
   const { type = 'Shadowsocks', name, host, area, port, password, method, scale = 1, comment = '', shift = 0, resetday = 1, monthflow = 0, key, net, wgPort, singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
+  let node_bandwidth_limit = monthflow;
   const [serverId] = await knex('server').insert({
     type,
     name,
@@ -16,6 +17,7 @@ const add = async options => {
     scale,
     shift,
     monthflow,
+    node_bandwidth_limit,
     resetday,
     key,
     net,
@@ -40,6 +42,7 @@ const del = (id) => {
 const edit = async options => {
   const { id, type = 'Shadowsocks', name, host, area, port, password, method, scale = 1, comment = '', shift = 0, check, resetday = 1, monthflow = 0, key, net, wgPort,
     singleMode, v2ray, v2rayMethod, v2rayPort, v2rayAID, v2rayTLS, v2rayNet, v2rayPath, v2rayHost, sort } = options;
+  let node_bandwidth_limit = monthflow
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if (serverInfo.shift !== shift) {
     // const accounts = await knex('account_plugin').where({});
@@ -76,6 +79,7 @@ const edit = async options => {
     scale,
     shift,
     monthflow,
+    node_bandwidth_limit,
     resetday,
     key,
     net,
