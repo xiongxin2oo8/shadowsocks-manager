@@ -228,6 +228,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }).then(s => s[0]).then(s => JSON.parse(s.value));
 
       let accountInfo = subscribeAccount.account;
+      accountInfo.hideFlow = config.plugins.webgui.hideFlow ? accountInfo.data.flow > 100000000000 : false;
 
       //更新订阅时间
       await knex('account_plugin').update({
@@ -319,7 +320,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             encryption: 'chacha20',
             password: accountInfo.password,
             traffic_used: ((flowInfo[0] || 10) / 1000000000).toFixed(2),
-            traffic_total: accountInfo.type == 1 || config.plugins.webgui.hideFlow ? 500 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
+            traffic_total: accountInfo.type == 1 || accountInfo.hideFlow ? 500 : ((accountInfo.data.flow + accountInfo.data.flowPack) / 1000000000).toFixed(2),
             expiry: accountInfo.type == 1 ? '2099-12-31 23:59:59' : moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
           };
           let servers = subscribeAccount.server.map((s, index) => {
@@ -352,7 +353,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             return ss_shadowrocket(accountInfo, s);
           }).join('\r\n');
           let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
-          let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+          let status = tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+          // if (tip.admin) status = tip.admin;
+          // else if (tip.stop) status = tip.stop;
+          // else if (accountInfo.hideFlow) status = tip.time;
+          // else status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
           return res.send(Buffer.from(result).toString('base64'));
         }
@@ -376,7 +382,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           // let obfsparam=`${acc_md5}${accountInfo.id}.catalog.update.microsoft.com`
           if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
             let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
-            let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+            let status = tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
             result += `STATUS=${status}\r\nREMARKS=${remarks}\r\n`.toString('base64')
           } else {
             //其他方式
