@@ -304,8 +304,7 @@ const changePassword = async (id, password) => {
     return Promise.reject('account not found');
   });
   await knex('account_plugin').update({
-    password,
-    protocol_param: `32#${account.port}:${account.password}`,
+    password
   }).where({ id });
   await knex('ssr_user').update({
     passwd: password
