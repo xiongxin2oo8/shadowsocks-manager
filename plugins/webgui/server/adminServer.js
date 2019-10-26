@@ -73,7 +73,7 @@ exports.addServer = async (req, res) => {
     req.checkBody('shift', 'Invalid shift').isInt();
     req.checkBody('monthflow', 'Invalid monthflow').isInt({ min: 0 });
     req.checkBody('resetday', 'Invalid resetday').isInt({ min: 1, max: 31 });
-    req.checkBody('singleMode', 'Invalid singleMode').isInt();
+    req.checkBody('singleMode', 'Invalid singleMode').notEmpty();
     req.checkBody('v2ray', 'Invalid v2ray').isInt();
     req.checkBody('v2rayMethod', 'Invalid v2rayMethod').notEmpty();
     req.checkBody('v2rayPort', 'Invalid v2rayPort').isInt({ min: 1, max: 65535 });
