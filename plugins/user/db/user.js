@@ -40,7 +40,7 @@ const createTable = async() => {
     });
   }
   const regIp = await knex.schema.hasColumn(tableName, 'regIp');
-  if(!hasCrisp) {
+  if(!regIp) {
     await knex.schema.table(tableName, function(table) {
       table.string('regIp');
     });

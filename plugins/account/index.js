@@ -68,7 +68,7 @@ const addAccount = async (type, options) => {
     protocol_param: options.protocol_param,
     obfs: options.obfs,
     obfs_param: options.obfs_param,
-    is_multi_user: options.is_multi_user,
+    is_multi_user: options.is_multi_user || 0,
     connector: options.connector,
     uuid: UUID.v1()
   }
