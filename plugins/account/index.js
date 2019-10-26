@@ -43,7 +43,7 @@ const addAccount = async (type, options) => {
     options.obfs = 'plain'
     options.obfs_param = ''
   }
-  if (options.connType === 'SSR') {
+  if (connType === 'SSR') {
     options.method = 'chacha20-ietf';
     options.protocol = 'auth_aes128_md5'
     options.protocol_param = ''
