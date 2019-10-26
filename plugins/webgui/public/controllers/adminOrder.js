@@ -336,7 +336,7 @@ app
             changeCurrentAccount: $scope.changeCurrentAccount,
             active: $scope.order.active,
             group: $scope.orderGroup,
-            connector: $scope.connector
+            connector: $scope.order.connector
           }).then(success => {
             $state.go('admin.order');
           });
