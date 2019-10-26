@@ -109,7 +109,9 @@ const list = async (options = {}) => {
     };
     for (let i = 0; i < serverList.length; i++) {
       let server = serverList[i];
-      serverStatus.push(getServerStatus(server, i));
+      // serverStatus.push(getServerStatus(server, i));
+      server.status = '0.0.0';
+      server.isGfw = false;
       //开始日期
       const nowday = moment().format('D');
       const now = moment().valueOf();
@@ -136,11 +138,11 @@ const list = async (options = {}) => {
     // serverList.forEach((server, index) => {
     //   serverStatus.push(getServerStatus(server, index));
     // });
-    const status = await Promise.all(serverStatus);
-    status.forEach(f => {
-      serverList[f.index].status = f.status;
-      serverList[f.index].isGfw = !!f.isGfw;
-    });
+    // const status = await Promise.all(serverStatus);
+    // status.forEach(f => {
+    //   serverList[f.index].status = f.status;
+    //   serverList[f.index].isGfw = !!f.isGfw;
+    // });
   }
   return serverList;
 };

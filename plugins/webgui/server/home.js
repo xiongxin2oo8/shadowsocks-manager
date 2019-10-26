@@ -177,13 +177,15 @@ exports.signup = async (req, res) => {
         await groupPlugin.getOneGroup(webguiSetting.defaultGroup);
         group = webguiSetting.defaultGroup;
       } catch (err) { }
-    }
+    }    
+    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
     const [userId] = await user.add({
       username: email,
       email,
       password,
       type,
       group,
+      ip
     });
     req.session.user = userId;
     req.session.type = type;

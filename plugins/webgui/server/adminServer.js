@@ -24,13 +24,14 @@ exports.getOneServer = (req, res) => {
     if (success.length) {
       result = success[0];
       if (noPort) { return; }
-      return manager.send({
-        command: 'portlist',
-      }, {
-        host: success[0].host,
-        port: success[0].port,
-        password: success[0].password
-      });
+      return []
+      // return manager.send({
+      //   command: 'portlist',
+      // }, {
+      //   host: success[0].host,
+      //   port: success[0].port,
+      //   password: success[0].password
+      // });
     }
     res.status(404).end();
   }).then(success => {

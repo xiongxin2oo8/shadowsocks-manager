@@ -56,7 +56,7 @@ const addUser = async (options) => {
     if (options.telegramId) {
       Object.assign(insert, { telegram: options.telegramId });
     }
-    insert.regIp=options.ip;
+    insert.regIp = options.ip || '';
     const user = await knex('user').insert(insert);
     return user;
   } catch (err) {
@@ -267,8 +267,8 @@ const changePassword = async (userId, oldPassword, newPassword) => {
   await editUser({
     id: userId,
   }, {
-      password: newPassword,
-    });
+    password: newPassword,
+  });
 };
 
 exports.add = addUser;
