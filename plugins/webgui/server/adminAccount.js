@@ -158,14 +158,14 @@ const ssd = (account, server, index) => {
     id: index,//这是客户端排序的顺序
     server: server.host,
     port: account.port + server.shift,
-    encryption: server.method,
+    encryption: account.method,
     ratio: server.scale,
     remarks: server.name
   }
 }
 const clash = (account, server) => {
   return {
-    cipher: server.method,
+    cipher: account.method,
     name: server.name,
     password: String(account.password),
     port: account.port + server.shift,
