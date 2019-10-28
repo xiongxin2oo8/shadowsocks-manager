@@ -149,6 +149,10 @@
                                             ng-show="config.singleMode=='off' && server.singleMode=='off'">
                                             {{ account.port + server.shift }}
                                         </div>
+                                        <div flex="60" style="text-align:right"
+                                            ng-show="config.singleMode!='off' || server.singleMode!='off'">
+                                            {{ sa.port }}
+                                        </div>
                                     </div>
                                 </md-list-item>
                                 <md-divider ng-hide="config.simple"></md-divider>

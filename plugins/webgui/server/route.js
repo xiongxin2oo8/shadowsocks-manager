@@ -24,7 +24,7 @@ const config = appRequire('services/config').all();
 const isUser = (req, res, next) => {
   if (req.session.type === 'normal') {
     knex('user').where({ id: req.session.user, type: 'normal' }).then(s => s[0]).then(user => {
-      if(!user) { return res.status(401).end(); }
+      if (!user) { return res.status(401).end(); }
       req.userInfo = user;
       return next();
     }).catch(err => {
@@ -38,7 +38,7 @@ const isUser = (req, res, next) => {
 const isAdmin = (req, res, next) => {
   if (req.session.type === 'admin') {
     knex('user').where({ id: req.session.user, type: 'admin' }).then(s => s[0]).then(user => {
-      if(!user) { return res.status(401).end(); }
+      if (!user) { return res.status(401).end(); }
       req.adminInfo = user;
       return next();
     }).catch(err => {
@@ -50,11 +50,11 @@ const isAdmin = (req, res, next) => {
 };
 
 const isSuperAdmin = (req, res, next) => {
-  if(req.session.user !== 1) { return res.status(401).end(); }
+  if (req.session.user !== 1) { return res.status(401).end(); }
   next();
 };
 //壁纸api
-app.get('/api/home/wallpaper',home.wallpaper)
+app.get('/api/home/wallpaper', home.wallpaper)
 app.get('/api/home/login', home.status);
 app.post('/api/home/code', home.sendCode);
 app.post('/api/home/ref/:refCode', home.visitRef);
@@ -198,6 +198,7 @@ app.post('/api/admin/order', isAdmin, isSuperAdmin, adminOrder.newOrder);
 app.put('/api/admin/order/:orderId(\\d+)', isAdmin, isSuperAdmin, adminOrder.editOrder);
 app.delete('/api/admin/order/:orderId(\\d+)', isAdmin, isSuperAdmin, adminOrder.deleteOrder);
 
+app.get('/api/user/singleaccount', isUser, user.getSingleAccount);
 app.get('/api/user/account/:accountId(\\d+)/aliveIps', isUser, user.getAliveIps);
 app.get('/api/user/notice', isUser, user.getNotice);
 app.get('/api/user/account', isUser, user.getAccount);
@@ -291,7 +292,7 @@ app.get('/manifest.json', (req, res) => {
     return success[0].value;
   }).then(success => {
     manifest.name = success.title;
-    if(success.shortTitle) { manifest.short_name = success.shortTitle; }
+    if (success.shortTitle) { manifest.short_name = success.shortTitle; }
     return res.json(manifest);
   });
 });
@@ -374,7 +375,7 @@ app.get('/serviceworker.js', async (req, res) => {
       serviceWorker: !!setting.serviceWorker,
       serviceWorkerTime: setting.serviceWorkerTime,
     });
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     res.status(500).end();
   }

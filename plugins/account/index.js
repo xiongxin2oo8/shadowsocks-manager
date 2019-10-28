@@ -149,6 +149,13 @@ const getAccount = async (options = {}) => {
   //account = await users.orderBy(sort.split('_')[0], sort.split('_')[1]).limit(pageSize).offset((page - 1) * pageSize);
   return account;
 };
+const getSingleAccount = async (options = {}) => {
+  //获取单端口账号
+  const account = await knex('account_plugin')
+    .select(['server', 'port', 'password', 'method', 'protocol', 'protocol_param', 'obfs', 'obfs_param', 'is_multi_user'])
+    .where('is_multi_user', '>', 0);
+  return account;
+};
 
 const getOnlineAccount = async serverId => {
   if (!serverId) {
@@ -1063,6 +1070,7 @@ const setConnType = async (options) => {
 
 exports.addAccount = addAccount;
 exports.getAccount = getAccount;
+exports.getSingleAccount = getSingleAccount;
 exports.delAccount = delAccount;
 exports.editAccount = editAccount;
 exports.editAccountTime = editAccountTime;
