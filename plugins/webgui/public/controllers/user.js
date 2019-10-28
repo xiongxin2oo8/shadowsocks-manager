@@ -229,8 +229,8 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
     }
   ])
-  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', '$mdDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', 'accountServerDialog','accountInfoDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
-    ($scope, $http, $mdMedia, userApi, $mdDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, accountServerDialog,accountInfoDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
+  .controller('UserAccountController', ['$scope', '$http', '$mdMedia', 'userApi', '$mdDialog', 'payDialog', 'qrcodeDialog', '$interval', '$localStorage', 'changePasswordDialog', 'payByGiftCardDialog', 'subscribeDialog', 'accountServerDialog', 'accountInfoDialog', '$q', '$state', '$timeout', 'configManager', 'wireGuardConfigDialog',
+    ($scope, $http, $mdMedia, userApi, $mdDialog, payDialog, qrcodeDialog, $interval, $localStorage, changePasswordDialog, payByGiftCardDialog, subscribeDialog, accountServerDialog, accountInfoDialog, $q, $state, $timeout, configManager, wireGuardConfigDialog) => {
       const config = $scope.config;
       $scope.setTitle('账号');
       $scope.setMenuSearchButton('search');
@@ -261,6 +261,13 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       $scope.account = $localStorage.user.accountInfo.data;
       $scope.accountResult = [];
       $scope.accountList = [];
+      $scope.singleAccounts = [];
+      //获取单端口
+      $http.get('/api/user/singleaccount').then(success => {
+        if (success.data.length) {
+          $scope.singleAccounts = success.data;
+        };
+      });
 
       const setAccountServerList = (account, server) => {
         account.forEach(a => {
@@ -533,11 +540,11 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         } else {
           account.exist = false;
         }
-        accountServerDialog.show(account);
+        accountServerDialog.show(account,$scope.singleAccounts);
       };
 
       //提示信息
-      $scope.serverTip = (ev,aid, server) => {
+      $scope.serverTip = (ev, aid, server) => {
         $mdDialog.show({
           contentElement: `#tip${aid}${server.id}`,
           parent: angular.element(document.body),
@@ -554,7 +561,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       };
 
       //账号信息
-      $scope.accountInfo = (account) => {        
+      $scope.accountInfo = (account) => {
         account.expire = isExpire(account);
         accountInfoDialog.show(account);
       };
@@ -833,7 +840,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           $scope.data.obfs = 'http_simple'
           $scope.data.obfs_param = 'download.windowsupdate.com'
         }
-        
+
 
         $http.put('/api/user/setConnType/' + $scope.data.account, $scope.data).then(success => {
           alertDialog.show(`设置成功，请重新添加订阅后等待两分钟，再使用${$scope.data.connType}客户端连接`, '确定')

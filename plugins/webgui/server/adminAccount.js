@@ -336,7 +336,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const clashConfig = appRequire('plugins/webgui/server/clash');
           subscribeAccount.server.unshift(tip_date);
           clashConfig.Proxy = subscribeAccount.server.map(server => {
-            return clash(account, server);
+            return clash(accountInfo, server);
           });
           clashConfig['Proxy Group'][0] = {
             name: 'Proxy',
@@ -375,7 +375,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }
       //SSR 模式
       if (accountInfo.connType === "SSR") {
-        if (type === 'ssr') {
+        if (!app || type === 'ssr') {
           const singlePorts = await knex('account_plugin').select().where('is_multi_user', '>', 0);
           //格式 str(row['id']) + row['passwd'] + row['method'] + row['obfs'] + row['protocol'])
           // let acc_md5 = md5(`${accountInfo.id}${accountInfo.password}${accountInfo.method}${accountInfo.obfs}${accountInfo.protocol}`).substring(0,5);

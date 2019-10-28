@@ -67,7 +67,15 @@ exports.getAccount = async (req, res) => {
     res.status(403).end();
   }
 };
-
+exports.getSingleAccount = async (req, res) => {
+  try {
+    let accounts = await account.getSingleAccount();
+    res.send(accounts);
+  } catch (error) {
+    console.log(err);
+    res.status(403).end();
+  }
+}
 exports.getAccountUsage = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -762,7 +770,7 @@ exports.setConnType = async (req, res) => {
 exports.getAliveIps = async (req, res) => {
   try {
     const accountId = req.params.accountId;
-    const result =await moreType.getAliveIP(accountId);
+    const result = await moreType.getAliveIP(accountId);
     res.send(result);
   } catch (err) {
     console.log(err);
