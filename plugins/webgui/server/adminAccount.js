@@ -212,8 +212,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }).then(s => s[0]).then(s => JSON.parse(s.value));
       if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
+      let accountInfo = subscribeAccount.account;
+
       for (const s of subscribeAccount.server) {
-        if (s.singleMode === 'ssr1port') {
+        if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
         } else if (s.singleMode === 'v2ray') {
           s.comment = '[只支持V2Ray]'
@@ -227,7 +229,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         key: 'base'
       }).then(s => s[0]).then(s => JSON.parse(s.value));
 
-      let accountInfo = subscribeAccount.account;
       accountInfo.hideFlow = config.plugins.webgui.hideFlow ? accountInfo.data.flow > 100000000000 : false;
 
       //更新订阅时间
@@ -395,6 +396,24 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             subscribeAccount.server.unshift(tip_date);
           }
           result += subscribeAccount.server.map(s => {
+            //支持v2
+            if (s.v2ray === 1 && app === 'shadowrocket') {
+              let v = {
+                host: "",
+                path: "ray",
+                tls: 1,
+                add: s.host,
+                port: s.v2rayPort,
+                aid: 0,
+                net: "none",
+                type: "none",
+                v: "2",
+                ps: s.name,
+                id: accountInfo.uuid,
+                class: 1
+              }
+              return 'vmess://' + urlsafeBase64(JSON.stringify(v));
+            }
             //强制单一模式
             if ((accountSetting.singleMode === 'ssr1port' || s.singleMode === 'ssr1port' || +singlePort) && !s.flag) {
               let str = '';
