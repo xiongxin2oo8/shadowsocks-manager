@@ -603,7 +603,12 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         if ($scope.server.v2ray) {
           if (index < 0) { $scope.singleModes.push({ code: 'v2ray', name: 'V2Ray' }) };
         } else {
-          if (index > -1) { $scope.singleModes.splice(index, 1); $scope.server.singleMode = 'off'; };
+          if (index > -1) {
+            $scope.singleModes.splice(index, 1);
+            if ($scope.server.singleMode === 'v2ray') {
+              $scope.server.singleMode = "off";
+            }
+          };
         }
       }
       $scope.serverInfoloaded = false;

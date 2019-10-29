@@ -212,8 +212,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }).then(s => s[0]).then(s => JSON.parse(s.value));
       if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
+      let accountInfo = subscribeAccount.account;
+
       for (const s of subscribeAccount.server) {
-        if (s.singleMode === 'ssr1port') {
+        if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
         } else if (s.singleMode === 'v2ray') {
           s.comment = '[只支持V2Ray]'
@@ -227,7 +229,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         key: 'base'
       }).then(s => s[0]).then(s => JSON.parse(s.value));
 
-      let accountInfo = subscribeAccount.account;
       accountInfo.hideFlow = config.plugins.webgui.hideFlow ? accountInfo.data.flow > 100000000000 : false;
 
       //更新订阅时间
