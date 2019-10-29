@@ -396,6 +396,24 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             subscribeAccount.server.unshift(tip_date);
           }
           result += subscribeAccount.server.map(s => {
+            //支持v2
+            if (s.v2ray === 1 && app === 'shadowrocket') {
+              let v = {
+                host: "",
+                path: "ray",
+                tls: 1,
+                add: s.host,
+                port: s.v2rayPort,
+                aid: 0,
+                net: "none",
+                type: "none",
+                v: "2",
+                ps: s.name,
+                id: accountInfo.uuid,
+                class: 1
+              }
+              return 'vmess://' + urlsafeBase64(JSON.stringify(v));
+            }
             //强制单一模式
             if ((accountSetting.singleMode === 'ssr1port' || s.singleMode === 'ssr1port' || +singlePort) && !s.flag) {
               let str = '';
