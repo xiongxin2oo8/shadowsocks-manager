@@ -803,6 +803,22 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           init(item);
         }
       });
+      $scope.$watch('data.connType', () => {
+        if ($scope.data.connType === 'SS') {
+          $scope.data.method = 'xchacha20-ietf-poly1305';
+          $scope.data.protocol = 'origin'
+          $scope.data.protocol_param = ''
+          $scope.data.obfs = 'plain'
+          $scope.data.obfs_param = ''
+        }
+        if ($scope.data.connType === 'SSR') {
+          $scope.data.method = 'chacha20-ietf';
+          $scope.data.protocol = 'auth_aes128_md5'
+          $scope.data.protocol_param = ''
+          $scope.data.obfs = 'http_simple'
+          $scope.data.obfs_param = 'download.windowsupdate.com'
+        }
+      });
       const init = (item) => {
         $scope.data = {
           account: item.id,
