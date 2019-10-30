@@ -91,7 +91,7 @@ const editOrder = async data => {
     multiServerFlow: data.multiServerFlow,
     changeOrderType: data.changeOrderType,
     active: data.active,
-    connector: connector
+    connector: data.connector
   }).where({
     id: data.id,
   });

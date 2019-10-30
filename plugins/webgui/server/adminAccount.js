@@ -217,7 +217,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
-        } else if (s.singleMode === 'v2ray') {
+        } else if (s.singleMode === 'v2ray' && type != 'v2ray') {
           s.comment = '[只支持V2Ray]'
         } else {
           s.comment = '';
@@ -400,12 +400,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             if (s.v2ray === 1 && app === 'shadowrocket') {
               let v = {
                 host: "",
-                path: "ray",
-                tls: 1,
+                path: s.v2rayPath,
+                tls: s.v2rayTLS,
                 add: s.host,
                 port: s.v2rayPort,
                 aid: 0,
-                net: "none",
+                net: s.v2rayNet,
                 type: "none",
                 v: "2",
                 ps: s.name,
@@ -435,12 +435,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               if (s.v2ray === 1) {
                 let v = {
                   host: "",
-                  path: "ray",
-                  tls: 1,
+                  path: s.path,
+                  tls: s.v2rayTLS,
                   add: s.host,
                   port: s.v2rayPort,
                   aid: 0,
-                  net: "none",
+                  net: s.v2rayNet,
                   type: "none",
                   v: "2",
                   ps: s.name,
