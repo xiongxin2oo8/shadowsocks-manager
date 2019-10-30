@@ -878,44 +878,45 @@ const sleep = time => new Promise(resolve => setTimeout(resolve, time));
 const editMultiAccounts = async (orderId, update) => {
   const accounts = await knex('account_plugin').where({ orderId });
   const updateData = {};
+  if (update.hasOwnProperty('flow')) {
+    const accountData = JSON.parse(account.data);
+    accountData.flow = update.flow;
+    updateData.data = JSON.stringify(accountData);
+  }
+  if (update.hasOwnProperty('server')) {
+    updateData.server = update.server ? JSON.stringify(update.server) : null;
+  }
+  if (update.hasOwnProperty('autoRemove')) {
+    updateData.autoRemove = update.autoRemove;
+  }
   for (const account of accounts) {
-    if (update.hasOwnProperty('flow')) {
-      const accountData = JSON.parse(account.data);
-      accountData.flow = update.flow;
-      updateData.data = JSON.stringify(accountData);
-    }
-    if (update.hasOwnProperty('server')) {
-      updateData.server = update.server ? JSON.stringify(update.server) : null;
-    }
-    if (update.hasOwnProperty('autoRemove')) {
-      updateData.autoRemove = update.autoRemove;
-    }
     if (update.hasOwnProperty('connector')) {
       updateData.connector = update.connector;
       await knex('ssr_user').update({ connector: update.connector }).where({ accountId: account.id });
     }
     if (Object.keys(updateData).length === 0) { break; }
     await knex('account_plugin').update(updateData).where({ id: account.id });
-    if (updateData.server) {
-      //如果指定了服务器
-      //该账号已经包含的的服务器
-      let servers = await knex('account_flow').select('serverId').where({ accountId: account.id }).then(res => res.map(s => s.serverId));
-      for (let serverId of servers) {
-        //只更新订单中不包含的服务器
-        if (updateData.server.indexOf(serverId) == -1) {
-          await knex('account_flow').update({
-            nextCheckTime: 400,//优先检查
-          }).where({
-            serverId: serverId,
-            accountId: account.id
-          });
-        }
-      }
-    } else {
-      //如果没有指定服务器，账号下每个服务器都检查一遍
-      //await accountFlow.edit(account.id);
-    }
-    await sleep(50);
+    await accountFlow.edit(account.id);
+    // if (updateData.server) {
+    //   //如果指定了服务器
+    //   //该账号已经包含的的服务器
+    //   let servers = await knex('account_flow').select('serverId').where({ accountId: account.id }).then(res => res.map(s => s.serverId));
+    //   for (let serverId of servers) {
+    //     //只更新订单中不包含的服务器
+    //     if (update.server.indexOf(serverId) == -1) {
+    //       await knex('account_flow').update({
+    //         nextCheckTime: 400,//优先检查
+    //       }).where({
+    //         serverId: serverId,
+    //         accountId: account.id
+    //       });
+    //     }
+    //   }
+    // } else {
+    //   //如果没有指定服务器，账号下每个服务器都检查一遍
+    //   await accountFlow.edit(account.id);
+    // }
+    //await sleep(50);
   }
 };
 
