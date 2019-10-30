@@ -875,6 +875,13 @@ const getAccountForSubscribe = async (token, ip) => {
 
 const sleep = time => new Promise(resolve => setTimeout(resolve, time));
 
+//取出两个数组中不同的部分
+const getArrDifference = (arr1, arr2) => {
+  return arr1.concat(arr2).filter(function (v, i, arr) {
+    return arr.indexOf(v) === arr.lastIndexOf(v);
+  });
+}
+
 const editMultiAccounts = async (orderId, update) => {
   const accounts = await knex('account_plugin').where({ orderId });
   const updateData = {};
@@ -896,26 +903,19 @@ const editMultiAccounts = async (orderId, update) => {
     }
     if (Object.keys(updateData).length === 0) { break; }
     await knex('account_plugin').update(updateData).where({ id: account.id });
-    await accountFlow.edit(account.id);
-    // if (updateData.server) {
-    //   //如果指定了服务器
-    //   //该账号已经包含的的服务器
-    //   let servers = await knex('account_flow').select('serverId').where({ accountId: account.id }).then(res => res.map(s => s.serverId));
-    //   for (let serverId of servers) {
-    //     //只更新订单中不包含的服务器
-    //     if (update.server.indexOf(serverId) == -1) {
-    //       await knex('account_flow').update({
-    //         nextCheckTime: 400,//优先检查
-    //       }).where({
-    //         serverId: serverId,
-    //         accountId: account.id
-    //       });
-    //     }
-    //   }
-    // } else {
-    //   //如果没有指定服务器，账号下每个服务器都检查一遍
-    //   await accountFlow.edit(account.id);
-    // }
+
+    //如果指定了服务器
+    if (updateData.server && account.server) {
+      let arr = getArrDifference(updateData.server, account.server)
+      //只检查有变化的部分
+      await knex('account_flow').update({
+        nextCheckTime: 400,//优先检查
+      }).where({ accountId: account.id }).whereIn('serverId', arr);
+
+    } else {
+      //如果没有指定服务器，账号下每个服务器都检查一遍
+      await accountFlow.edit(account.id);
+    }
     //await sleep(50);
   }
 };
