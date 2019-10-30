@@ -906,7 +906,7 @@ const editMultiAccounts = async (orderId, update) => {
 
     //如果指定了服务器
     if (updateData.server && account.server) {
-      let arr = getArrDifference(updateData.server, account.server)
+      let arr = getArrDifference(update.server, account.server)
       //只检查有变化的部分
       await knex('account_flow').update({
         nextCheckTime: 400,//优先检查
