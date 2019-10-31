@@ -217,7 +217,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
-        } else if (s.singleMode === 'v2ray' && type != 'v2ray') {
+        } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket') {
           s.comment = '[只支持V2Ray]'
         } else {
           s.comment = '';
@@ -399,12 +399,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             //支持v2
             if (s.v2ray === 1 && app === 'shadowrocket') {
               let v = {
-                host: "",
+                host: s.v2rayHost,
                 path: s.v2rayPath,
                 tls: s.v2rayTLS,
                 add: s.host,
                 port: s.v2rayPort,
-                aid: 0,
+                aid: s.v2rayAID,
                 net: s.v2rayNet,
                 type: "none",
                 v: "2",
@@ -434,12 +434,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             result = subscribeAccount.server.map(s => {
               if (s.v2ray === 1) {
                 let v = {
-                  host: "",
-                  path: s.path,
+                  host: s.v2rayHost,
+                  path: s.v2rayPath,
                   tls: s.v2rayTLS,
                   add: s.host,
                   port: s.v2rayPort,
-                  aid: 0,
+                  aid: s.v2rayAID,
                   net: s.v2rayNet,
                   type: "none",
                   v: "2",
@@ -451,7 +451,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
                 //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
               }
               if (s.flag) {
-                return 'vmess://' + urlsafeBase64(`aes-128-gcm:uuid${s.shift}@${s.host}:801`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
+                return 'vmess://' + urlsafeBase64(`aes-128-gcm:uuid${s.shift}@${s.host}:801`) + `?remarks=${encodeURIComponent(s.name)}&obfs=none`
               }
             }).join('\r\n');
             let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
