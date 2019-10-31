@@ -896,27 +896,28 @@ const editMultiAccounts = async (orderId, update) => {
   if (update.hasOwnProperty('autoRemove')) {
     updateData.autoRemove = update.autoRemove;
   }
-  for (const account of accounts) {
-    if (update.hasOwnProperty('connector')) {
-      updateData.connector = update.connector;
-      await knex('ssr_user').update({ connector: update.connector }).where({ accountId: account.id });
-    }
-    if (Object.keys(updateData).length === 0) { break; }
-    await knex('account_plugin').update(updateData).where({ id: account.id });
-    //如果指定了服务器
-    if (updateData.server && account.server) {
-      let arr = getArrDifference(update.server, JSON.parse(account.server))
-      if (arr.length > 0) {
-        //只检查有变化的部分
-        await knex('account_flow').update({
-          nextCheckTime: 400,//优先检查
-        }).where({ accountId: account.id }).whereIn('serverId', arr);
+  if (update.hasOwnProperty('connector')) {
+    updateData.connector = update.connector;
+    await knex('ssr_user').update({ connector: update.connector }).whereIn('accountId', knex('account_plugin').select('id').where({ orderId }))
+  }
+  if (Object.keys(updateData).length > 0) {
+    await knex('account_plugin').update(updateData).where({ orderId })
+    for (const account of accounts) {
+      //如果指定了服务器
+      if (updateData.server && account.server) {
+        let arr = getArrDifference(update.server, JSON.parse(account.server))
+        if (arr.length > 0) {
+          //只检查有变化的部分
+          await knex('account_flow').update({
+            nextCheckTime: 400,//优先检查
+          }).where({ accountId: account.id }).whereIn('serverId', arr);
+        }
+      } else {
+        //如果没有指定服务器，账号下每个服务器都检查一遍
+        //await accountFlow.edit(account.id);
       }
-    } else {
-      //如果没有指定服务器，账号下每个服务器都检查一遍
-      //await accountFlow.edit(account.id);
+      //await sleep(50);
     }
-    //await sleep(50);
   }
 };
 
