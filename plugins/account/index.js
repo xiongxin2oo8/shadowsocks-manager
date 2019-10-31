@@ -903,18 +903,18 @@ const editMultiAccounts = async (orderId, update) => {
     }
     if (Object.keys(updateData).length === 0) { break; }
     await knex('account_plugin').update(updateData).where({ id: account.id });
-
     //如果指定了服务器
     if (updateData.server && account.server) {
-      let arr = getArrDifference(update.server, account.server)
-      //只检查有变化的部分
-      await knex('account_flow').update({
-        nextCheckTime: 400,//优先检查
-      }).where({ accountId: account.id }).whereIn('serverId', arr);
-
+      let arr = getArrDifference(update.server, JSON.parse(account.server))
+      if (arr.length > 0) {
+        //只检查有变化的部分
+        await knex('account_flow').update({
+          nextCheckTime: 400,//优先检查
+        }).where({ accountId: account.id }).whereIn('serverId', arr);
+      }
     } else {
       //如果没有指定服务器，账号下每个服务器都检查一遍
-      await accountFlow.edit(account.id);
+      //await accountFlow.edit(account.id);
     }
     //await sleep(50);
   }
