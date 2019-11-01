@@ -766,7 +766,7 @@ exports.setConnType = async (req, res) => {
     res.status(403).end();
   });
 };
-//设置连接方式
+//获取在线及订阅Ip
 exports.getAliveIps = async (req, res) => {
   try {
     const accountId = req.params.accountId;
