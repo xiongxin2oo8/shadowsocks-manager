@@ -647,7 +647,6 @@ exports.status = async (req, res) => {
     const crisp = (config.plugins.webgui_crisp && config.plugins.webgui_crisp.use) ? config.plugins.webgui_crisp.websiteId : '';
     const singleMode = accountSetting.singleMode || 'off';
     const ip = getIp(req);
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
     let alipay;
     let paypal;
