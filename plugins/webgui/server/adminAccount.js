@@ -358,7 +358,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           if (tip.admin) status = tip.admin;
           else if (tip.stop) status = tip.stop + `❤${tip.time}`;
           else if (accountInfo.hideFlow) status = tip.time;
-          else status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+          else if (tip.use || tip.sum) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+          else status = `${tip.time}`
 
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
           return res.send(Buffer.from(result).toString('base64'));
@@ -388,7 +389,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
             else if (accountInfo.hideFlow) status = tip.time;
-            else status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else if (tip.use || tip.sum) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else status = `${tip.time}`
 
             result += `STATUS=${status}\r\nREMARKS=${remarks}\r\n`.toString('base64')
           } else {
