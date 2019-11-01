@@ -81,6 +81,17 @@ const generateFlow = async (type) => {
   await generateFlow(type);
 };
 
+const resetSSR = async () => {
+  //一个月的第几天 从0开始
+  let day = moment.date();
+  //重置已使用流量
+  await knex('server').update('node_bandwidth', 0).where('resetday', day + 1);
+  //清空在线ip
+  await knex('alive_ip').delete();
+  //清空节点在经情况
+  await knex('ss_node_online_log').delete();  
+}
+
 cron.minute(async () => {
   knex('saveFlow').delete().whereBetween('time', [0, Date.now() - 36 * 3600 * 1000]).then();
   knex('saveFlowDay').delete().whereBetween('time', [0, Date.now() - 45 * 24 * 3600 * 1000]).then();
@@ -124,4 +135,6 @@ cron.cron(() => {
 cron.cron(() => {
   logger.info('每天0点1分钟执行');
   generateFlow('day');
+  //重置ssr 相关内容
+  resetSSR();
 }, 'GenerateDayFlow', '1 0 * * *', 24 * 3600);

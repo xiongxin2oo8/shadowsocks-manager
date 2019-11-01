@@ -215,7 +215,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       let accountInfo = subscribeAccount.account;
 
       for (const s of subscribeAccount.server) {
-        if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
+        if (s.node_bandwidth_limit > 0 && s.node_bandwidth >= s.node_bandwidth_limit) {
+          s.comment = '[流量耗尽]'
+        } else if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
         } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket') {
           s.comment = '[只支持V2Ray]'
@@ -361,7 +363,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           if (tip.admin) status = tip.admin;
           else if (tip.stop) status = tip.stop + `❤${tip.time}`;
           else if (accountInfo.hideFlow) status = tip.time;
-          else status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+          else if (tip.use || tip.sum) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+          else status = `${tip.time}`
 
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
           return res.send(Buffer.from(result).toString('base64'));
@@ -391,7 +394,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
             else if (accountInfo.hideFlow) status = tip.time;
-            else status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else if (tip.use || tip.sum) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else status = `${tip.time}`
 
             result += `STATUS=${status}\r\nREMARKS=${remarks}\r\n`.toString('base64')
           } else {
@@ -433,30 +437,30 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }).join('\r\n');
         }
         if (type === 'v2ray') {
+          result = subscribeAccount.server.map(s => {
+            if (s.v2ray === 1) {
+              let v = {
+                host: s.v2rayHost,
+                path: s.v2rayPath,
+                tls: s.v2rayTLS,
+                add: s.host,
+                port: s.v2rayPort,
+                aid: s.v2rayAID,
+                net: s.v2rayNet,
+                type: "none",
+                v: "2",
+                ps: s.name,
+                id: accountInfo.uuid,
+                class: 1
+              }
+              return 'vmess://' + urlsafeBase64(JSON.stringify(v));
+              //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
+            }
+            if (s.flag) {
+              return 'vmess://' + urlsafeBase64(`aes-128-gcm:uuid${s.shift}@${s.host}:801`) + `?remarks=${encodeURIComponent(s.name)}&obfs=none`
+            }
+          }).join('\r\n');
           if (app === 'shadowrocket') {
-            result = subscribeAccount.server.map(s => {
-              if (s.v2ray === 1) {
-                let v = {
-                  host: s.v2rayHost,
-                  path: s.v2rayPath,
-                  tls: s.v2rayTLS,
-                  add: s.host,
-                  port: s.v2rayPort,
-                  aid: s.v2rayAID,
-                  net: s.v2rayNet,
-                  type: "none",
-                  v: "2",
-                  ps: s.name,
-                  id: accountInfo.uuid,
-                  class: 1
-                }
-                return 'vmess://' + urlsafeBase64(JSON.stringify(v));
-                //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
-              }
-              if (s.flag) {
-                return 'vmess://' + urlsafeBase64(`aes-128-gcm:uuid${s.shift}@${s.host}:801`) + `?remarks=${encodeURIComponent(s.name)}&obfs=none`
-              }
-            }).join('\r\n');
             let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
             let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
             result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
