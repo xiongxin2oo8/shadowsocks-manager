@@ -48,14 +48,14 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
             };
             const account = $scope.account;
             const server = $scope.server;
-            const singleAccounts = $scope.singleAccounts;            
+            const singleAccounts = $scope.singleAccounts;
             let sa = {};
             if (singleAccounts) {
-                sa=singleAccounts[0];
+                sa = singleAccounts[0];
             }
-            $scope.sa=sa;
+            $scope.sa = sa;
             const ssLink = () => {
-                if (!server) { return ''; }
+                if (!server || server.singleMode != 'off' || account.connType != "SSR") { return ''; }
                 if (server.type === 'WireGuard') {
                     const a = account.port % 254;
                     const b = (account.port - a) / 254;
@@ -69,21 +69,13 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                         `Endpoint = ${server.host}:${server.wgPort}`,
                         `AllowedIPs = 0.0.0.0/0`,
                     ].join('\n');
-                } else if (account.connType == "SSR") {
-                    //单端口模式
-                    if ((config.singleMode == 'ssr1port' || server.singleMode == 'ssr1port') && singleAccounts) {
-                        let sa = singleAccounts[0];
-                        return 'ssr://' + urlsafeBase64(server.host + ':' + (sa.port) + ':' + sa.protocol + ':' + sa.method + ':' + sa.obfs + ':' + urlsafeBase64(sa.password) + '/?obfsparam=' + (sa.obfs_param ? urlsafeBase64(sa.obfs_param) : '') + '&protoparam=' + urlsafeBase64(account.id  + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + sa.port));
-                    } else {
-                        return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
-                    }
                 } else {
                     return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
                 }
             };
             const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
             const ssrLink = () => {
-                if (!server) { return ''; }
+                if (!server || server.singleMode === 'v2ray' || account.connType != "SS") { return ''; }
                 let str = '';
                 if (account.connType == "SSR") {
                     //单端口模式
@@ -93,17 +85,33 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                         return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
                         //' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '
                     }
-                } else {
-                    let index = method.indexOf(server.method);
-                    if (index != -1) {
-                        return "";
-                    }
-                    str = 'ssr://' + urlsafeBase64(server.host + ':' + account.port + ':origin:' + server.method + ':plain:' + urlsafeBase64(account.password) + '/?obfsparam=&remarks=' + urlsafeBase64(server.comment));
                 }
+                return str;
+            };
+
+            const v2Link = () => {
+                if (!server || !server.v2ray) { return ''; }
+                let str = '';
+                let v = {
+                    host: server.v2rayHost,
+                    path: server.v2rayPath,
+                    tls: server.v2rayTLS,
+                    add: server.host,
+                    port: server.v2rayPort,
+                    aid: server.v2rayAID,
+                    net: server.v2rayNet,
+                    type: "none",
+                    v: "2",
+                    ps: server.name,
+                    id: account.uuid,
+                    class: 1
+                }
+                str = 'vmess://' + urlsafeBase64(JSON.stringify(v));
                 return str;
             };
             $scope.ssrLink = ssrLink();
             $scope.ssLink = ssLink();
+            $scope.v2Link = v2Link();
 
             $scope.toast = () => {
                 $mdToast.show(

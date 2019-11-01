@@ -396,8 +396,8 @@
                 <md-tab label="二维码">
                     <md-content class="md-padding">
                         <div layout="column" layout-align="center center" style="margin-top:10px">
-                            <a ng-href="{{ ssLink || ssrLink }}">
-                                <qr layout-margin text="ssLink || ssrLink" image="true"></qr>
+                            <a ng-href="{{ ssLink || ssrLink || v2Link }}">
+                                <qr layout-margin text="ssLink || ssrLink || v2Link" image="true"></qr>
                                 <script>
                                     $(function () {
                                         $('qr img').css('width', '90%');
@@ -414,15 +414,18 @@
                     </md-content>
                     <div layout="row" layout-align="center">
                         <div>
-                            <md-button class="md-primary" ngclipboard data-clipboard-text="{{ ssLink}}"
-                                ngclipboard-success="toast(e);">
-                                {{ ssLink?"复制SS链接":"不支持SS" }}
+                            <md-button class="md-primary" ng-if="ssLink" ngclipboard data-clipboard-text="{{ ssLink}}"
+                                ngclipboard-success="toast(e);">复制SS链接
                             </md-button>
                         </div>
                         <div>
-                            <md-button class="md-primary" ngclipboard data-clipboard-text="{{ ssrLink }}"
-                                ngclipboard-success="toast(e);">
-                                {{ ssrLink?"复制SSR链接":"不支持SSR" }}
+                            <md-button class="md-primary" ng-if="ssrLink" ngclipboard
+                                data-clipboard-text="{{ ssrLink }}" ngclipboard-success="toast(e);">复制SSR链接
+                            </md-button>
+                        </div>
+                        <div>
+                            <md-button class="md-primary" ng-if="v2Link" ngclipboard data-clipboard-text="{{ v2Link }}"
+                                ngclipboard-success="toast(e);">复制V2Ray链接
                             </md-button>
                         </div>
                     </div>
