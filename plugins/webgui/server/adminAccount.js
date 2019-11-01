@@ -223,6 +223,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           s.comment = '';
         }
         s.name = s.comment + s.name;
+        if (s.scale != 1) {
+          s.name = s.name + ' 倍率' + s.scale;
+        }
         s.host = await getAddress(s.host, +resolveIp);
       }
       const baseSetting = await knex('webguiSetting').where({
