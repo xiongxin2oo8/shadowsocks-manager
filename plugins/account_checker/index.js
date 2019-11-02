@@ -895,4 +895,6 @@ if (config.plugins.moreType && config.plugins.moreType.limitIp) {
     logger.info('每分钟执行一次，检查在线ip');
     checkIpCount();
   }, 'checkIpCount', 1);
+}else{
+  console.log('未开启IP数限制');
 }
