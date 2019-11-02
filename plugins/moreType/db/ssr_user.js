@@ -23,7 +23,7 @@ const createTable = async () => {
     const node_speedlimit = await knex.schema.hasColumn(tableName, 'node_speedlimit');
     if(!node_speedlimit) {
       await knex.schema.table(tableName, function(table) {
-        table.float('node_speedlimit').defaultTo(0);;
+        table.float('node_speedlimit').defaultTo(0);
       });
     }
     const forbidden_ip = await knex.schema.hasColumn(tableName, 'forbidden_ip');
@@ -73,7 +73,7 @@ const createTable = async () => {
     table.integer('connector');//连接设备数
     table.integer('is_multi_user').defaultTo(0);//是否是单端口承载用户
     table.float('node_speedlimit').defaultTo(0);;//节点限速/Mbps
-    table.string('forbidden_ip');//禁止用户访问的IPg列表  127.0.0.0/8,::1/128
+    table.string('forbidden_ip');//禁止用户访问的IP列表  127.0.0.0/8,::1/128
     table.string('forbidden_port');//禁止用户访问的端口 半角英文逗号分割，支持端口段
     table.string('disconnect_ip');//封禁的ip
     table.index(['id', 'port'], 'index');

@@ -75,6 +75,18 @@ const createTable = async() => {
         table.integer('connector').defaultTo(2);
       });
     }
+    const disconnect_count = await knex.schema.hasColumn(tableName, 'disconnect_count');
+    if(!disconnect_count) {
+      await knex.schema.table(tableName, function(table) {
+        table.integer('disconnect_count').defaultTo(0);
+      });
+    }
+    const disconnect_nexttime = await knex.schema.hasColumn(tableName, 'disconnect_nexttime');
+    if(!disconnect_nexttime) {
+      await knex.schema.table(tableName, function(table) {
+        table.integer('disconnect_nexttime').defaultTo(0);
+      });
+    }
     return;
   }
   return knex.schema.createTable(tableName, function(table) {
@@ -103,6 +115,8 @@ const createTable = async() => {
     table.string('uuid');
     table.string('is_multi_user').defaultTo(0);
     table.integer('connector').defaultTo(2);//同时在线设备数
+    table.integer('disconnect_count').defaultTo(0);//当日封禁次数
+    table.bigInteger('disconnect_nexttime').defaultTo(0);//下次解封时间
   });
 };
 

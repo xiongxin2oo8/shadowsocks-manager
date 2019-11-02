@@ -814,3 +814,73 @@ cron.cron(() => {
     logger.info('未启用邮件功能');
   }
 }, 'Remind', '2 10 * * *', 23 * 3600);
+
+
+//重置ssr 相关内容
+const resetSSR = async () => {
+  try {
+    //一个月的第几天 从0开始
+    let day = moment().date();
+    //重置已使用流量
+    await knex('server').update('node_bandwidth', 0).where('resetday', day + 1);
+    //清空在线ip
+    await knex('alive_ip').delete();
+    //清空节点在经情况
+    await knex('ss_node_online_log').delete();
+    //重置封停次数
+    await knex('account_plugin').update('disconnect_count', 0);
+  } catch (err) {
+    logger.info('重置ssr出错', err)
+  }
+}
+cron.cron(() => {
+  logger.info('每天0点5分执行');
+  resetSSR();
+}, 'resetSSR', '5 0 * * *', 23 * 3600);
+
+//设备数限制 
+const checkIpCount = async () => {
+  try {
+    let now = moment().valueOf();
+    const ips = await knex('alive_ip').select('userid as accountId', 'count(ip) as ipCount', 'GROUP_CONCAT(ip) as ips').where('datetime', '>', now / 1000 - 60);
+    //临时封禁
+    for (let ip of ips) {
+      if (ip.ipCount > 3) {
+        let account = await knex('account_plugin')
+          .select('user.email', 'account_plugin.id', 'account_plugin.disconnect_count')
+          .leftJoin('user', 'user.id', 'account_plugin.userId')
+          .where('account_plugin.id', ip.accountId);
+
+        //当天封停5次以上 直接封12小时
+        if (account.disconnect_count >= 5) {
+          await knex('account_flow').update({
+            nextCheckTime: now,
+            status: 'ban',
+            autobanTime: now + 12 * 60 * 60 * 1000
+          }).where({ accountId: account.id });
+          emailPlugin.sendMail(user.email, '账号封停提醒', `您的账号当前同时连接设备数为 ${ip.ipCount}，超过了最大限制，本次为当日第 ${account.disconnect_count + 1} 次被封停 。<br><br>本次封停时间为 24小时。<br><br>当天超过5次被封停，将一次封停24小时，请注意使用。<br><br>${config.plugins.webgui.site} (${baseSetting.title})`);
+        } else {
+          //加入封停ip
+          await knex('ssr_user').update('disconnect_ip', ip.ips).where('accountId', account.id);
+          //封停时间 分钟
+          let min = Math.pow(2, account.disconnect_count) * 5;
+          let disconnect_nexttime = now + min * 60 * 1000;
+          await knex('account_plugin').update({ disconnect_nexttime, disconnect_count: account.disconnect_count + 1 }).where('id', account.id);
+          emailPlugin.sendMail(user.email, '账号封停提醒', `您的账号当前同时连接设备数为 ${ip.ipCount}，超过了最大限制，以下ip已被禁止连接：${ip.ips}。<br><br>本次封停时间为 ${min} 分钟<br><br>当天超过5次被封停，将一次封停24小时，请注意使用。<br><br>${config.plugins.webgui.site} (${baseSetting.title})`);
+        }
+
+      }
+    }
+    //解封
+    let disAccounts = await knex('account_plugin').where('disconnect_nexttime', '>', 0).where('disconnect_nexttime', '<', now).then(r => r.id);
+    await knex('account_plugin').update('disconnect_nexttime', 0).whereIn('id', disAccounts);
+    await knex('ssr_user').update('disconnect_ip', null).whereNotNull('disconnect_ip').whereIn('accountId', disAccounts);
+
+  } catch (err) {
+    logger.error(err);
+  }
+};
+cron.minute(async () => {
+  logger.info('每分钟执行一次，检查在线ip');
+  checkIpCount();
+}, 'checkIpCount', 1);
