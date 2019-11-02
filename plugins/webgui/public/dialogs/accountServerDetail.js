@@ -74,7 +74,7 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                 }
             };
             const ssrLink = () => {
-                if (!server || server.singleMode === 'v2ray' || account.connType != "SS") { return ''; }
+                if (!server || server.singleMode === 'v2ray' || account.connType != "SSR") { return ''; }
                 let str = '';
                 if (account.connType == "SSR") {
                     //单端口模式
