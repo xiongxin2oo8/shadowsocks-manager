@@ -55,7 +55,7 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
             }
             $scope.sa = sa;
             const ssLink = () => {
-                if (!server || server.singleMode != 'off' || account.connType != "SSR") { return ''; }
+                if (!server || server.singleMode != 'off' || account.connType != "SS") { return ''; }
                 if (server.type === 'WireGuard') {
                     const a = account.port % 254;
                     const b = (account.port - a) / 254;
@@ -70,19 +70,18 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                         `AllowedIPs = 0.0.0.0/0`,
                     ].join('\n');
                 } else {
-                    return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.comment);
+                    return 'ss://' + base64Encode(account.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)) + '#' + encodeURIComponent(server.name);
                 }
             };
-            const method = ['aes-256-gcm', 'chacha20-ietf-poly1305', 'aes-128-gcm', 'aes-192-gcm', 'xchacha20-ietf-poly1305'];
             const ssrLink = () => {
                 if (!server || server.singleMode === 'v2ray' || account.connType != "SS") { return ''; }
                 let str = '';
                 if (account.connType == "SSR") {
                     //单端口模式
                     if ((config.singleMode == 'ssr1port' || server.singleMode == 'ssr1port') && singleAccounts) {
-                        return 'ssr://' + urlsafeBase64(server.host + ':' + (sa.port) + ':' + sa.protocol + ':' + sa.method + ':' + sa.obfs + ':' + urlsafeBase64(sa.password) + '/?obfsparam=' + (sa.obfs_param ? urlsafeBase64(sa.obfs_param) : '') + '&protoparam=' + urlsafeBase64(account.id + ':' + account.password) + '&remarks=' + urlsafeBase64((server.comment || '这里显示备注') + ' - ' + sa.port));
+                        return 'ssr://' + urlsafeBase64(server.host + ':' + (sa.port) + ':' + sa.protocol + ':' + sa.method + ':' + sa.obfs + ':' + urlsafeBase64(sa.password) + '/?obfsparam=' + (sa.obfs_param ? urlsafeBase64(sa.obfs_param) : '') + '&protoparam=' + urlsafeBase64(account.id + ':' + account.password) + '&remarks=' + urlsafeBase64((server.name || '这里显示备注') + ' - ' + sa.port));
                     } else {
-                        return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.comment || '这里显示备注'));
+                        return 'ssr://' + urlsafeBase64(server.host + ':' + (account.port + server.shift) + ':' + account.protocol + ':' + account.method + ':' + account.obfs + ':' + urlsafeBase64(account.password) + '/?obfsparam=' + (account.obfs_param ? urlsafeBase64(account.obfs_param) : '') + '&protoparam=&remarks=' + urlsafeBase64(server.name || '这里显示备注'));
                         //' + (account.protocol_param ? urlsafeBase64(account.protocol_param) : '') + '
                     }
                 }

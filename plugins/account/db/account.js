@@ -84,7 +84,7 @@ const createTable = async() => {
     const disconnect_nexttime = await knex.schema.hasColumn(tableName, 'disconnect_nexttime');
     if(!disconnect_nexttime) {
       await knex.schema.table(tableName, function(table) {
-        table.integer('disconnect_nexttime').defaultTo(0);
+        table.bigInteger('disconnect_nexttime').defaultTo(0);
       });
     }
     return;
