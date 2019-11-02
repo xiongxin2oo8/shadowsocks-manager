@@ -842,7 +842,8 @@ cron.cron(() => {
 const checkIpCount = async () => {
   try {
     let now = moment().valueOf();
-    const ips = await knex('alive_ip').select('userid as accountId', 'count(ip) as ipCount', 'GROUP_CONCAT(ip) as ips').where('datetime', '>', now / 1000 - 60);
+    //const ips = await knex('alive_ip').select('userid as accountId', 'count(ip) as ipCount', 'GROUP_CONCAT(ip) as ips').where('datetime', '>', now / 1000 - 60);
+    const ips = await knex.raw(`select userid as accountId,count(ip) as ipCount,GROUP_CONCAT(ip) as ips from alive_ip where datetime > ${now / 1000 - 60}`);
     //临时封禁
     for (let ip of ips) {
       if (ip.ipCount > 3) {
