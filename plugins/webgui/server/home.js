@@ -76,7 +76,7 @@ const getNewPort = async () => {
 };
 
 //获得反向代理的真实ip
-const getIp=(req)=>{
+const getIp = (req) => {
   const ips = req.headers['x-forwarded-for'];
   let ip = '';
   if (ips) {
@@ -188,7 +188,7 @@ exports.signup = async (req, res) => {
         await groupPlugin.getOneGroup(webguiSetting.defaultGroup);
         group = webguiSetting.defaultGroup;
       } catch (err) { }
-    }    
+    }
     const ip = getIp(req);
     const [userId] = await user.add({
       username: email,
@@ -759,12 +759,15 @@ exports.sendCode = (req, res) => {
     if (result.isEmpty) { return; }
     return Promise.reject('invalid email');
   }).then(() => {
-    return knex('webguiSetting').select().where({
-      key: 'account',
-    })
-      .then(success => JSON.parse(success[0].value))
+    return knex('webguiSetting').select().whereIn('key', ['webgui_ref', 'account'])
       .then(success => {
-        if (success.signUp.isEnable) { return; }
+        let data = {};
+        data[success[0].key] = JSON.parse(success[0].value);
+        data[success[1].key] = JSON.parse(success[1].value);
+        return data;
+      })
+      .then(success => {
+        if (success.account.signUp.isEnable) { return; }
         if (refCode) {
           return ref.checkRefCodeForSignup(refCode).then(success => {
             if (success) { return; }
@@ -772,16 +775,7 @@ exports.sendCode = (req, res) => {
           });
         }
         isTelegram && telegram.push(`用户[ ${req.body.email.toString().toLowerCase()} ]注册失败，未开放注册`);
-        const refSetting = knex('webguiSetting').select().where({
-          key: 'webgui_ref',
-        }).then(success => {
-          if (!success.length) {
-            return Promise.reject('signup close');
-          }
-          success[0].value = JSON.parse(success[0].value);
-          return success[0].value;
-        });
-        if (refSetting.useWhenSignupClose) {
+        if (success.webgui_ref.useWhenSignupClose) {
           return Promise.reject('signup ref');
         } else {
           return Promise.reject('signup close');
