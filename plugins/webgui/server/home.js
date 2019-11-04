@@ -75,6 +75,17 @@ const getNewPort = async () => {
   });
 };
 
+//获得反向代理的真实ip
+const getIp=(req)=>{
+  const ips = req.headers['x-forwarded-for'];
+  let ip = '';
+  if (ips) {
+    ip = ips.split(',')[0];
+  } else {
+    ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+  }
+  return ip;
+}
 const createUser = async (email, password, ip = '', from = '') => {
   let type = 'normal';
   await knex('user').count('id AS count').then(success => {
@@ -177,8 +188,8 @@ exports.signup = async (req, res) => {
         await groupPlugin.getOneGroup(webguiSetting.defaultGroup);
         group = webguiSetting.defaultGroup;
       } catch (err) { }
-    }
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    }    
+    const ip = getIp(req);
     const [userId] = await user.add({
       username: email,
       email,
@@ -283,7 +294,7 @@ exports.login = async (req, res) => {
 
 exports.googleLogin = async (req, res) => {
   try {
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    const ip = getIp(req);
     const { code, redirect_uri } = req.body;
     const {
       google_login_client_id: client_id,
@@ -362,7 +373,7 @@ const getFacebookAppToken = async () => {
 
 exports.facebookLogin = async (req, res) => {
   try {
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    const ip = getIp(req);
     const { code, redirect_uri } = req.body;
     const {
       facebook_login_client_id: client_id,
@@ -429,7 +440,7 @@ exports.facebookLogin = async (req, res) => {
 
 exports.githubLogin = async (req, res) => {
   try {
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    const ip = getIp(req);
     const { code, redirect_uri, state } = req.body;
     const {
       github_login_client_id: client_id,
@@ -523,7 +534,7 @@ exports.getTwitterLoginUrl = async (req, res) => {
 
 exports.twitterLogin = async (req, res) => {
   try {
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    const ip = getIp(req);
     const { oauth_token, oauth_verifier, callbackUrl } = req.body;
     const time = callbackUrl.split('?time=')[1];
     if (Math.abs(Date.now() - (+time)) >= 10 * 60 * 1000) {
@@ -566,7 +577,7 @@ exports.macLogin = (req, res) => {
   delete req.session.user;
   delete req.session.type;
   const mac = formatMacAddress(req.body.mac);
-  const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+  const ip = getIp(req);
   macAccount.login(mac, ip)
     .then(success => {
       req.session.user = success.userId;
@@ -635,7 +646,7 @@ exports.status = async (req, res) => {
     const github_login_client_id = config.plugins.webgui.github_login_client_id || '';
     const crisp = (config.plugins.webgui_crisp && config.plugins.webgui_crisp.use) ? config.plugins.webgui_crisp.websiteId : '';
     const singleMode = accountSetting.singleMode || 'off';
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    const ip = getIp(req);
 
     let alipay;
     let paypal;
@@ -788,7 +799,7 @@ exports.sendCode = (req, res) => {
     });
   }).then(success => {
     const email = req.body.email.toString().toLowerCase();
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    const ip = getIp(req);
     const session = req.sessionID;
     return emailPlugin.sendCode(email, success.title || 'ss验证码', success.content || '欢迎新用户注册，\n您的验证码是：', {
       ip,
@@ -835,7 +846,7 @@ exports.sendResetPasswordEmail = (req, res) => {
       return Promise.reject('already send');
     }
     token = crypto.randomBytes(16).toString('hex');
-    const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    const ip = getIp(req);
     const session = req.sessionID;
     const address = config.plugins.webgui.site + '/home/password/reset/' + token;
     if (resetEmail.content.indexOf('${address}') >= 0) {
