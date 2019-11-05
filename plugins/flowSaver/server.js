@@ -92,29 +92,37 @@ const edit = async options => {
 
 const list = async (options = {}) => {
   const serverList = await knex('server').select().orderByRaw('sort,name');
-  if (options.status) {
-    const serverStatus = [];
-    const getServerStatus = (server, index) => {
-      return manager.send({
-        command: 'version',
-      }, {
-        host: server.host,
-        port: server.port,
-        password: server.password
-      }).then(success => {
-        return { status: success.version, isGfw: success.isGfw, index };
-      }).catch(error => {
-        return { status: -1, index };
-      });
-    };
-    for (let i = 0; i < serverList.length; i++) {
-      let server = serverList[i];
-      // serverStatus.push(getServerStatus(server, i));
-      server.status = '0.0.0';
-      server.isGfw = false;
-      //开始日期
-      const nowday = moment().format('D');
-      const now = moment().valueOf();
+
+  // const serverStatus = [];
+  // const getServerStatus = (server, index) => {
+  //   return manager.send({
+  //     command: 'version',
+  //   }, {
+  //     host: server.host,
+  //     port: server.port,
+  //     password: server.password
+  //   }).then(success => {
+  //     return { status: success.version, isGfw: success.isGfw, index };
+  //   }).catch(error => {
+  //     return { status: -1, index };
+  //   });
+  // };
+
+  //开始日期
+  const nowday = moment().format('D');
+  const now = moment().valueOf();
+  for (let i = 0; i < serverList.length; i++) {
+    let server = serverList[i];
+    // serverStatus.push(getServerStatus(server, i));
+    server.isGfw = false;
+    server.status = '';
+    if (server.node_bandwidth_limit > 0 && server.node_bandwidth >= server.node_bandwidth_limit) {
+      server.status = '[流量耗尽]'
+    }
+    if (server.node_heartbeat < (now / 1000 - 300)) {
+      server.status = '[离线]'
+    }
+    if (options.status) {
       //上次重置时间
       let last = moment().subtract(1, 'months').valueOf();
       let lastday = moment().subtract(1, 'months').endOf('month')

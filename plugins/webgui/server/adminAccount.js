@@ -213,18 +213,16 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       let accountInfo = subscribeAccount.account;
-
+      
       for (const s of subscribeAccount.server) {
-        if (s.node_bandwidth_limit > 0 && s.node_bandwidth >= s.node_bandwidth_limit) {
-          s.comment = '[流量耗尽]'
-        } else if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
+        if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
         } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket') {
           s.comment = '[只支持V2Ray]'
         } else {
           s.comment = '';
         }
-        s.name = s.comment + s.name;
+        s.name = s.status + s.comment + s.name;
         if (s.scale != 1) {
           s.name = s.name + ' 倍率' + s.scale;
         }
@@ -358,7 +356,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           result = subscribeAccount.server.map(s => {
             return ss_shadowrocket(accountInfo, s);
           }).join('\r\n');
-          let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
+          let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)'
           let status = '';//tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
           if (tip.admin) status = tip.admin;
           else if (tip.stop) status = tip.stop + `❤${tip.time}`;
@@ -388,7 +386,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           // let acc_md5 = md5(`${accountInfo.id}${accountInfo.password}${accountInfo.method}${accountInfo.obfs}${accountInfo.protocol}`).substring(0,5);
           // let obfsparam=`${acc_md5}${accountInfo.id}.catalog.update.microsoft.com`
           if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
-            let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
+            let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)'
             let status = '';// tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
 
             if (tip.admin) status = tip.admin;
