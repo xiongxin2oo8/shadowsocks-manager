@@ -119,9 +119,9 @@ const list = async (options = {}) => {
     if (server.node_bandwidth_limit > 0 && server.node_bandwidth >= server.node_bandwidth_limit) {
       server.status = '[流量耗尽]'
     }
-    if (server.node_heartbeat < (now / 1000 - 300)) {
-      server.status = '[离线]'
-    }
+    // if (server.node_heartbeat < (now / 1000 - 300)) {
+    //   server.status = '[离线]'
+    // }
     if (options.status) {
       //上次重置时间
       let last = moment().subtract(1, 'months').valueOf();
