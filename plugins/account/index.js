@@ -1055,14 +1055,16 @@ const setConnType = async (options) => {
   if (options === "SSR" && options.is_multi_user > 0) {
     options.obfs_param = 'catalog.update.microsoft.com'
   }
-  const accountInfo = await getAccount({ id: options.accountId }).then(s => s[0]);
+  let accountInfo = await getAccount({ id: options.accountId }).then(s => s[0]);
+  accountInfo.uuid = accountInfo.uuid || UUID.v1();
   await knex('account_plugin').update({
     connType: options.connType,
     method: options.method,
     protocol: options.protocol,
     protocol_param: options.protocol_param,
     obfs: options.obfs,
-    obfs_param: options.obfs_param
+    obfs_param: options.obfs_param,
+    uuid: accountInfo.uuid
   }).where({ id: accountInfo.id });
   //直接删除
   await knex('ssr_user').where({ accountId: accountInfo.id }).del();
