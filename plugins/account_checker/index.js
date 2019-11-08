@@ -819,10 +819,10 @@ cron.cron(() => {
 //重置ssr 相关内容
 const resetSSR = async () => {
   try {
-    //一个月的第几天 从0开始
+    //一个月的第几天 从1开始
     let day = moment().date();
     //重置已使用流量
-    await knex('server').update('node_bandwidth', 0).where('resetday', day + 1);
+    await knex('server').update('node_bandwidth', 0).where('resetday', day);
     //清空在线ip
     await knex('alive_ip').delete();
     //清空节点在经情况
