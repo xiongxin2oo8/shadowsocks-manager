@@ -177,6 +177,24 @@ const clash = (account, server) => {
 const ss_shadowrocket = (account, server) => {
   return 'ss://' + Buffer.from(account.method + ':' + account.password + '@' + server.host + ':' + (account.port + server.shift)).toString('base64') + '#' + encodeURIComponent(server.name);
 }
+//v2ray 默认
+const v2ray = (account, server) => {
+  let v = {
+    host: server.v2rayHost,
+    path: server.v2rayPath,
+    tls: server.v2rayTLS,
+    add: server.host,
+    port: server.v2rayPort,
+    aid: server.v2rayAID,
+    net: server.v2rayNet,
+    type: "none",
+    v: "2",
+    ps: server.name,
+    id: account.uuid,
+    class: 1
+  }
+  return 'vmess://' + urlsafeBase64(JSON.stringify(v));
+}
 //SS 默认链接
 const ss = (account, server) => {
 
@@ -213,7 +231,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       let accountInfo = subscribeAccount.account;
-      
+
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
@@ -354,7 +372,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
         if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
           result = subscribeAccount.server.map(s => {
-            return ss_shadowrocket(accountInfo, s);
+            //支持v2
+            if (s.v2ray === 1 && app === 'shadowrocket') {
+              return v2ray(accountInfo, s)
+            } else {
+              return ss_shadowrocket(accountInfo, s);
+            }
           }).join('\r\n');
           let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)'
           let status = '';//tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
@@ -403,21 +426,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           result += subscribeAccount.server.map(s => {
             //支持v2
             if (s.v2ray === 1 && app === 'shadowrocket') {
-              let v = {
-                host: s.v2rayHost,
-                path: s.v2rayPath,
-                tls: s.v2rayTLS,
-                add: s.host,
-                port: s.v2rayPort,
-                aid: s.v2rayAID,
-                net: s.v2rayNet,
-                type: "none",
-                v: "2",
-                ps: s.name,
-                id: accountInfo.uuid,
-                class: 1
-              }
-              return 'vmess://' + urlsafeBase64(JSON.stringify(v));
+              return v2ray(accountInfo, s)
             }
             //强制单一模式
             if ((accountSetting.singleMode === 'ssr1port' || s.singleMode === 'ssr1port' || +singlePort) && !s.flag) {
@@ -437,21 +446,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (type === 'v2ray') {
           result = subscribeAccount.server.map(s => {
             if (s.v2ray === 1) {
-              let v = {
-                host: s.v2rayHost,
-                path: s.v2rayPath,
-                tls: s.v2rayTLS,
-                add: s.host,
-                port: s.v2rayPort,
-                aid: s.v2rayAID,
-                net: s.v2rayNet,
-                type: "none",
-                v: "2",
-                ps: s.name,
-                id: accountInfo.uuid,
-                class: 1
-              }
-              return 'vmess://' + urlsafeBase64(JSON.stringify(v));
+              return v2ray(accountInfo, s)
               //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
             }
             if (s.flag) {
