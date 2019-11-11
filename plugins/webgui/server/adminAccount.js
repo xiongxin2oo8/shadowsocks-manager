@@ -180,13 +180,13 @@ const v2_clash = (account, server) => {
     server: server.host,
     port: server.v2rayPort,
     uuid: account.uuid,
-    alterId: server.v2rayAID,
-    cipher: server.v2rayMethod,
+    alterId: server.v2rayAID || 0,
+    cipher: server.v2rayMethod || 'auto',
     udp: true,
     tls: true,
     'skip-cert-verify': true,
-    network: server.v2rayNet,
-    'ws-path': server.v2rayPath,
+    network: server.v2rayNet || '',
+    'ws-path': server.v2rayPath || '',
   };
 }
 //小火箭
@@ -475,6 +475,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
                 return server.name;
               }),
             };
+            console.log(clashConfig);
             return res.send(yaml.safeDump(clashConfig));
           }
 
