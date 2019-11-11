@@ -465,18 +465,25 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             const clashConfig = appRequire('plugins/webgui/server/clash');
             subscribeAccount.server.unshift(tip_date);
             clashConfig.dns = { enable: true, nameserver: ['114.114.114.114', '223.5.5.5'] }
-            clashConfig.Proxy = subscribeAccount.server.map(server => {
-              return v2_clash(accountInfo, server);
+            let cs = { Proxy: [], proxies: [] };
+            accountInfo.uuid='9755b5f0-ed89-11e9-8829-5905dbb9c3de';
+            subscribeAccount.server.map(server => {
+              if (server.v2ray) {
+                cs.Proxy.push(v2_clash(accountInfo, server));
+                cs.proxies.push(server.name);
+              }
             });
+            clashConfig.Proxy = cs.Proxy;
             clashConfig['Proxy Group'][0] = {
               name: 'Proxy',
               type: 'select',
-              proxies: subscribeAccount.server.map(server => {
-                return server.name;
-              }),
+              proxies: cs.proxies,
             };
-            console.log(clashConfig);
-            return res.send(yaml.safeDump(clashConfig));
+            //return res.send(yaml.safeDump(clashConfig));
+            res.setHeader('Content-Type', ' text/plain;charset=utf-8');
+            res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
+            var dataBuffer = Buffer.concat([new Buffer('\xEF\xBB\xBF', 'binary'), new Buffer(yaml.safeDump(clashConfig))]);
+            return res.send(dataBuffer);
           }
 
           result = subscribeAccount.server.map(s => {
