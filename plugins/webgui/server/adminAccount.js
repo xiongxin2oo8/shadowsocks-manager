@@ -466,7 +466,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             subscribeAccount.server.unshift(tip_date);
             clashConfig.dns = { enable: true, nameserver: ['114.114.114.114', '223.5.5.5'] }
             let cs = { Proxy: [], proxies: [] };
-            accountInfo.uuid='9755b5f0-ed89-11e9-8829-5905dbb9c3de';
             subscribeAccount.server.map(server => {
               if (server.v2ray) {
                 cs.Proxy.push(v2_clash(accountInfo, server));
