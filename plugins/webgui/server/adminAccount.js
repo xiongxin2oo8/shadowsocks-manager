@@ -163,7 +163,7 @@ const ssd = (account, server, index) => {
     remarks: server.name
   }
 }
-const clash = (account, server) => {
+const ss_clash = (account, server) => {
   return {
     cipher: account.method,
     name: server.name,
@@ -171,6 +171,22 @@ const clash = (account, server) => {
     port: account.port + server.shift,
     server: server.host,
     type: 'ss'
+  };
+}
+const v2_clash = (account, server) => {
+  return {
+    name: server.name,
+    type: 'vmess',
+    server: server.host,
+    port: server.v2rayPort,
+    uuid: account.uuid,
+    alterId: server.v2rayAID || 0,
+    cipher: server.v2rayMethod || 'auto',
+    udp: true,
+    tls: true,
+    'skip-cert-verify': true,
+    network: server.v2rayNet || '',
+    'ws-path': server.v2rayPath || '',
   };
 }
 //小火箭
@@ -358,7 +374,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const clashConfig = appRequire('plugins/webgui/server/clash');
           subscribeAccount.server.unshift(tip_date);
           clashConfig.Proxy = subscribeAccount.server.map(server => {
-            return clash(accountInfo, server);
+            return ss_clash(accountInfo, server);
           });
           clashConfig['Proxy Group'][0] = {
             name: 'Proxy',
@@ -444,6 +460,31 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }).join('\r\n');
         }
         if (type === 'v2ray') {
+          if (app == 'clash') {
+            const yaml = require('js-yaml');
+            const clashConfig = appRequire('plugins/webgui/server/clash');
+            subscribeAccount.server.unshift(tip_date);
+            clashConfig.dns = { enable: true, nameserver: ['114.114.114.114', '223.5.5.5'] }
+            let cs = { Proxy: [], proxies: [] };
+            subscribeAccount.server.map(server => {
+              if (server.v2ray) {
+                cs.Proxy.push(v2_clash(accountInfo, server));
+                cs.proxies.push(server.name);
+              }
+            });
+            clashConfig.Proxy = cs.Proxy;
+            clashConfig['Proxy Group'][0] = {
+              name: 'Proxy',
+              type: 'select',
+              proxies: cs.proxies,
+            };
+            //return res.send(yaml.safeDump(clashConfig));
+            res.setHeader('Content-Type', ' text/plain;charset=utf-8');
+            res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
+            var dataBuffer = Buffer.concat([new Buffer('\xEF\xBB\xBF', 'binary'), new Buffer(yaml.safeDump(clashConfig))]);
+            return res.send(dataBuffer);
+          }
+
           result = subscribeAccount.server.map(s => {
             if (s.v2ray === 1) {
               return v2ray(accountInfo, s)

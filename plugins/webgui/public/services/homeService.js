@@ -50,7 +50,7 @@ app.factory('homeApi', ['$http', $http => {
         if (err.data === 'email in black list') { errData = '发送错误，请更换邮箱尝试'; }
         if (err.data === 'send email out of limit') { errData = '请求过于频繁，请稍后再试'; }
         if (err.data === 'signup close') { errData = '当前时段尚未开放注册'; }
-        if (err.data === 'signup ref') { errData = '当前时段仅开放邀请注册'; }
+        if (err.data === 'signup ref') { errData = '当前仅开放邀请注册(可向好友索要邀请链接)'; }
         return Promise.reject(errData);
       } else {
         return Promise.reject('网络异常，请稍后再试');
