@@ -121,7 +121,7 @@ app
       };
       $scope.signup = () => {
         alertDialog.loading().then(() => {
-          return homeApi.userSignup($scope.user.email, $scope.user.code, $scope.user.password, $scope.home.refId);
+          return homeApi.userSignup($scope.user.email, $scope.user.code, $scope.user.password, refId);
         })
           .then(userType => {
             alertDialog.show('用户注册成功', '确定').then(success => {
