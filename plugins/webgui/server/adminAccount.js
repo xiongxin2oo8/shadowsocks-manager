@@ -251,7 +251,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
-        } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket') {
+        } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket' && app!='clash') {
           s.comment = '[只支持V2Ray]'
         } else {
           s.comment = '';
@@ -374,6 +374,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const clashConfig = appRequire('plugins/webgui/server/clash');
           subscribeAccount.server.unshift(tip_date);
           clashConfig.Proxy = subscribeAccount.server.map(server => {
+            if (server.v2ray) {
+              return v2_clash(accountInfo, server);
+            }
             return ss_clash(accountInfo, server);
           });
           clashConfig['Proxy Group'][0] = {
@@ -383,7 +386,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               return server.subscribeName || server.name;
             }),
           };
-          return res.send(yaml.safeDump(clashConfig));
+          res.setHeader('Content-Type', ' text/plain;charset=utf-8');
+          res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
+          var dataBuffer = Buffer.concat([new Buffer('\xEF\xBB\xBF', 'binary'), new Buffer(yaml.safeDump(clashConfig))]);
+          return res.send(dataBuffer);
         }
 
         if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
