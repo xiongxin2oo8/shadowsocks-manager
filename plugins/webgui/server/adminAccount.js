@@ -183,7 +183,7 @@ const v2_clash = (account, server) => {
     alterId: server.v2rayAID || 0,
     cipher: server.v2rayMethod || 'auto',
     udp: true,
-    tls: server.v2rayTLS ? 'tls' : '',
+    tls: server.v2rayTLS || 0,
     'skip-cert-verify': true,
     network: server.v2rayNet || '',
     'ws-path': server.v2rayPath || '',
