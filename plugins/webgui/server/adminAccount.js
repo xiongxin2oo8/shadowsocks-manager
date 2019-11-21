@@ -198,18 +198,18 @@ const v2ray = (account, server) => {
   let v = {
     host: server.v2rayHost,
     path: server.v2rayPath,
-    tls: server.v2rayTLS,
+    tls: server.v2rayTLS || '',
     add: server.host,
     port: server.v2rayPort,
-    aid: server.v2rayAID,
-    net: server.v2rayNet,
+    aid: server.v2rayAID || 0,
+    net: server.v2rayNet || '',
     type: "none",
     v: "2",
     ps: server.name,
     id: account.uuid,
     class: 1
   }
-  return 'vmess://' + urlsafeBase64(JSON.stringify(v));
+  return 'vmess://' + Buffer.from(JSON.stringify(v)).toString('base64');
 }
 //SS 默认链接
 const ss = (account, server) => {
@@ -486,18 +486,15 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }
 
           for (const s of subscribeAccount.server) {
-            if (s.v2ray === 1) {
-              result += v2ray(accountInfo, s)+'\r\n'
+            if (s.v2ray === 1 || s.flag) {
+              result += v2ray(accountInfo, s) + '\r\n'
               //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
-            }
-            if (s.flag) {
-              result += 'vmess://' + urlsafeBase64(`aes-128-gcm:uuid${s.shift}@${s.host}:801`) + `?remarks=${encodeURIComponent(s.name)}&obfs=none`+'\r\n';
             }
           }
           if (app === 'shadowrocket') {
             let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
             let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
-            result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
+            result += `STATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
           }
         }
       }
