@@ -59,8 +59,8 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
             { code: 'shadowrocket', name: 'Shadowrocket' },
             { code: 'quantumult', name: 'Quantumult' },
             { code: 'ssd', name: 'ssd' },
-            { code: 'potatso', name: 'potatso' },
-            { code: 'clash', name: 'clash' }
+            { code: 'v2rayng', name: 'V2RayN(G)' },
+            { code: 'clash', name: 'Clash(X)' }
           ];
         }
         if (publicInfo.linkType == 'v2ray') {
@@ -70,8 +70,8 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
           $scope.publicInfo.apps = [
             { code: 'shadowrocket', name: 'Shadowrocket' },
             { code: 'quantumult', name: 'Quantumult' },
-            { code: 'clash', name: 'Clash/ClashX' },
-            { code: 'v2rayng', name: 'V2RayNG' }
+            { code: 'clash', name: 'Clash(X)' },
+            { code: 'v2rayng', name: 'V2RayN(G)' }
           ];
         }
       }
@@ -87,7 +87,7 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
           publicInfo.linkType = 'ss';
           $scope.publicInfo.app = 'shadowrocket';
           $scope.publicInfo.types = [
-            'ss'
+            'ss', 'v2ray'
           ];
         }
         changeType();

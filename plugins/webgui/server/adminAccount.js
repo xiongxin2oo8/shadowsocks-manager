@@ -251,7 +251,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
-        } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket' && app!='clash') {
+        } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket' && app != 'clash' && app != 'v2rayn' && app != 'v2rayng') {
           s.comment = '[只支持V2Ray]'
         } else {
           s.comment = '';
@@ -412,8 +412,20 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
           return res.send(Buffer.from(result).toString('base64'));
         }
+        
         //其他方式
         subscribeAccount.server.unshift(tip_date);
+        if (app == 'v2rayn' || app == 'v2rayng') {
+          result = subscribeAccount.server.map(s => {
+            //支持v2
+            if (s.v2ray === 1) {
+              return v2ray(accountInfo, s)
+            } else {
+              return ss_shadowrocket(accountInfo, s);
+            }
+          }).join('\r\n');
+          return res.send(Buffer.from(result).toString('base64'));
+        }
         result = subscribeAccount.server.map(s => {
           if ((!app && type === 'quantumult') || app === 'quantumult') {
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent(s.name);
@@ -490,7 +502,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             var dataBuffer = Buffer.concat([new Buffer('\xEF\xBB\xBF', 'binary'), new Buffer(yaml.safeDump(clashConfig))]);
             return res.send(dataBuffer);
           }
-
+          if (app == 'v2rayng' || app == 'v2rayn') {
+            subscribeAccount.server.unshift(tip_date);
+          }
           for (const s of subscribeAccount.server) {
             if (s.v2ray === 1 || s.flag) {
               result += v2ray(accountInfo, s) + '\r\n'
