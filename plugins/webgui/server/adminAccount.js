@@ -485,15 +485,15 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             return res.send(dataBuffer);
           }
 
-          result = subscribeAccount.server.map(s => {
+          for (const s of subscribeAccount.server) {
             if (s.v2ray === 1) {
-              return v2ray(accountInfo, s)
+              result += v2ray(accountInfo, s)+'\r\n'
               //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
             }
             if (s.flag) {
-              return 'vmess://' + urlsafeBase64(`aes-128-gcm:uuid${s.shift}@${s.host}:801`) + `?remarks=${encodeURIComponent(s.name)}&obfs=none`
+              result += 'vmess://' + urlsafeBase64(`aes-128-gcm:uuid${s.shift}@${s.host}:801`) + `?remarks=${encodeURIComponent(s.name)}&obfs=none`+'\r\n';
             }
-          }).join('\r\n');
+          }
           if (app === 'shadowrocket') {
             let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
             let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);

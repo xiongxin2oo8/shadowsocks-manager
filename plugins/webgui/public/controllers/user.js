@@ -528,7 +528,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
           return f.id === serverId;
         });
         account.serverInfo = servers ? servers[0] : null;
-        if (account.serverInfo && account.server.indexOf(account.serverInfo.id) > -1) {
+        if (account.serverInfo && (account.server || account.server.indexOf(account.serverInfo.id) > -1)) {
           userApi.getServerPortData(account, serverId).then(success => {
             account.lastConnect = success.lastConnect;
             account.serverPortFlow = success.flow;
@@ -540,7 +540,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
         } else {
           account.exist = false;
         }
-        accountServerDialog.show(account,$scope.singleAccounts);
+        accountServerDialog.show(account, $scope.singleAccounts);
       };
 
       //提示信息
