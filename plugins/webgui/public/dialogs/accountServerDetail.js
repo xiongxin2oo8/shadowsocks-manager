@@ -105,7 +105,7 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                     id: account.uuid,
                     class: 1
                 }
-                str = 'vmess://' + urlsafeBase64(JSON.stringify(v));
+                str = 'vmess://' + Buffer.from(JSON.stringify(v)).toString('base64');
                 return str;
             };
             $scope.ssrLink = ssrLink();
