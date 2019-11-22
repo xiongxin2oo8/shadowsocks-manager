@@ -185,7 +185,7 @@ const v2_clash = (account, server) => {
     udp: true,
     tls: server.v2rayTLS || 0,
     'skip-cert-verify': true,
-    network: server.v2rayNet || '',
+    network: server.v2rayNet,
     'ws-path': server.v2rayPath || '',
   };
 }
@@ -196,13 +196,13 @@ const ss_shadowrocket = (account, server) => {
 //v2ray 默认
 const v2ray = (account, server) => {
   let v = {
-    host: server.v2rayHost,
-    path: server.v2rayPath,
-    tls: server.v2rayTLS ? 'tls' : '',
+    host: server.v2rayHost || '',
+    path: server.v2rayPath || '',
+    tls: server.v2rayTLS ? 'tls' : 'tls',
     add: server.host,
     port: server.v2rayPort,
     aid: server.v2rayAID || 0,
-    net: server.v2rayNet || '',
+    net: server.v2rayNet || 'tcp',
     type: "none",
     v: "2",
     ps: server.name,
@@ -412,7 +412,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
           return res.send(Buffer.from(result).toString('base64'));
         }
-        
+
         //其他方式
         subscribeAccount.server.unshift(tip_date);
         if (app == 'v2rayn' || app == 'v2rayng') {
