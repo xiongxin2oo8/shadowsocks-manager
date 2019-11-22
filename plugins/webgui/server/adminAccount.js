@@ -174,7 +174,7 @@ const ss_clash = (account, server) => {
   };
 }
 const v2_clash = (account, server) => {
-  return {
+  let v2 = {
     name: server.name,
     type: 'vmess',
     server: server.host,
@@ -183,11 +183,13 @@ const v2_clash = (account, server) => {
     alterId: server.v2rayAID || 0,
     cipher: server.v2rayMethod || 'auto',
     udp: true,
-    tls: server.v2rayTLS || 0,
     'skip-cert-verify': true,
-    network: server.v2rayNet || 'none',
-    'ws-path': server.v2rayPath || '',
   };
+  if (server.v2rayNet && server.v2rayNet != 'none') v2['network'] = server.v2rayNet;
+  if (server.v2rayTLS) v2['tls'] = true;
+  if (server.v2rayPath) v2['ws-path'] = server.v2rayPath;
+  if (server.v2rayHost) v2['ws-headers'] = { Host: server.v2rayHost };
+  return v2;
 }
 //小火箭
 const ss_shadowrocket = (account, server) => {
@@ -248,7 +250,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       let accountInfo = subscribeAccount.account;
 
-      for (const s of subscribeAccount.server) {        
+      for (const s of subscribeAccount.server) {
         if (app == 'v2rayng' || app == 'v2rayn') {
           s.v2rayNet = (s.v2rayNet == 'none' || !s.v2rayNet) ? 'tcp' : s.v2rayNet;
         }
@@ -488,7 +490,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             clashConfig.dns = { enable: true, nameserver: ['114.114.114.114', '223.5.5.5'] }
             let cs = { Proxy: [], proxies: [] };
             subscribeAccount.server.map(server => {
-              if (server.v2ray) {
+              if (server.v2ray || server.flag) {
                 cs.Proxy.push(v2_clash(accountInfo, server));
                 cs.proxies.push(server.name);
               }
