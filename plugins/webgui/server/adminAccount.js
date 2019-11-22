@@ -185,7 +185,7 @@ const v2_clash = (account, server) => {
     udp: true,
     tls: server.v2rayTLS || 0,
     'skip-cert-verify': true,
-    network: server.v2rayNet,
+    network: server.v2rayNet || 'none',
     'ws-path': server.v2rayPath || '',
   };
 }
@@ -198,11 +198,11 @@ const v2ray = (account, server) => {
   let v = {
     host: server.v2rayHost || '',
     path: server.v2rayPath || '',
-    tls: server.v2rayTLS ? 'tls' : 'tls',
+    tls: server.v2rayTLS ? 'tls' : '',
     add: server.host,
     port: server.v2rayPort,
     aid: server.v2rayAID || 0,
-    net: server.v2rayNet || 'tcp',
+    net: server.v2rayNet || 'none',
     type: "none",
     v: "2",
     ps: server.name,
@@ -248,7 +248,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       let accountInfo = subscribeAccount.account;
 
-      for (const s of subscribeAccount.server) {
+      for (const s of subscribeAccount.server) {        
+        if (app == 'v2rayng' || app == 'v2rayn') {
+          s.v2rayNet = (s.v2rayNet == 'none' || !s.v2rayNet) ? 'tcp' : s.v2rayNet;
+        }
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s.comment = '[只支持SSR单端口]'
         } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket' && app != 'clash' && app != 'v2rayn' && app != 'v2rayng') {
