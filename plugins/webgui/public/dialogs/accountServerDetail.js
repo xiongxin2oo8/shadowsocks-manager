@@ -87,7 +87,6 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                 }
                 return str;
             };
-
             const v2Link = () => {
                 if (!server || !server.v2ray) { return ''; }
                 let str = '';
@@ -98,7 +97,7 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                     add: server.host,
                     port: server.v2rayPort,
                     aid: server.v2rayAID || 0,
-                    net: server.v2rayNet || '',
+                    net: (server.v2rayNet == 'none' || !server.v2rayNet) ? 'tcp' : s.v2rayNet,
                     type: "none",
                     v: "2",
                     ps: server.name,
