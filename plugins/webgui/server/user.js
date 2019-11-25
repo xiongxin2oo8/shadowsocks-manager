@@ -153,7 +153,7 @@ exports.getServers = (req, res) => {
     });
   };
   let servers;
-  knex('server').select(['id', 'type', 'host', 'name', 'method', 'scale', 'comment', 'shift', 'key', 'net', 'wgPort', 'singleMode', 'v2ray', 'v2rayPort', 'area', 'status']).orderByRaw('sort,name')
+  knex('server').select(['id', 'type', 'host', 'name', 'method', 'scale', 'comment', 'shift', 'key', 'net', 'wgPort', 'singleMode', 'area', 'status','v2ray', 'v2rayMethod', 'v2rayPort', 'v2rayAID', 'v2rayTLS', 'v2rayNet', 'v2rayPath', 'v2rayHost']).orderByRaw('sort,name')
     .then(success => {
       servers = serverAliasFilter(success);
       return account.getAccount({

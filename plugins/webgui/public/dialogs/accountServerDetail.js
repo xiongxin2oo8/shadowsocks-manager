@@ -91,8 +91,8 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                 if (!server || !server.v2ray) { return ''; }
                 let str = '';
                 let v = {
-                    host: server.v2rayHost,
-                    path: server.v2rayPath,
+                    host: server.v2rayHost || '',
+                    path: server.v2rayPath || '',
                     tls: server.v2rayTLS ? 'tls' : '',
                     add: server.host,
                     port: server.v2rayPort,
