@@ -249,20 +249,40 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       let accountInfo = subscribeAccount.account;
-
+      let clash_group = {
+        'nf': { name: 'Netflix等国外流媒体', list: [] },
+        'low': { name: '低倍率', list: [] },
+        '香港': { name: '中国香港', list: [] },
+        '台湾': { name: '中国台湾', list: [] },
+        '新加坡': { name: '新加坡', list: [] },
+        '日韩': { name: '日本', list: [], area: ['日本', '韩国'] },
+        '美国': { name: '美国', list: [] },
+        '欧洲': { name: '欧洲', list: [], area: ['英国', '德国', '法国', '俄罗斯'] },
+        'other': { name: '其他', list: [] }
+      };
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
-          s.comment = '[只支持SSR单端口]'
+          s['des'] = '[只支持SSR单端口]'
         } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket' && app != 'clash' && app != 'v2rayn' && app != 'v2rayng') {
-          s.comment = '[只支持V2Ray]'
+          s['des'] = '[只支持V2Ray]'
         } else {
-          s.comment = '';
+          s['des'] = '';
         }
-        s.name = s.status + s.comment + s.name;
+        s.name = s.status + s.des + s.name;
         if (s.scale != 1) {
           s.name = s.name + ' 倍率' + s.scale;
         }
         s.host = await getAddress(s.host, +resolveIp);
+
+        if (s.v2ray) {
+          let area = s.comment.split(' ')[0];
+          if (s.name.indexOf('Netflix') > -1) clash_group['nf'].list.push(s.name);
+          if (s.scale < 1) clash_group['low'].list.push(s.name);
+          if (clash_group['欧洲'].area.indexOf(area) > -1) clash_group['欧洲'].list.push(s.name)
+          else if (clash_group['日韩'].area.indexOf(area) > -1) clash_group['日韩'].list.push(s.name)
+          else if (clash_group[area]) clash_group[area].list.push(s.name)
+          else if (clash_group['nf'].list.indexOf(s.name) == -1 && clash_group['low'].list.indexOf(s.name) == -1) clash_group['other'].list.push(s.name)
+        }
       }
       const baseSetting = await knex('webguiSetting').where({
         key: 'base'
@@ -375,19 +395,30 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
           subscribeAccount.server.unshift(tip_date);
-          clashConfig.Proxy = subscribeAccount.server.map(server => {
+          let cs = { Proxy: [], proxies: [] };
+          subscribeAccount.server.map(server => {
             if (server.v2ray) {
-              return v2_clash(accountInfo, server);
+              cs.Proxy.push(v2_clash(accountInfo, server));
+            } else {
+              cs.Proxy.push(ss_clash(accountInfo, server));
             }
-            return ss_clash(accountInfo, server);
+            cs.proxies.push(server.name);
           });
+          clashConfig.Proxy = cs.Proxy;
           clashConfig['Proxy Group'][0] = {
             name: 'Proxy',
             type: 'select',
-            proxies: subscribeAccount.server.map(server => {
-              return server.subscribeName || server.name;
-            }),
+            proxies: cs.proxies,
           };
+          for (const key in clash_group) {
+            if (clash_group[key].list.length > 0) {
+              clashConfig['Proxy Group'].push({
+                name: clash_group[key].name,
+                type: 'select',
+                proxies: clash_group[key].list
+              })
+            }
+          }
           res.setHeader('Content-Type', ' text/plain;charset=utf-8');
           res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
           var dataBuffer = Buffer.concat([new Buffer('\xEF\xBB\xBF', 'binary'), new Buffer(yaml.safeDump(clashConfig))]);
@@ -498,6 +529,15 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               type: 'select',
               proxies: cs.proxies,
             };
+            for (const key in clash_group) {
+              if (clash_group[key].list.length > 0) {
+                clashConfig['Proxy Group'].push({
+                  name: clash_group[key].name,
+                  type: 'select',
+                  proxies: clash_group[key].list
+                })
+              }
+            }
             //return res.send(yaml.safeDump(clashConfig));
             res.setHeader('Content-Type', ' text/plain;charset=utf-8');
             res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
