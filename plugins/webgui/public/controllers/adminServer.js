@@ -471,13 +471,12 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         'xchacha20-ietf-poly1305'
       ];
       $scope.v2rayMethods = [
-        'none',
         'auto',
         'aes-128-cfb',
         'aes-128-gcm',
         'chacha20-poly1305'
       ];
-      $scope.v2rayNets = ['none', 'http', 'ws'];
+      $scope.v2rayNets = ['tcp', 'http', 'ws'];
       $scope.setv2rayNet = () => {
         $scope.server.v2rayNet = $scope.v2rayNetSearch;
       };
@@ -497,7 +496,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         resetday: 1,
         singleMode: 'off',
         v2rayMethod: 'auto',
-        v2rayNet: 'none',
+        v2rayNet: 'tcp',
         sort: 99
       };
       $scope.v2rayChange = () => {
@@ -533,7 +532,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           v2rayPort: $scope.server.v2rayPort || 801,
           v2rayAID: $scope.server.v2rayAID || 0,
           v2rayTLS: $scope.server.v2rayTLS || 0,
-          v2rayNet: $scope.server.v2rayNet || 'none',
+          v2rayNet: $scope.server.v2rayNet || 'tcp',
           v2rayPath: $scope.server.v2rayPath,
           v2rayHost: $scope.server.v2rayHost,
           sort: $scope.server.sort
@@ -581,13 +580,12 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         'xchacha20-ietf-poly1305'
       ];
       $scope.v2rayMethods = [
-        'none',
         'auto',
         'aes-128-cfb',
         'aes-128-gcm',
         'chacha20-poly1305'
       ];
-      $scope.v2rayNets = ['none', 'http', 'ws'];
+      $scope.v2rayNets = ['tcp', 'http', 'ws'];
       $scope.setv2rayNet = () => {
         $scope.server.v2rayNet = $scope.v2rayNetSearch;
       };
@@ -640,7 +638,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           $scope.server.v2rayMethod = success.data.v2rayMethod || 'auto';
           $scope.server.v2rayAID = success.data.v2rayAID || 0;
           $scope.server.v2rayTLS = success.data.v2rayTLS;
-          $scope.server.v2rayNet = success.data.v2rayNet || 'none';
+          $scope.server.v2rayNet = success.data.v2rayNet || 'tcp';
           $scope.server.v2rayPath = success.data.v2rayPath;
           $scope.server.v2rayHost = success.data.v2rayHost;
           $scope.server.sort = success.data.sort || 99;
@@ -671,7 +669,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           v2rayPort: $scope.server.v2rayPort || 801,
           v2rayAID: $scope.server.v2rayAID,
           v2rayTLS: $scope.server.v2rayTLS,
-          v2rayNet: $scope.server.v2rayNet || 'none',
+          v2rayNet: $scope.server.v2rayNet || 'tcp',
           v2rayPath: $scope.server.v2rayPath,
           v2rayHost: $scope.server.v2rayHost,
           sort: $scope.server.sort
