@@ -421,7 +421,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }
           res.setHeader('Content-Type', ' text/plain;charset=utf-8');
           res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
-          var dataBuffer = Buffer.concat([new Buffer('\xEF\xBB\xBF', 'binary'), new Buffer(yaml.safeDump(clashConfig))]);
+          var dataBuffer = Buffer.concat([Buffer.from('\xEF\xBB\xBF', 'binary'), Buffer.from(yaml.safeDump(clashConfig))]);
           return res.send(dataBuffer);
         }
 
@@ -541,7 +541,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             //return res.send(yaml.safeDump(clashConfig));
             res.setHeader('Content-Type', ' text/plain;charset=utf-8');
             res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
-            var dataBuffer = Buffer.concat([new Buffer('\xEF\xBB\xBF', 'binary'), new Buffer(yaml.safeDump(clashConfig))]);
+            var dataBuffer = Buffer.concat([Buffer.from('\xEF\xBB\xBF', 'binary'), Buffer.from(yaml.safeDump(clashConfig))]);
             return res.send(dataBuffer);
           }
           if (app == 'v2rayng' || app == 'v2rayn') {
@@ -560,7 +560,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }
         }
       }
-
+      
       return res.send(Buffer.from(result).toString('base64'));
 
       if (type === 'ssd') {
