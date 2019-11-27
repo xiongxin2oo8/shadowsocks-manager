@@ -71,7 +71,8 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
             { code: 'shadowrocket', name: 'Shadowrocket' },
             { code: 'quantumult', name: 'Quantumult' },
             { code: 'clash', name: 'Clash(X)' },
-            { code: 'v2rayng', name: 'V2RayN(G)' }
+            //{ code: 'v2rayng', name: 'V2RayN(G)' }
+            { code: 'kitsunebi', name: 'Kitsunebi' }
           ];
         }
       }

@@ -263,7 +263,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s['des'] = '[只支持SSR单端口]'
-        } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket' && app != 'clash' && app != 'v2rayn' && app != 'v2rayng') {
+        } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket' && app != 'clash' && app != 'v2rayn' && app != 'v2rayng' && app != 'kitsunebi') {
           s['des'] = '[只支持V2Ray]'
         } else {
           s['des'] = '';
@@ -448,7 +448,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
         //其他方式
         subscribeAccount.server.unshift(tip_date);
-        if (app == 'v2rayn' || app == 'v2rayng') {
+        if (app == 'v2rayn' || app == 'v2rayng' || app == 'kitsunebi') {
           result = subscribeAccount.server.map(s => {
             //支持v2
             if (s.v2ray === 1) {
@@ -545,7 +545,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             //var dataBuffer = Buffer.concat([Buffer.from('\xEF\xBB\xBF', 'binary'), Buffer.from(yaml.safeDump(clashConfig))]);
             return res.send(Buffer.from(yaml.safeDump(clashConfig)));
           }
-          if (app == 'v2rayng' || app == 'v2rayn') {
+          if (app == 'v2rayng' || app == 'v2rayn' || app == 'kitsunebi') {
             subscribeAccount.server.unshift(tip_date);
           }
           for (const s of subscribeAccount.server) {
@@ -561,7 +561,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }
         }
       }
-      
+
       return res.send(Buffer.from(result).toString('base64'));
     }
   } catch (err) {

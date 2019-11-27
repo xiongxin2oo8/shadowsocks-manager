@@ -45,7 +45,7 @@
             <strong> 当前IP：</strong>
             <span>{{account.ip}} {{ account.ipInfo[0] }} {{ account.ipInfo[1] }}</span>
         </md-list-item>
-        <md-list-item ng-if="!account.expire">
+        <!-- <md-list-item ng-if="!account.expire">
             <strong> 在线设备数：</strong>
             <span ng-style="aliveIps.length>5?{color:'red'}:{color:'green'}">{{aliveIps.length}}&nbsp;</span>
             <span> / {{account.connector}}</span>
@@ -62,7 +62,7 @@
                     <span style="font-size: 0.9em;">{{ item.info[1] }}</span>
                 </div>
             </div>
-        </md-list-litem>
+        </md-list-litem> -->
         <md-list-item ng-if="!account.expire">
             <strong> 最近订阅记录：</strong>
             <span ng-if="!subIps.length">无&nbsp;&nbsp;(请使用订阅)</span>
