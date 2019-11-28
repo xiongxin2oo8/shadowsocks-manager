@@ -23,7 +23,11 @@
                     <div flex layout="row" layout-align="space-between center">
                         <div flex="5"></div>
                         <div style="margin-bottom: 25px;">
-                            <md-button class="md-primary" ng-disabled="sendCodeTime || !user.email" ng-click="sendCode()" aria-label="send code"><span ng-if="sendCodeTime === 0">{{ '发送验证码' | translate }}</span><span ng-if="sendCodeTime > 0">{{ '已发送' | translate }}({{sendCodeTime}})</span></md-button>
+                            <md-button class="md-primary" ng-disabled="sendCodeTime || !user.email"
+                                ng-click="sendCode()" aria-label="send code"><span
+                                    ng-if="sendCodeTime === 0">{{ '发送验证码' | translate }}</span><span
+                                    ng-if="sendCodeTime > 0">{{ '已发送' | translate }}({{sendCodeTime}})</span>
+                            </md-button>
                         </div>
                     </div>
                 </div>
@@ -38,7 +42,9 @@
                     <div flex layout="row" layout-align="space-between center">
                         <div flex="5"></div>
                         <div style="margin-bottom: 25px;">
-                            <md-button class="md-raised md-primary" ng-disabled="!user.email || !user.code || !user.password" ng-click="signup()">{{ '注册' | translate }}</md-button>
+                            <md-button class="md-raised md-primary"
+                                ng-disabled="!user.email || !user.code || !user.password" ng-click="signup()">
+                                {{ '注册' | translate }}</md-button>
                         </div>
                     </div>
                 </div>
@@ -47,6 +53,12 @@
                         <label>{{ '邀请码' | translate }}</label>
                         <input type="text" name="refId" ng-model="home.refInputCode">
                     </md-input-container>
+                </div>
+                <div layout="row">
+                    <ul style="padding-left: 20px;line-height: 25px;font-size: 14px;color: cadetblue;">
+                        <li>谢绝一切极端政治人士注册</li>
+                        <li>否则无条件删号</li>
+                    </ul>
                 </div>
             </form>
         </div>
@@ -76,46 +88,58 @@
                     <div flex layout="row">
                         <div flex="10"></div>
                         <div flex layout="column" layout-align="space-around stretch">
-                          <form name="userForm">
-                              <md-input-container class="md-block">
-                                  <label>{{ '邮箱' | translate }}</label>
-                                  <input type="email" required name="email" ng-model="user.email">
-                                  <div ng-messages="userForm.email.$error">
-                                      <div ng-message="required">{{ '邮箱不能为空' | translate }}</div>
-                                      <div ng-message="email">{{ '必须填写一个有效邮箱地址' | translate }}</div>
-                                  </div>
-                              </md-input-container>
-                              <div layout="row">
-                                  <md-input-container class="md-block" flex="65">
-                                      <label>{{ '验证码' | translate }}</label>
-                                      <input type="text" required name="code" ng-model="user.code">
-                                      <div ng-messages="userForm.code.$error">
-                                          <div ng-message="required">{{ '验证码不能为空' | translate }}</div>
-                                      </div>
-                                  </md-input-container>
-                                  <div flex layout="row" layout-align="space-between center">
-                                      <div flex="5"></div>
-                                      <div style="margin-bottom: 25px;">
-                                          <md-button class="md-primary" ng-disabled="sendCodeTime || !user.email" ng-click="sendCode()" aria-label="send code"><span ng-if="sendCodeTime === 0">{{ '发送验证码' | translate }}</span><span ng-if="sendCodeTime > 0">{{ '已发送' | translate }}({{sendCodeTime}})</span></md-button>
-                                      </div>
-                                  </div>
-                              </div>
-                              <div layout="row">
-                                  <md-input-container class="md-block" flex="65">
-                                      <label>{{ '密码' | translate }}</label>
-                                      <input type="password" required name="password" ng-model="user.password">
-                                      <div ng-messages="userForm.password.$error">
-                                          <div ng-message="required">{{ '密码不能为空' | translate }}</div>
-                                      </div>
-                                  </md-input-container>
-                                  <div flex layout="row" layout-align="space-between center">
-                                      <div flex="5"></div>
-                                      <div style="margin-bottom: 25px;">
-                                          <md-button class="md-raised md-primary" ng-disabled="!user.email || !user.code || !user.password" ng-click="signup()">{{ '注册' | translate }}</md-button>
-                                      </div>
-                                  </div>
-                              </div>
-                          </form>
+                            <form name="userForm">
+                                <md-input-container class="md-block">
+                                    <label>{{ '邮箱' | translate }}</label>
+                                    <input type="email" required name="email" ng-model="user.email">
+                                    <div ng-messages="userForm.email.$error">
+                                        <div ng-message="required">{{ '邮箱不能为空' | translate }}</div>
+                                        <div ng-message="email">{{ '必须填写一个有效邮箱地址' | translate }}</div>
+                                    </div>
+                                </md-input-container>
+                                <div layout="row">
+                                    <md-input-container class="md-block" flex="65">
+                                        <label>{{ '验证码' | translate }}</label>
+                                        <input type="text" required name="code" ng-model="user.code">
+                                        <div ng-messages="userForm.code.$error">
+                                            <div ng-message="required">{{ '验证码不能为空' | translate }}</div>
+                                        </div>
+                                    </md-input-container>
+                                    <div flex layout="row" layout-align="space-between center">
+                                        <div flex="5"></div>
+                                        <div style="margin-bottom: 25px;">
+                                            <md-button class="md-primary" ng-disabled="sendCodeTime || !user.email"
+                                                ng-click="sendCode()" aria-label="send code"><span
+                                                    ng-if="sendCodeTime === 0">{{ '发送验证码' | translate }}</span><span
+                                                    ng-if="sendCodeTime > 0">{{ '已发送' | translate }}({{sendCodeTime}})</span>
+                                            </md-button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div layout="row">
+                                    <md-input-container class="md-block" flex="65">
+                                        <label>{{ '密码' | translate }}</label>
+                                        <input type="password" required name="password" ng-model="user.password">
+                                        <div ng-messages="userForm.password.$error">
+                                            <div ng-message="required">{{ '密码不能为空' | translate }}</div>
+                                        </div>
+                                    </md-input-container>
+                                    <div flex layout="row" layout-align="space-between center">
+                                        <div flex="5"></div>
+                                        <div style="margin-bottom: 25px;">
+                                            <md-button class="md-raised md-primary"
+                                                ng-disabled="!user.email || !user.code || !user.password"
+                                                ng-click="signup()">{{ '注册' | translate }}</md-button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div layout="row">
+                                    <ul style="padding-left: 20px;line-height: 25px;font-size: 14px;color: cadetblue;">
+                                        <li>谢绝一切极端政治人士注册</li>
+                                        <li>否则无条件删号</li>
+                                    </ul>
+                                </div>
+                            </form>
                         </div>
                         <div flex="10"></div>
                     </div>
