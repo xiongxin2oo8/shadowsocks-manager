@@ -310,12 +310,13 @@ const changePassword = async (id, password) => {
     }
     return Promise.reject('account not found');
   });
+  let uuid = UUID.v1();
   await knex('account_plugin').update({
-    password
+    password, uuid
   }).where({ id });
   await knex('ssr_user').update({
     passwd: password
-  }).where({ accountId: id });
+  }).where({ accountId: id, uuid: uuid });
   //await accountFlow.pwd(id, password);
   return;
 };

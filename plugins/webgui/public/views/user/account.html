@@ -42,8 +42,9 @@
             </div>
             <md-card-header ng-style="isBlur(a);" style="flex-direction: column;padding: 0px 16px;">
                 <md-card-header-text style="flex-direction: row; justify-content:space-between;align-items: center;">
-                    <span class="md-title">{{a.port}} - {{a.connType||'SS'}}
+                    <span class="md-title">{{a.port}} - V2Ray
                     </span>
+                    <!--{{a.connType||'SS'}}-->
                     <md-button style="min-width: 20px;text-transform:capitalize;color: #29af29" class="md-primary"
                         id="open_tip_account{{a.id}}" ng-click="accountInfo(a)">{{ '查询' | translate }}
                     </md-button>

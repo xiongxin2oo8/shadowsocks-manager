@@ -78,19 +78,22 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
       }
       $scope.publicInfo.getSubscribe().then(success => {
         $scope.connType = success.data.connType;
-        if (success.data.connType == "SSR") {
-          publicInfo.linkType = 'ssr';
-          $scope.publicInfo.app = 'ssr';
-          $scope.publicInfo.types = [
-            'ssr', 'v2ray'
-          ];
-        } else {
-          publicInfo.linkType = 'ss';
-          $scope.publicInfo.app = 'shadowrocket';
-          $scope.publicInfo.types = [
-            'ss', 'v2ray'
-          ];
-        }
+        publicInfo.linkType = 'v2ray';
+        $scope.publicInfo.app = 'shadowrocket';
+        $scope.publicInfo.types = ['v2ray'];
+        // if (success.data.connType == "SSR") {
+        //   publicInfo.linkType = 'ssr';
+        //   $scope.publicInfo.app = 'ssr';
+        //   $scope.publicInfo.types = [
+        //     'ssr', 'v2ray'
+        //   ];
+        // } else {
+        //   publicInfo.linkType = 'ss';
+        //   $scope.publicInfo.app = 'shadowrocket';
+        //   $scope.publicInfo.types = [
+        //     'ss', 'v2ray'
+        //   ];
+        // }
         changeType();
         $scope.publicInfo.token = success.data.subscribe;
         $scope.publicInfo.subscribeLink = `${rss}/${$scope.publicInfo.token}?type=${$scope.publicInfo.linkType}&app=${$scope.publicInfo.app}&ip=${$scope.publicInfo.ip}&flow=${$scope.publicInfo.flow}&port=${$scope.publicInfo.port}`;
