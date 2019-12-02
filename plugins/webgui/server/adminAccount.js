@@ -434,7 +434,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               return ss_shadowrocket(accountInfo, s);
             }
           }).join('\r\n');
-          let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)'
+          let remarks = (!showFlow ? '国际机场' : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
           let status = '';//tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
           if (tip.admin) status = tip.admin;
           else if (tip.stop) status = tip.stop + `❤${tip.time}`;
