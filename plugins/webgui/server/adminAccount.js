@@ -324,7 +324,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         v2rayPort: 80,
         name: `备用地址：` + (config.plugins.webgui.siteback ? `${config.plugins.webgui.siteback}` : `${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}`)
       };
-      subscribeAccount.server.unshift(tip_addr);
+      if (resolveIp != 2) subscribeAccount.server.unshift(tip_addr);
       let tip_flow = {
         flag: 1,
         method: 'chacha20',
@@ -439,7 +439,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           if (tip.admin) status = tip.admin;
           else if (tip.stop) status = tip.stop + `❤${tip.time}`;
           else if (accountInfo.hideFlow) status = tip.time;
-          else if (tip.use || tip.sum) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+          else if ((tip.use || tip.sum) && resolveIp != 2) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
           else status = `${tip.time}`
 
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
@@ -463,9 +463,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           if ((!app && type === 'quantumult') || app === 'quantumult') {
             return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent(s.name);
           }
-          if ((!app && type === 'potatso') || app === 'potatso') {
-            return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + (s.name);
-          }
         }).join('\r\n');
       }
       //SSR 模式
@@ -482,7 +479,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
             else if (accountInfo.hideFlow) status = tip.time;
-            else if (tip.use || tip.sum) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else if ((tip.use || tip.sum) && resolveIp != 2) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
             else status = `${tip.time}`
 
             result += `STATUS=${status}\r\nREMARKS=${remarks}\r\n`.toString('base64')
@@ -555,8 +552,14 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             }
           }
           if (app === 'shadowrocket') {
-            let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(左滑更新)'
-            let status = tip.admin ? tip.admin : ((tip.stop ? tip : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
+            let remarks = (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)'
+
+            if (tip.admin) status = tip.admin;
+            else if (tip.stop) status = tip.stop + `❤${tip.time}`;
+            else if (accountInfo.hideFlow) status = tip.time;
+            else if ((tip.use || tip.sum) && resolveIp != 2) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else status = `${tip.time}`
+            
             result += `STATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
           }
         }
