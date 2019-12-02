@@ -228,7 +228,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
     type = type ? type.toLowerCase() : '';
     const app = req.query.app;
     const resolveIp = req.query.ip;
-    const showFlow = req.query.flow || 0;
+    const showFlow = +req.query.flow || 0;
     const singlePort = req.query.port;
     const token = req.params.token;
     //const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
@@ -348,7 +348,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }
         }
       } else {
-        if (+showFlow) {
+        if (showFlow) {
           tip_flow.name = '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack);
           tip.use = flowNumber(flowInfo[0]).replace(/\s*/g, "");
           tip.sum = flowNumber(accountInfo.data.flow + accountInfo.data.flowPack).replace(/\s*/g, "");
@@ -473,7 +473,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           // let acc_md5 = md5(`${accountInfo.id}${accountInfo.password}${accountInfo.method}${accountInfo.obfs}${accountInfo.protocol}`).substring(0,5);
           // let obfsparam=`${acc_md5}${accountInfo.id}.catalog.update.microsoft.com`
           if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
-            let remarks = (!showFlow ? '国际机场' : config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)';
+            let remarks = (!showFlow ? '国际机场' : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
             let status = '';// tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
 
             if (tip.admin) status = tip.admin;
@@ -552,7 +552,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             }
           }
           if (app === 'shadowrocket') {
-            let remarks = (!showFlow ? '国际机场' : config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)';
+            let remarks = (!showFlow ? '国际机场' : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
 
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
