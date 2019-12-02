@@ -324,7 +324,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         v2rayPort: 80,
         name: `备用地址：` + (config.plugins.webgui.siteback ? `${config.plugins.webgui.siteback}` : `${(config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)}`)
       };
-      if (resolveIp != 2) subscribeAccount.server.unshift(tip_addr);
+      if (showFlow) subscribeAccount.server.unshift(tip_addr);
       let tip_flow = {
         flag: 1,
         method: 'chacha20',
@@ -439,7 +439,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           if (tip.admin) status = tip.admin;
           else if (tip.stop) status = tip.stop + `❤${tip.time}`;
           else if (accountInfo.hideFlow) status = tip.time;
-          else if ((tip.use || tip.sum) && resolveIp != 2) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+          else if ((tip.use || tip.sum) && showFlow) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
           else status = `${tip.time}`
 
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
@@ -473,13 +473,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           // let acc_md5 = md5(`${accountInfo.id}${accountInfo.password}${accountInfo.method}${accountInfo.obfs}${accountInfo.protocol}`).substring(0,5);
           // let obfsparam=`${acc_md5}${accountInfo.id}.catalog.update.microsoft.com`
           if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
-            let remarks = (resolveIp == 2 ? '国际机场' : config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)';
+            let remarks = (!showFlow ? '国际机场' : config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)';
             let status = '';// tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
 
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
             else if (accountInfo.hideFlow) status = tip.time;
-            else if ((tip.use || tip.sum) && resolveIp != 2) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else if ((tip.use || tip.sum) && showFlow) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
             else status = `${tip.time}`
 
             result += `STATUS=${status}\r\nREMARKS=${remarks}\r\n`.toString('base64')
@@ -552,12 +552,12 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             }
           }
           if (app === 'shadowrocket') {
-            let remarks = (resolveIp == 2 ? '国际机场' : config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)';
+            let remarks = (!showFlow ? '国际机场' : config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site) + '(右滑更新)';
 
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
             else if (accountInfo.hideFlow) status = tip.time;
-            else if ((tip.use || tip.sum) && resolveIp != 2) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else if ((tip.use || tip.sum) && showFlow) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
             else status = `${tip.time}`
 
             result += `STATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
