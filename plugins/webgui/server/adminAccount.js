@@ -394,7 +394,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if ((!app && type === 'clash') || app === 'clash') {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
-          clashConfig.dns = { enable: true, nameserver: ['223.5.5.5', '114.114.114.114'] }
+          clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
           subscribeAccount.server.unshift(tip_date);
           let cs = { Proxy: [], proxies: [] };
           subscribeAccount.server.map(server => {
@@ -513,7 +513,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             const yaml = require('js-yaml');
             const clashConfig = appRequire('plugins/webgui/server/clash');
             subscribeAccount.server.unshift(tip_date);
-            clashConfig.dns = { enable: true, nameserver: ['223.5.5.5', '114.114.114.114'] }
+            clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
             let cs = { Proxy: [], proxies: [] };
             subscribeAccount.server.map(server => {
               if (server.v2ray || server.flag) {
