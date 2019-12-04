@@ -455,7 +455,7 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       // };
       $scope.shadowrocket = account => {
         let rss = config.rss || `${config.site}/api/user/account/subscribe`;
-        let base64 = urlsafeBase64(`${rss}/${account.subscribe}?type=v2ray&app=shadowrocket&ip=0$&flow=1}`);
+        let base64 = urlsafeBase64(`${rss}/${account.subscribe}?type=v2ray&app=shadowrocket&ip=0$&flow=1`);
         let str = `shadowrocket://add/sub://${base64}`;
         return str;
       }
