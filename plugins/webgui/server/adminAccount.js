@@ -366,7 +366,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
 
       if (accountInfo.data.expire <= new Date()) {
-        subscribeAccount.server = [tip_date, tip_addr]
+        subscribeAccount.server = [tip_addr]
       }
 
       let result = '';

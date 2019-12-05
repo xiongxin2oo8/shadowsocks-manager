@@ -61,14 +61,14 @@
                     <md-button style="margin:6px 0;text-transform:capitalize;min-width: 76px;" class="md-primary"
                         ng-click="subscribe(a.id)" ng-if="config.subscribe">
                         {{'订阅' | translate }}
-                        <span ng-show="!config.os || !config.os.iOS">
+                        <span ng-show="!config.os || (!config.os.iOS && !config.os.Windows)">
                             ({{'推荐' | translate }})
                         </span>
                     </md-button>
                     <md-button style="margin:6px 0;" class="md-primary"
-                        ng-if="config.subscribe && config.os && config.os.iOS">
+                        ng-if="config.subscribe && config.os && (config.os.iOS || config.os.Windows)">
                         <a class="md-primary" style="text-decoration:none;text-transform:capitalize;"
-                            href="{{shadowrocket(a)}}">
+                            href="{{urlScheme(a)}}">
                             {{'一键订阅' | translate }}({{'推荐' | translate }})
                         </a>
                     </md-button>

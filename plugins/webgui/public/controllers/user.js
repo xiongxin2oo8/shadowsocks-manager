@@ -453,10 +453,21 @@ app.controller('UserController', ['$scope', '$mdMedia', '$mdSidenav', '$state', 
       //   }
       //   return str;
       // };
+      const rss = config.rss || `${config.site}/api/user/account/subscribe`;
       $scope.shadowrocket = account => {
-        let rss = config.rss || `${config.site}/api/user/account/subscribe`;
-        let base64 = urlsafeBase64(`${rss}/${account.subscribe}?type=v2ray&app=shadowrocket&ip=0&flow=1`);
-        let str = `shadowrocket://add/sub://${base64}`;
+        if (!config.os || !config.os.iOS) return '';
+
+      }
+      $scope.urlScheme = account => {
+        let str = '';
+        if (config.os.iOS) {
+          let base64 = urlsafeBase64(`${rss}/${account.subscribe}?type=v2ray&app=shadowrocket&ip=0&flow=1`);
+          str = `shadowrocket://add/sub://${base64}`;
+        }
+        if (config.os.Windows) {
+          let url = encodeURIComponent(`${rss}/${account.subscribe}?type=v2ray&app=clash&ip=0&flow=1`);
+          str = `clash://install-config?url=${url}`;
+        }
         return str;
       }
       $scope.getServerPortData = (account, serverId) => {
