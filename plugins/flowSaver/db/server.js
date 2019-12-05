@@ -129,6 +129,13 @@ const createTable = async () => {
         table.bigInteger('node_bandwidth_limit').defaultTo(0);
       });
     }
+    //ipv6
+    const ipv6 = await knex.schema.hasColumn(tableName, 'ipv6');
+    if (!ipv6) {
+      await knex.schema.table(tableName, function (table) {
+        table.string('ipv6');
+      });
+    }
   }
   else {
     await knex.schema.createTable(tableName, function (table) {
@@ -140,6 +147,7 @@ const createTable = async () => {
       table.integer('status');//状态 0正常 1/维护中 2/流量耗尽
       table.integer('port');
       table.string('password');
+      table.string('ipv6');
       table.float('scale').defaultTo(1);
       table.string('method').defaultTo('aes-256-cfb');
       table.string('comment').defaultTo('');

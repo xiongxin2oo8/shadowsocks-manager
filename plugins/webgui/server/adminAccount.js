@@ -260,6 +260,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       //   '欧洲': { name: '欧洲', list: [], area: ['英国', '德国', '法国', '俄罗斯'] },
       //   'other': { name: '其他', list: [] }
       // };
+      let ipv6_server = [];
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s['des'] = '[只支持SSR单端口]'
@@ -269,11 +270,21 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           s['des'] = '';
         }
         s.name = s.status + s.des + s.name;
+        s.host = await getAddress(s.host, +resolveIp);
+
+        if (s.ipv6) {
+          let s_v6 = JSON.parse(JSON.stringify(s));
+          s_v6.host = s.ipv6;
+          s_v6.name = s.name + ' IPV6';
+          if (s_v6.scale != 1) {
+            s_v6.name = s_v6.name + ' 倍率' + s_v6.scale;
+          }
+          ipv6_server.push(s_v6);
+        }
+
         if (s.scale != 1) {
           s.name = s.name + ' 倍率' + s.scale;
         }
-        s.host = await getAddress(s.host, +resolveIp);
-
         // if (s.v2ray) {
         //   let area = s.comment.split(' ')[0];
         //   if (s.name.indexOf('Netflix') > -1) clash_group['nf'].list.push(s.name);
@@ -284,6 +295,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         //   else if (clash_group['nf'].list.indexOf(s.name) == -1 && clash_group['low'].list.indexOf(s.name) == -1) clash_group['other'].list.push(s.name)
         // }
       }
+      subscribeAccount.server = subscribeAccount.server.concat(ipv6_server);
+
       const baseSetting = await knex('webguiSetting').where({
         key: 'base'
       }).then(s => s[0]).then(s => JSON.parse(s.value));
