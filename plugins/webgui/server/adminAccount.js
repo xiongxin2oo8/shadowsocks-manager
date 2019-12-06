@@ -213,6 +213,11 @@ const v2ray = (account, server) => {
   }
   return 'vmess://' + Buffer.from(JSON.stringify(v)).toString('base64');
 }
+// v2 Quan
+const v2_quan = (account, server, title) => {
+  server.v2rayMethod = server.v2rayMethod == 'auto' ? '' : server.v2rayMethod;
+  return 'vmess://' + urlsafeBase64(`${server.name}=vmess,${server.host},${server.v2rayPort},${server.v2rayMethod || 'none'},"${account.uuid}",group=${title},over-tls=${!!server.v2rayTLS},tls-host=${server.host},certificate=${server.v2rayTLS || 0},obfs=${server.v2rayNet || 'tcp'},obfs-path="${server.v2rayPath || ''}",obfs-header="Host:${server.v2rayHost || ''}"`);
+}
 //SS 默认链接
 const ss = (account, server) => {
 
@@ -249,17 +254,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       let accountInfo = subscribeAccount.account;
-      // let clash_group = {
-      //   'nf': { name: 'Netflix等国外流媒体', list: [] },
-      //   'low': { name: '低倍率', list: [] },
-      //   '香港': { name: '中国香港', list: [] },
-      //   '台湾': { name: '中国台湾', list: [] },
-      //   '新加坡': { name: '新加坡', list: [] },
-      //   '日韩': { name: '日本', list: [], area: ['日本', '韩国'] },
-      //   '美国': { name: '美国', list: [] },
-      //   '欧洲': { name: '欧洲', list: [], area: ['英国', '德国', '法国', '俄罗斯'] },
-      //   'other': { name: '其他', list: [] }
-      // };
       let ipv6_server = [];
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
@@ -285,15 +279,6 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (s.scale != 1) {
           s.name = s.name + ' 倍率' + s.scale;
         }
-        // if (s.v2ray) {
-        //   let area = s.comment.split(' ')[0];
-        //   if (s.name.indexOf('Netflix') > -1) clash_group['nf'].list.push(s.name);
-        //   if (s.scale < 1) clash_group['low'].list.push(s.name);
-        //   if (clash_group['欧洲'].area.indexOf(area) > -1) clash_group['欧洲'].list.push(s.name)
-        //   else if (clash_group['日韩'].area.indexOf(area) > -1) clash_group['日韩'].list.push(s.name)
-        //   else if (clash_group[area]) clash_group[area].list.push(s.name)
-        //   else if (clash_group['nf'].list.indexOf(s.name) == -1 && clash_group['low'].list.indexOf(s.name) == -1) clash_group['other'].list.push(s.name)
-        // }
       }
       subscribeAccount.server = subscribeAccount.server.concat(ipv6_server);
 
@@ -561,12 +546,15 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }
           for (const s of subscribeAccount.server) {
             if (s.v2ray === 1 || s.flag) {
-              result += v2ray(accountInfo, s) + '\r\n'
-              //return 'vmess://' + urlsafeBase64(`${s.v2rayMethod}:${accountInfo.uuid}@${s.host}:${s.v2rayPort}`) + `?remarks=${encodeURIComponent(s.comment)}&obfs=none`
+              if (app === 'quantumult') {
+                result += v2_quan(accountInfo, s, `${baseSetting.title}[${config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site}]`) + '\r\n'
+              } else {
+                result += v2ray(accountInfo, s) + '\r\n'
+              }
             }
           }
           if (app === 'shadowrocket') {
-            let remarks = (!showFlow ? '国际机场' : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
+            let remarks = (!showFlow ? baseSetting.title : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
 
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
