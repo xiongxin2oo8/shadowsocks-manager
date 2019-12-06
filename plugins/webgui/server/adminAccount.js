@@ -215,8 +215,8 @@ const v2ray = (account, server) => {
 }
 // v2 Quan
 const v2_quan = (account, server, title) => {
-  server.v2rayMethod = server.v2rayMethod == 'auto' ? '' : server.v2rayMethod;
-  return 'vmess://' + urlsafeBase64(`${server.name}=vmess,${server.host},${server.v2rayPort},${server.v2rayMethod || 'none'},"${account.uuid}",group=${title},over-tls=${!!server.v2rayTLS},certificate=${server.v2rayTLS || 0},obfs=${server.v2rayNet || 'tcp'},obfs-path="${server.v2rayPath || ''}"`);
+  server.v2rayMethod = server.v2rayMethod == 'auto' ? 'chacha20-ietf-poly1305' : server.v2rayMethod;
+  return 'vmess://' + urlsafeBase64(`${server.name}=vmess,${server.host},${server.v2rayPort},${server.v2rayMethod || 'none'},"${account.uuid}",group=${title},over-tls=${!!server.v2rayTLS},certificate=${server.v2rayTLS || 0},obfs=${server.v2rayNet || 'tcp'},obfs-path="${server.v2rayPath || ''}",obfs-header="Host: ${server.host}[Rr][Nn]User-Agent: Test Agent"`);
 }
 //SS 默认链接
 const ss = (account, server) => {
