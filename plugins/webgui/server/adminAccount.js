@@ -562,7 +562,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             }
           }
           if (app === 'quanx') {
-            return res.send(result);
+            return res.send(Buffer.from(result));
           }
 
           if (app === 'shadowrocket') {
