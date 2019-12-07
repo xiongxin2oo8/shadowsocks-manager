@@ -218,6 +218,12 @@ const v2_quan = (account, server, title) => {
   server.v2rayMethod = server.v2rayMethod == 'auto' ? 'chacha20-ietf-poly1305' : server.v2rayMethod;
   return 'vmess://' + urlsafeBase64(`${server.name}=vmess,${server.host},${server.v2rayPort},${server.v2rayMethod || 'none'},"${account.uuid}",group=${title},over-tls=${!!server.v2rayTLS},certificate=${server.v2rayTLS || 0},obfs=${server.v2rayNet || 'tcp'},obfs-path="${server.v2rayPath || ''}",obfs-header="Host: ${server.host}[Rr][Nn]User-Agent: Test Agent"`);
 }
+// v2 QuanX
+const quanx_obfs = { ws: 'wss', tcp: 'over-tls' };
+const v2_quanx = (account, server) => {
+  server.v2rayNet = quanx_obfs[server.v2rayNet] || 'over-tls';
+  return `vmess=${server.host}:${server.v2rayPort},method=${server.v2rayMethod},password=${account.uuid},obfs=${server.v2rayNet}${server.v2rayNet == 'ws' ? ',obfs-uri=' + server.v2rayPath : ''},fast-open=false,udp-relay=false,tag=${server.name}`;
+}
 //SS 默认链接
 const ss = (account, server) => {
 
@@ -547,9 +553,11 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           for (const s of subscribeAccount.server) {
             if (s.v2ray === 1 || s.flag) {
               if (app === 'quantumult') {
-                result += v2_quan(accountInfo, s, `${baseSetting.title}[${config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site}]`) + '\r\n'
+                result += v2_quan(accountInfo, s, `${baseSetting.title}[${config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site}]`) + '\r\n';
+              } else if (app === 'quanx') {
+                result += v2_quanx(accountInfo, s) + '\r\n';
               } else {
-                result += v2ray(accountInfo, s) + '\r\n'
+                result += v2ray(accountInfo, s) + '\r\n';
               }
             }
           }
