@@ -561,6 +561,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               }
             }
           }
+          if (app === 'quanx') {
+            return res.send(result);
+          }
+
           if (app === 'shadowrocket') {
             let remarks = (!showFlow ? baseSetting.title : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
 
