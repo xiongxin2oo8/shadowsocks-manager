@@ -215,14 +215,15 @@ const v2ray = (account, server) => {
 }
 // v2 Quan
 const v2_quan = (account, server, title) => {
-  server.v2rayMethod = server.v2rayMethod == 'auto' ? 'chacha20-ietf-poly1305' : server.v2rayMethod;
-  return 'vmess://' + urlsafeBase64(`${server.name}=vmess,${server.host},${server.v2rayPort},${server.v2rayMethod || 'none'},"${account.uuid}",group=${title},over-tls=${!!server.v2rayTLS},certificate=${server.v2rayTLS || 0},obfs=${server.v2rayNet || 'tcp'},obfs-path="${server.v2rayPath || ''}",obfs-header="Host: ${server.host}[Rr][Nn]User-Agent: Test Agent"`);
+  server.v2rayMethod = server.v2rayMethod == 'auto' ? 'chacha20-ietf-poly1305' : (server.v2rayMethod || 'none');
+  return 'vmess://' + urlsafeBase64(`${server.name}=vmess,${server.host},${server.v2rayPort},${server.v2rayMethod},"${account.uuid}",group=${title},over-tls=${!!server.v2rayTLS},certificate=${server.v2rayTLS || 0},obfs=${server.v2rayNet || 'tcp'},obfs-path="${server.v2rayPath || ''}",obfs-header="Host: ${server.host}[Rr][Nn]User-Agent: Test Agent"`);
 }
 // v2 QuanX
 const quanx_obfs = { ws: 'wss', tcp: 'over-tls' };
 const v2_quanx = (account, server) => {
+  server.v2rayMethod = server.v2rayMethod == 'auto' ? 'chacha20-ietf-poly1305' : (server.v2rayMethod || 'none');
   server.v2rayNet = quanx_obfs[server.v2rayNet] || 'over-tls';
-  return `vmess=${server.host}:${server.v2rayPort},method=${server.v2rayMethod || 'none'},password=${account.uuid},obfs=${server.v2rayNet}${server.v2rayNet == 'ws' ? ',obfs-uri=' + server.v2rayPath : ''},fast-open=false,udp-relay=false,tag=${server.name}`;
+  return `vmess=${server.host}:${server.v2rayPort},method=${server.v2rayMethod},password=${account.uuid},obfs=${server.v2rayNet}${server.v2rayNet == 'ws' ? ',obfs-uri=' + server.v2rayPath : ''},fast-open=false,udp-relay=false,tag=${server.name}`;
 }
 //SS 默认链接
 const ss = (account, server) => {
