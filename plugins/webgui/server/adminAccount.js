@@ -562,6 +562,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             }
           }
           if (app === 'quanx') {
+            res.setHeader('Content-Type', ' text/plain;charset=utf-8');
+            res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.txt`);
             return res.send(Buffer.from(result));
           }
 
