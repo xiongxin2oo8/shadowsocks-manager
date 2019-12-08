@@ -571,7 +571,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               quan_info.download = flowInfo[0];
               quan_info.total = accountInfo.data.flow + accountInfo.data.flowPack;
             } else quan_info.expire = accountInfo.data.expire / 1000;
-            res.setHeader(`Subscription-Userinfo', 'upload=0; download=${quan_info.download || 0}; total=${quan_info.total || 0}; expire=${accountInfo.data.expire / 1000}`);
+            res.setHeader('Subscription-Userinfo', `upload=0; download=${quan_info.download || 0}; total=${quan_info.total || 0}; expire=${accountInfo.data.expire / 1000}`);
           }
           if (app === 'quanx') {
             res.setHeader('Content-Type', ' text/plain;charset=utf-8');
