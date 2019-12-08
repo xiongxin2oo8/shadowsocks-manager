@@ -315,8 +315,8 @@ const changePassword = async (id, password) => {
     password, uuid
   }).where({ id });
   await knex('ssr_user').update({
-    passwd: password
-  }).where({ accountId: id, uuid: uuid });
+    passwd: password, uuid: uuid
+  }).where({ accountId: id });
   //await accountFlow.pwd(id, password);
   return;
 };
