@@ -562,12 +562,22 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               }
             }
           }
+          if (app === 'quantumult') {
+            flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
+            let quan_info = {};
+            if (tip.admin) quan_info.expire = 4070880000;
+            else if ((tip.use || tip.sum) && showFlow) {
+              quan_info.expire = accountInfo.data.expire / 1000;
+              quan_info.download = flowInfo[0];
+              quan_info.total = accountInfo.data.flow + accountInfo.data.flowPack;
+            } else quan_info.expire = accountInfo.data.expire / 1000;
+            res, setHeader(`Subscription-Userinfo', 'upload=0; download=${quan_info.download || 0}; total=${quan_info.total || 0}; expire=${accountInfo.data.expire / 1000}`);
+          }
           if (app === 'quanx') {
             res.setHeader('Content-Type', ' text/plain;charset=utf-8');
             res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.txt`);
             return res.send(Buffer.from(result));
           }
-
           if (app === 'shadowrocket') {
             let remarks = (!showFlow ? baseSetting.title : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
 
