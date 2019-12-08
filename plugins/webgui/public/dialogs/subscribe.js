@@ -50,14 +50,14 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
           }
           $scope.publicInfo.apps = [
             { code: 'shadowrocket', name: 'Shadowrocket' },
-            { code: 'quantumult', name: 'Quantumult' },
+            { code: 'quan', name: 'Quan' },
             { code: 'ssr', name: 'SSR' }
           ];
         }
         if (publicInfo.linkType == 'ss') {
           $scope.publicInfo.apps = [
             { code: 'shadowrocket', name: 'Shadowrocket' },
-            { code: 'quantumult', name: 'Quantumult' },
+            { code: 'quan', name: 'Quan' },
             { code: 'ssd', name: 'ssd' },
             { code: 'v2rayng', name: 'V2RayN(G)' },
             { code: 'clash', name: 'Clash(X)' }
@@ -69,7 +69,8 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
           }
           $scope.publicInfo.apps = [
             { code: 'shadowrocket', name: 'Shadowrocket' },
-            { code: 'quantumult', name: 'Quantumult' },
+            { code: 'quan', name: 'Quan' },
+            { code: 'quanx', name: 'QuanX' },
             { code: 'clash', name: 'Clash(X)' },
             //{ code: 'v2rayng', name: 'V2RayN(G)' }
             { code: 'kitsunebi', name: 'Kitsunebi' }

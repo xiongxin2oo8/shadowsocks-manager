@@ -466,18 +466,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           return res.send(Buffer.from(result).toString('base64'));
         }
         result = subscribeAccount.server.map(s => {
-          if ((!app && type === 'quantumult') || app === 'quantumult') {
-            return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent(s.name);
-          }
+          return 'ss://' + Buffer.from(s.method + ':' + accountInfo.password + '@' + s.host + ':' + (accountInfo.port + + s.shift)).toString('base64') + '#' + encodeURIComponent(s.name);
         }).join('\r\n');
       }
       //SSR 模式
       if (accountInfo.connType === "SSR") {
         if (!app || type === 'ssr') {
           const singlePorts = await knex('account_plugin').select().where('is_multi_user', '>', 0);
-          //格式 str(row['id']) + row['passwd'] + row['method'] + row['obfs'] + row['protocol'])
-          // let acc_md5 = md5(`${accountInfo.id}${accountInfo.password}${accountInfo.method}${accountInfo.obfs}${accountInfo.protocol}`).substring(0,5);
-          // let obfsparam=`${acc_md5}${accountInfo.id}.catalog.update.microsoft.com`
           if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
             let remarks = (!showFlow ? '国际机场' : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
             let status = '';// tip.admin ? tip.admin : ((tip.stop ? tip.stop : `当期流量：${tip.use}/${tip.sum}`) + `❤${tip.time}`);
@@ -553,7 +548,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           }
           for (const s of subscribeAccount.server) {
             if (s.v2ray === 1 || s.flag) {
-              if (app === 'quantumult') {
+              if (app === 'quan') {
                 result += v2_quan(accountInfo, s, `${baseSetting.title}[${config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site}]`) + '\r\n';
               } else if (app === 'quanx') {
                 result += v2_quanx(accountInfo, s) + '\r\n';
@@ -562,14 +557,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               }
             }
           }
-          if (app === 'quantumult') {
-            flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack)
+          if (app === 'quan') {
             let quan_info = {};
             if (tip.admin) quan_info.expire = 4070880000;
             else if ((tip.use || tip.sum) && showFlow) {
               quan_info.expire = accountInfo.data.expire / 1000;
-              quan_info.download = flowInfo[0];
-              quan_info.total = accountInfo.data.flow + accountInfo.data.flowPack;
+              quan_info.download = flowNumber1024(flowInfo[0]);
+              quan_info.total = flowNumber1024(accountInfo.data.flow + accountInfo.data.flowPack);
             } else quan_info.expire = accountInfo.data.expire / 1000;
             res.setHeader('Subscription-Userinfo', `upload=0; download=${quan_info.download || 0}; total=${quan_info.total || 0}; expire=${accountInfo.data.expire / 1000}`);
           }
@@ -604,4 +598,11 @@ const flowNumber = (number) => {
   else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' KB';
   else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' MB';
   else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(2) + ' GB';
+};
+
+const flowNumber1024 = (number) => {
+  if (number < 1000) return number * Math.pow(1.024, 0);
+  else if (number < 1000 * 1000) return number * Math.pow(1.024, 1);
+  else if (number < 1000 * 1000 * 1000) return number * Math.pow(1.024, 2);
+  else if (number < 1000 * 1000 * 1000 * 1000) return number * Math.pow(1.024, 3);
 };
