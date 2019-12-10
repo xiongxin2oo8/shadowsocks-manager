@@ -278,13 +278,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           s_v6.host = s.ipv6;
           s_v6.name = s.name + ' IPV6';
           if (s_v6.scale != 1) {
-            s_v6.name = s_v6.name + s_v6.scale + '倍';
+            s_v6.name = `${s_v6.name} ${s_v6.scale}倍`;
           }
           ipv6_server.push(s_v6);
         }
 
         if (s.scale != 1) {
-          s.name = s.name + s.scale + '倍';
+          s.name = `${s.name} ${s.scale}倍`;
         }
       }
       subscribeAccount.server = subscribeAccount.server.concat(ipv6_server);
