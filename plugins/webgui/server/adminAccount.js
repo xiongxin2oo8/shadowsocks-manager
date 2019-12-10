@@ -265,7 +265,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s['des'] = '[只支持SSR单端口]'
-        } else if (s.singleMode === 'v2ray' && type != 'v2ray' && app != 'shadowrocket' && app != 'clash' && app != 'v2rayn' && app != 'v2rayng' && app != 'kitsunebi') {
+        } else if (s.singleMode === 'v2ray' && (type == 'ssr' || app == 'ssd')) {
           s['des'] = '[只支持V2Ray]'
         } else {
           s['des'] = '';
@@ -278,13 +278,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           s_v6.host = s.ipv6;
           s_v6.name = s.name + ' IPV6';
           if (s_v6.scale != 1) {
-            s_v6.name = s_v6.name + ' 倍率' + s_v6.scale;
+            s_v6.name = s_v6.name + s_v6.scale + '倍';
           }
           ipv6_server.push(s_v6);
         }
 
         if (s.scale != 1) {
-          s.name = s.name + ' 倍率' + s.scale;
+          s.name = s.name + s.scale + '倍';
         }
       }
       subscribeAccount.server = subscribeAccount.server.concat(ipv6_server);
