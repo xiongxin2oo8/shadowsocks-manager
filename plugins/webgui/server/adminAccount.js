@@ -265,7 +265,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s['des'] = '[只支持SSR单端口]'
-        } else if (s.singleMode === 'v2ray' && (type == 'ssr' || app != 'shadowrocket')) {
+        } else if (s.singleMode === 'v2ray' && (type != 'v2ray')) {
           s['des'] = '[只支持V2Ray]'
         } else {
           s['des'] = '';
