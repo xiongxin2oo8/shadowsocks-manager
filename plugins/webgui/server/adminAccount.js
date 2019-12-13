@@ -265,7 +265,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s['des'] = '[只支持SSR单端口]'
-        } else if (s.singleMode === 'v2ray' && (type == 'ssr' || app == 'ssd')) {
+        } else if (s.singleMode === 'v2ray' && (type == 'ssr' || app != 'shadowrocket')) {
           s['des'] = '[只支持V2Ray]'
         } else {
           s['des'] = '';
@@ -365,9 +365,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         host: '127.0.0.1',
         shift: 0,
         v2rayPort: 80,
-        name: accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
+        name: accountInfo.data.expire <= new Date() ? '已过期' : '过期：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
       };
-      tip.time = accountInfo.data.expire <= new Date() ? '已过期' : '过期时间：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
+      tip.time = accountInfo.data.expire <= new Date() ? '已过期' : '过期：' + moment(accountInfo.data.expire).format("YYYY-MM-DD HH:mm:ss")
 
 
       if (accountInfo.data.expire <= new Date()) {
@@ -445,7 +445,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           if (tip.admin) status = tip.admin;
           else if (tip.stop) status = tip.stop + `❤${tip.time}`;
           else if (accountInfo.hideFlow) status = tip.time;
-          else if ((tip.use || tip.sum) && showFlow) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+          else if ((tip.use || tip.sum) && showFlow) status = `流量：${tip.use}/${tip.sum}❤${tip.time}`
           else status = `${tip.time}`
 
           result += `\r\nSTATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
@@ -480,7 +480,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
             else if (accountInfo.hideFlow) status = tip.time;
-            else if ((tip.use || tip.sum) && showFlow) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else if ((tip.use || tip.sum) && showFlow) status = `流量：${tip.use}/${tip.sum}❤${tip.time}`
             else status = `${tip.time}`
 
             result += `STATUS=${status}\r\nREMARKS=${remarks}\r\n`.toString('base64')
