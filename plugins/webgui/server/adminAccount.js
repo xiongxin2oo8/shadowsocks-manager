@@ -578,7 +578,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             if (tip.admin) status = tip.admin;
             else if (tip.stop) status = tip.stop + `❤${tip.time}`;
             else if (accountInfo.hideFlow) status = tip.time;
-            else if ((tip.use || tip.sum) && showFlow) status = `当期流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else if ((tip.use || tip.sum) && showFlow) status = `流量：${tip.use}/${tip.sum}❤${tip.time}`
             else status = `${tip.time}`
 
             result += `STATUS=${status}\r\nREMARKS=${remarks}`.toString('base64')
