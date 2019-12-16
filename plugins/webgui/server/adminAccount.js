@@ -595,9 +595,9 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 };
 const flowNumber = (number) => {
   if (number < 1000) return number + ' B';
-  else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' KB';
-  else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' MB';
-  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(2) + ' GB';
+  else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' K';
+  else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' M';
+  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(1) + ' G';
 };
 
 const flowNumber1024 = (number) => {

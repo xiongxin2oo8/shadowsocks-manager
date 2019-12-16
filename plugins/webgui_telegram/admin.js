@@ -21,9 +21,9 @@ const push = async (message) => {
 
 const flowNumber = (number) => {
   if (number < 1000) return number + ' B';
-  else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' KB';
-  else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' MB';
-  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(2) + ' GB';
+  else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' K';
+  else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' M';
+  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(2) + ' G';
   else return (number / 1000000000000).toFixed(3) + ' TB';
 };
 
@@ -65,7 +65,7 @@ const day_push = async (flag) => {
       let list = '';
       for (let item of success) {
         allflow += item.sumflow || 0;
-        list += `${item.name} 账号数:${item.count} 总流量:${flowNumber(item.sumflow)}\n`;
+        list += `${item.name} U:${item.count} F:${flowNumber(item.sumflow)}\n`;
       }
       return { allflow: allflow, list: list }
     });
