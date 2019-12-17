@@ -266,7 +266,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s['des'] = '[只支持SSR单端口]'
         } else if (s.singleMode === 'v2ray' && (type != 'v2ray')) {
-          s['des'] = '[只支持V2Ray]'
+          s['des'] = '[请看网站公告，只支持V2Ray]'
         } else {
           s['des'] = '';
         }
@@ -594,10 +594,10 @@ exports.getSubscribeAccountForUser = async (req, res) => {
   }
 };
 const flowNumber = (number) => {
-  if (number < 1000) return number + ' B';
-  else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + ' K';
-  else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + ' M';
-  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(1) + ' G';
+  if (number < 1000) return number + 'B';
+  else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + 'K';
+  else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + 'M';
+  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(1) + 'G';
 };
 
 const flowNumber1024 = (number) => {
