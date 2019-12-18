@@ -266,7 +266,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s['des'] = '[只支持SSR单端口]'
         } else if (s.singleMode === 'v2ray' && (type != 'v2ray')) {
-          s['des'] = '[请看网站公告，只支持V2Ray]'
+          s['des'] = '[请看网站公告，使用V2Ray]'
         } else {
           s['des'] = '';
         }
@@ -377,8 +377,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       let result = '';
       //SS 模式
       if (!accountInfo.connType || accountInfo.connType === "SS") {
-        // ssd  为了兼容原来的写法
-        if ((!app && type === 'ssd') || app === 'ssd') {
+        if (app === 'ssd') {
           let obj = {
             airport: baseSetting.title,
             port: 12580,
@@ -396,7 +395,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           return res.send(result);
         }
         // clash
-        if ((!app && type === 'clash') || app === 'clash') {
+        if (app === 'clash') {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
           clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
@@ -431,7 +430,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           return res.send(dataBuffer);
         }
 
-        if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
+        if (app === 'shadowrocket') {
           result = subscribeAccount.server.map(s => {
             //支持v2
             if (s.v2ray === 1 && app === 'shadowrocket') {
@@ -471,7 +470,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       }
       //SSR 模式
       if (accountInfo.connType === "SSR") {
-        if (!app || type === 'ssr') {
+        if (type === 'ssr') {
           const singlePorts = await knex('account_plugin').select().where('is_multi_user', '>', 0);
           if ((!app && type === 'shadowrocket') || app === 'shadowrocket') {
             let remarks = (!showFlow ? '国际机场' : (config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site)) + '(右滑更新)';
