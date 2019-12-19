@@ -261,7 +261,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
       if (!accountSetting.subscribe) { return res.status(404).end(); }
       const subscribeAccount = await account.getAccountForSubscribe(token, ip);
       let accountInfo = subscribeAccount.account;
-      let ipv6_server = [];
+      let ser_ipv6 = [];
+      let ser_result = [];
       for (const s of subscribeAccount.server) {
         if (s.singleMode === 'ssr1port' && accountInfo.connType != 'SSR') {
           s['des'] = '[只支持SSR单端口]'
@@ -272,22 +273,30 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         }
         s.name = s.status + s.des + s.name;
         s.host = await getAddress(s.host, +resolveIp);
-
-        if (s.ipv6) {
-          let s_v6 = JSON.parse(JSON.stringify(s));
-          s_v6.host = s.ipv6;
-          s_v6.name = s.name + ' IPV6';
-          if (s_v6.scale != 1) {
-            s_v6.name = `${s_v6.name} ${s_v6.scale}倍`;
-          }
-          ipv6_server.push(s_v6);
-        }
-
         if (s.scale != 1) {
           s.name = `${s.name} ${s.scale}倍`;
         }
+        let v2_port = s.v2rayPort.split(',');
+        if (s.ipv6) {
+          let s_v6 = JSON.parse(JSON.stringify(s));
+          s_v6.host = s.ipv6;
+          s_v6.v2rayPort = v2_port[0];
+          s_v6.name = s.name + '[IPv6]';
+          ser_ipv6.push(s_v6);
+        }
+        if (v2_port.length > 1) {
+          for (let p of v2_port) {
+            let ser_temp = JSON.parse(JSON.stringify(s));
+            ser_temp.v2rayPort = p;
+            ser_temp.name += `[${p}]`;
+            ser_result.push(ser_temp);
+          }
+        } else {
+          ser_result.push(s);
+        }
       }
-      subscribeAccount.server = subscribeAccount.server.concat(ipv6_server);
+      subscribeAccount.server = ser_result;
+      subscribeAccount.server = subscribeAccount.server.concat(ser_ipv6);
 
       const baseSetting = await knex('webguiSetting').where({
         key: 'base'

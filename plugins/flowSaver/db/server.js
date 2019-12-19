@@ -50,7 +50,7 @@ const createTable = async () => {
     const v2rayPort = await knex.schema.hasColumn(tableName, 'v2rayPort');
     if (!v2rayPort) {
       await knex.schema.table(tableName, function (table) {
-        table.string('v2rayPort').defaultTo(801);
+        table.string('v2rayPort').defaultTo(443);
       });
     }
     //AlterID
@@ -160,7 +160,7 @@ const createTable = async () => {
       table.string('singleMode ');
       table.integer('v2ray');
       table.string('v2rayMethod');
-      table.integer('v2rayPort');
+      table.string('v2rayPort');
       table.integer('v2rayAID');
       table.integer('v2rayTLS');
       table.string('v2rayNet');

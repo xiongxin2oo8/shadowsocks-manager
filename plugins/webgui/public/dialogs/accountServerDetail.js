@@ -90,12 +90,13 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
             const v2Link = () => {
                 if (!server || !server.v2ray) { return ''; }
                 let str = '';
+                let port = server.v2rayPort.split(',')[0];
                 let v = {
                     host: server.v2rayHost || '',
                     path: server.v2rayPath || '',
                     tls: server.v2rayTLS ? 'tls' : '',
                     add: server.host,
-                    port: server.v2rayPort,
+                    port: port,
                     aid: server.v2rayAID || 0,
                     net: server.v2rayNet || 'tcp',
                     type: "none",
