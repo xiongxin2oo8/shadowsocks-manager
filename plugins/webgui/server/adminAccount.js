@@ -201,7 +201,7 @@ const v2ray = (account, server) => {
     host: server.v2rayHost || '',
     path: server.v2rayPath || '',
     tls: server.v2rayTLS ? 'tls' : '',
-    'skip-cert-verify': false,
+    allowInsecure: 0,
     add: server.host,
     port: server.v2rayPort,
     aid: server.v2rayAID || 0,
