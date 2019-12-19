@@ -96,6 +96,7 @@ app.factory('accountServerDialog', ['$mdDialog', '$http', ($mdDialog, $http) => 
                     path: server.v2rayPath || '',
                     tls: server.v2rayTLS ? 'tls' : '',
                     add: server.host,
+                    allowInsecure: 0,
                     port: port,
                     aid: server.v2rayAID || 0,
                     net: server.v2rayNet || 'tcp',
