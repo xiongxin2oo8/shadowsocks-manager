@@ -183,7 +183,7 @@ const v2_clash = (account, server) => {
     alterId: server.v2rayAID || 0,
     cipher: server.v2rayMethod || 'auto',
     udp: true,
-    'skip-cert-verify': true,
+    'skip-cert-verify': false
   };
   if (server.v2rayNet && server.v2rayNet != 'tcp') v2['network'] = server.v2rayNet;
   if (server.v2rayTLS) v2['tls'] = true;
@@ -201,7 +201,7 @@ const v2ray = (account, server) => {
     host: server.v2rayHost || '',
     path: server.v2rayPath || '',
     tls: server.v2rayTLS ? 'tls' : '',
-    allowInsecure: true,
+    allowInsecure: false,
     add: server.host,
     port: server.v2rayPort,
     aid: server.v2rayAID || 0,
