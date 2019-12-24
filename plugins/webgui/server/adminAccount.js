@@ -296,8 +296,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           ser_result.push(s);
         }
       }
-      subscribeAccount.server = ser_result;
-      subscribeAccount.server = subscribeAccount.server.concat(ser_ipv6);
+      subscribeAccount.server = ser_result.concat(ser_ipv6);
 
       const baseSetting = await knex('webguiSetting').where({
         key: 'base'
