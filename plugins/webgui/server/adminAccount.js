@@ -355,10 +355,14 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           tip_flow.name = '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack);
           tip.use = flowNumber(flowInfo[0]).replace(/\s*/g, "");
           tip.sum = flowNumber(accountInfo.data.flow + accountInfo.data.flowPack).replace(/\s*/g, "");
+          if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
+            tip_flow.name = '流量耗尽，请购买流量包';
+            tip.stop = '流量耗尽，请购买流量包';
+          }
         } else {
           if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
-            tip_flow.name = '已封停，请购买流量包或联系管理员';
-            tip.stop = '已封停，请购买流量包或联系管理员';
+            tip_flow.name = '已封停，请联系管理员';
+            tip.stop = '已封停，请联系管理员';
           }
         }
       } else {
@@ -366,6 +370,15 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           tip_flow.name = '当期流量：' + flowNumber(flowInfo[0]) + '/' + flowNumber(accountInfo.data.flow + accountInfo.data.flowPack);
           tip.use = flowNumber(flowInfo[0]).replace(/\s*/g, "");
           tip.sum = flowNumber(accountInfo.data.flow + accountInfo.data.flowPack).replace(/\s*/g, "");
+          if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
+            tip_flow.name = '流量耗尽，请购买流量包';
+            tip.stop = '流量耗尽，请购买流量包';
+          }
+        } else {
+          if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
+            tip_flow.name = '已封停，请联系管理员';
+            tip.stop = '已封停，请联系管理员';
+          }
         }
       }
       let tip_date = {
