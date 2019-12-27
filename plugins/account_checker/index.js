@@ -358,6 +358,14 @@ const deleteExtraPorts = async serverInfo => {
   }
 };
 
+const flowNumber = (number) => {
+  if (number < 1000) return number + 'B';
+  else if (number < 1000 * 1000) return (number / 1000).toFixed(0) + 'K';
+  else if (number < 1000 * 1000 * 1000) return (number / 1000000).toFixed(1) + 'M';
+  else if (number < 1000 * 1000 * 1000 * 1000) return (number / 1000000000).toFixed(2) + 'G';
+  else return (number / 1000000000000).toFixed(3) + 'T';
+};
+
 const checkAccount = async (serverId, accountId) => {
   try {
     const serverInfo = await knex('server').where({ id: serverId }).then(s => s[0]);
@@ -426,7 +434,14 @@ const checkAccount = async (serverId, accountId) => {
     // 检查账号是否超流量
     if (await isOverFlow(serverInfo, accountInfo)) {
       // exists && deletePort(serverInfo, accountInfo);
-      ssr_exists && deletePortSSR(serverInfo, accountInfo);
+      //ssr_exists && deletePortSSR(serverInfo, accountInfo);
+      if (ssr_exists) {
+        deletePortSSR(serverInfo, accountInfo);
+        if (isTelegram) {
+          let flow_str = accountInfo.data ? '' : flowNumber(JSON.parse(accountInfo.data).flow);
+          telegram.push(`账号[ ${accountInfo.port} ]当期流量 ${flow_str} 已耗尽！`);
+        }
+      }
       return;
     }
 
@@ -658,7 +673,6 @@ cron.minute(() => {
         return b ? [...a, ...b] : a;
       }, []);
 
-      console.log('不检查服务器：', server_not);
       try {
         //优先检查新账号数
         const datas = await knex('account_flow').select()
@@ -895,6 +909,6 @@ if (config.plugins.moreType && config.plugins.moreType.limitIp) {
     logger.info('每分钟执行一次，检查在线ip');
     checkIpCount();
   }, 'checkIpCount', 1);
-}else{
+} else {
   console.log('未开启IP数限制');
 }
