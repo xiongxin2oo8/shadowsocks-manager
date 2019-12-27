@@ -437,9 +437,9 @@ const checkAccount = async (serverId, accountId) => {
       //ssr_exists && deletePortSSR(serverInfo, accountInfo);
       if (ssr_exists) {
         deletePortSSR(serverInfo, accountInfo);
-        if (accountInfo.type > 1 && accountInfo.type < 6 && accountInfo.server) {
-          if (isTelegram && JSON.parse(accountInfo.server).indexOf(serverInfo.id) == 0) {
-            let flow_str = flowNumber(JSON.parse(accountInfo.data)).flow;
+        if (accountInfo.type > 1 && accountInfo.type < 6 && accountInfo.server && JSON.parse(accountInfo.server).indexOf(serverInfo.id) == 0) {
+          if (isTelegram) {
+            let flow_str = flowNumber(JSON.parse(accountInfo.data).flow);
             telegram.push(`账号[ ${accountInfo.port} ]当期流量 ${flow_str} 已耗尽！`);
           }
           let user = await knex('user').where({ id: accountInfo.userId }).then(s => s[0]);
