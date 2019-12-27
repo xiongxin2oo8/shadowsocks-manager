@@ -437,9 +437,13 @@ const checkAccount = async (serverId, accountId) => {
       //ssr_exists && deletePortSSR(serverInfo, accountInfo);
       if (ssr_exists) {
         deletePortSSR(serverInfo, accountInfo);
-        if (isTelegram && accountInfo.server && JSON.parse(accountInfo.server).indexOf(serverInfo.id) == 0) {
-          let flow_str = accountInfo.data ? '' : flowNumber(JSON.parse(accountInfo.data).flow);
-          telegram.push(`账号[ ${accountInfo.port} ]当期流量 ${flow_str} 已耗尽！`);
+        if (accountInfo.type > 1 && accountInfo.type < 6 && accountInfo.server) {
+          if (isTelegram && JSON.parse(accountInfo.server).indexOf(serverInfo.id) == 0) {
+            let flow_str = flowNumber(JSON.parse(accountInfo.data)).flow;
+            telegram.push(`账号[ ${accountInfo.port} ]当期流量 ${flow_str} 已耗尽！`);
+          }
+          let user = await knex('user').where({ id: accountInfo.userId }).then(s => s[0]);
+          emailPlugin.sendMail(user.email, '封停提醒', `您的账号[ ${accountInfo.port} ]当期预置流量已耗尽，账号已暂停使用，请购买流量包恢复！不限量套餐请联系管理员或回复本邮件重置，谢谢合作！`);
         }
       }
       return;
