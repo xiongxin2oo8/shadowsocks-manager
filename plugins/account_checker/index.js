@@ -437,7 +437,7 @@ const checkAccount = async (serverId, accountId) => {
       //ssr_exists && deletePortSSR(serverInfo, accountInfo);
       if (ssr_exists) {
         deletePortSSR(serverInfo, accountInfo);
-        if (isTelegram) {
+        if (isTelegram && accountInfo.server && JSON.parse(accountInfo.server).indexOf(serverInfo.id) == 0) {
           let flow_str = accountInfo.data ? '' : flowNumber(JSON.parse(accountInfo.data).flow);
           telegram.push(`账号[ ${accountInfo.port} ]当期流量 ${flow_str} 已耗尽！`);
         }
