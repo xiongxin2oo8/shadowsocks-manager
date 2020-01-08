@@ -115,9 +115,12 @@ const list = async (options = {}) => {
     let server = serverList[i];
     // serverStatus.push(getServerStatus(server, i));
     server.isGfw = false;
-    server.status = '';
     if (server.node_bandwidth_limit > 0 && server.node_bandwidth >= server.node_bandwidth_limit) {
       server.status = '[流量耗尽]'
+    } else if (server.status == 1) {
+      server.status = '[维修中]]';
+    } else {
+      server.status = '';
     }
     // if (server.node_heartbeat < (now / 1000 - 300)) {
     //   server.status = '[离线]'
