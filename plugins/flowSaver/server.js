@@ -118,7 +118,7 @@ const list = async (options = {}) => {
     if (server.node_bandwidth_limit > 0 && server.node_bandwidth >= server.node_bandwidth_limit) {
       server.status = '[流量耗尽]'
     } else if (server.status == 1) {
-      server.status = '[维修中]]';
+      server.status = '[维修中]';
     } else {
       server.status = '';
     }

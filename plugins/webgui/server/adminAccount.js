@@ -447,7 +447,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           //   }
           // }
           res.setHeader('Content-Type', ' text/plain;charset=utf-8');
-          res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
+          res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title + accountInfo.port)}.yaml`);
           var dataBuffer = Buffer.concat([Buffer.from('\xEF\xBB\xBF', 'binary'), Buffer.from(yaml.safeDump(clashConfig))]);
           return res.send(dataBuffer);
         }
@@ -560,7 +560,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             // }
             //return res.send(yaml.safeDump(clashConfig));
             res.setHeader('Content-Type', ' text/plain;charset=utf-8');
-            res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title)}.yaml`);
+            res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title + accountInfo.port)}.yaml`);
             //var dataBuffer = Buffer.concat([Buffer.from('\xEF\xBB\xBF', 'binary'), Buffer.from(yaml.safeDump(clashConfig))]);
             return res.send(Buffer.from(yaml.safeDump(clashConfig)));
           }
@@ -570,7 +570,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           for (const s of subscribeAccount.server) {
             if (s.v2ray === 1 || s.flag) {
               if (app === 'quan') {
-                result += v2_quan(accountInfo, s, `${baseSetting.title}[${config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site}]`) + '\r\n';
+                result += v2_quan(accountInfo, s, `${baseSetting.title + accountInfo.port}[${config.plugins.webgui.site.split('//')[1] || config.plugins.webgui.site}]`) + '\r\n';
               } else if (app === 'quanx') {
                 result += v2_quanx(accountInfo, s) + '\r\n';
               } else {
