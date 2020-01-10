@@ -443,7 +443,7 @@ const checkAccount = async (serverId, accountId) => {
             telegram.push(`账号[ ${accountInfo.port} ]当期流量 ${flow_str} 已耗尽！`);
           }
           let user = await knex('user').where({ id: accountInfo.userId }).then(s => s[0]);
-          emailPlugin.sendMail(user.email, '封停提醒', `您的账号[ ${accountInfo.port} ]当期预置流量已耗尽，账号已暂停使用，请购买流量包恢复！不限量套餐请联系管理员或回复本邮件重置，谢谢合作！(邮件处理时间为：正常工作日09:00-17:00)`);
+          emailPlugin.sendMail(user.email, '封停提醒', `您的账号[ ${accountInfo.port} ]当期预置流量已耗尽，账号已暂停使用，请购买流量包恢复！不限量套餐请联系管理员或回复本邮件重置，谢谢合作！(一般会在24小时内处理，节假日顺延)`);
         }
       }
       return;
