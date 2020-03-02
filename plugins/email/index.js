@@ -48,10 +48,10 @@ if (config.plugins.email.type === 'smtp') {
       Subject: options.subject,
       HtmlBody: options.html || options.text
     }).then(data => {
-      //console.log(data);
+      console.log('email-index-51',data);
       cb(null);
     }).catch(err => {
-      //console.log(err);
+      console.log('email-index-54',err);
       cb(err);
     });
   }
