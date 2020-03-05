@@ -344,7 +344,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         method: 'chacha20',
         host: '127.0.0.1',
         shift: 1,
-        v2rayPort: 80
+        v2rayPort: 80,
+        show: true
       };
       let tip = {};
       if (accountInfo.type == 1) {
@@ -360,9 +361,11 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             tip.stop = '流量耗尽，请购买流量包';
           }
         } else {
+          tip_flow.show = false;
           if (flowInfo[0] > (accountInfo.data.flow + accountInfo.data.flowPack)) {
             tip_flow.name = '已封停，请联系管理员';
             tip.stop = '已封停，请联系管理员';
+            tip_flow.show = true;
           }
         }
       } else {
@@ -422,6 +425,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
           const clashConfig = appRequire('plugins/webgui/server/clash');
           clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
           subscribeAccount.server.unshift(tip_date);
+          subscribeAccount.server.unshift(tip_flow);
           let cs = { Proxy: [], proxies: [] };
           subscribeAccount.server.map(server => {
             if (server.v2ray) {
@@ -534,6 +538,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             const yaml = require('js-yaml');
             const clashConfig = appRequire('plugins/webgui/server/clash');
             subscribeAccount.server.unshift(tip_date);
+            subscribeAccount.server.unshift(tip_flow);
             clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
             let cs = { Proxy: [], proxies: [] };
             subscribeAccount.server.map(server => {
