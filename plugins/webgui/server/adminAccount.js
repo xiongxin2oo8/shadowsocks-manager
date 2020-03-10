@@ -224,7 +224,7 @@ const quanx_obfs = { ws: 'wss', tcp: 'over-tls' };
 const v2_quanx = (account, server) => {
   server.v2rayMethod = server.v2rayMethod == 'auto' ? 'chacha20-ietf-poly1305' : (server.v2rayMethod || 'none');
   server.v2rayNet = quanx_obfs[server.v2rayNet] || 'over-tls';
-  return `vmess=${server.host}:${server.v2rayPort},method=${server.v2rayMethod},password=${account.uuid},obfs=${server.v2rayNet}${server.v2rayNet == 'wss' ? ',obfs-host=' + server.v2rayHost || server.host + ',obfs-uri=' + server.v2rayPath : ''},fast-open=false,udp-relay=false,tag=${server.name}`;
+  return `vmess=${server.host}:${server.v2rayPort},method=${server.v2rayMethod},password=${account.uuid},obfs=${server.v2rayNet}${server.v2rayNet == 'wss' ? ',obfs-host=' + (server.v2rayHost || server.host) + ',obfs-uri=' + server.v2rayPath : ''},fast-open=false,udp-relay=false,tag=${server.name}`;
 }
 //SS 默认链接
 const ss = (account, server) => {
