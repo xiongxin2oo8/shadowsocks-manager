@@ -217,7 +217,7 @@ const v2ray = (account, server) => {
 // v2 Quan
 const v2_quan = (account, server, title) => {
   server.v2rayMethod = server.v2rayMethod == 'auto' ? 'chacha20-ietf-poly1305' : (server.v2rayMethod || 'none');
-  return 'vmess://' + urlsafeBase64(`${server.name}=vmess,${server.host},${server.v2rayPort},${server.v2rayMethod},"${account.uuid}",group=${title},over-tls=${!!server.v2rayTLS},tls-host=${server.v2rayHost},certificate=${server.v2rayTLS || 0},obfs=${server.v2rayNet || 'tcp'},obfs-path="${server.v2rayPath || ''}",obfs-header="Host: ${server.v2rayHost || server.host}[Rr][Nn]User-Agent: Test Agent"`);
+  return 'vmess://' + urlsafeBase64(`${server.name}=vmess,${server.host},${server.v2rayPort},${server.v2rayMethod},"${account.uuid}",group=${title},over-tls=${!!server.v2rayTLS},tls-host=${server.v2rayHost || server.host},certificate=${server.v2rayTLS || 0},obfs=${server.v2rayNet || 'tcp'},obfs-path="${server.v2rayPath || ''}",obfs-header="Host: ${server.v2rayHost || server.host}[Rr][Nn]User-Agent: Test Agent"`);
 }
 // v2 QuanX
 const quanx_obfs = { ws: 'wss', tcp: 'over-tls' };
