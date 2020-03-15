@@ -116,6 +116,15 @@ app
               }
             }, 1000);
           }).catch(err => {
+            $scope.sendCodeTime = 120;
+            const interval = $interval(() => {
+              if ($scope.sendCodeTime > 0) {
+                $scope.sendCodeTime--;
+              } else {
+                $interval.cancel(interval);
+                $scope.sendCodeTime = 0;
+              }
+            }, 1000);
             alertDialog.show(err, '确定');
           });
       };
