@@ -116,7 +116,7 @@ app
               }
             }, 1000);
           }).catch(err => {
-            $scope.sendCodeTime = 120;
+            $scope.sendCodeTime = 10;
             const interval = $interval(() => {
               if ($scope.sendCodeTime > 0) {
                 $scope.sendCodeTime--;
