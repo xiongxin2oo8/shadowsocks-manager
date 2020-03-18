@@ -236,6 +236,7 @@ const ssr = (account, server) => {
 }
 
 exports.getSubscribeAccountForUser = async (req, res) => {
+  //console.log('sub-req',req['headers']);
   try {
     let type = req.query.type;
     type = type ? type.toLowerCase() : '';
@@ -558,6 +559,13 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             clashConfig['Proxy Group'][0] = {
               name: 'Proxy',
               type: 'select',
+              proxies: ['自动选择'].concat(cs.proxies),
+            };
+            clashConfig['Proxy Group'][1] = {
+              name: '自动选择',
+              type: 'url-test',
+              url: 'http://www.gstatic.com/generate_204',
+              interval: 300,
               proxies: cs.proxies,
             };
             // for (const key in clash_group) {

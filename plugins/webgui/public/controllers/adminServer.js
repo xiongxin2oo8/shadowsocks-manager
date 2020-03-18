@@ -147,7 +147,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       if (document.visibilityState === 'visible' && $localStorage.admin.serverInfo && Date.now() - $localStorage.admin.serverInfo.time >= 90 * 1000) {
         updateServerInfo();
       }
-    }, 30 * 1000));
+    }, 5 * 60 * 1000));
     $scope.toServerPage = (serverId) => {
       $state.go('admin.serverPage', { serverId });
     };
