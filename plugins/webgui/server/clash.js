@@ -169,7 +169,7 @@ module.exports = {
 		'DOMAIN-KEYWORD,wlmonitor,REJECT',
 		'DOMAIN-KEYWORD,zjtoolbar,REJECT',
 		'DOMAIN-KEYWORD,n3ro,REJECT',
-		'DOMAIN-SUFFIX,club,REJECT',
+		'DOMAIN-KEYWORD,as64271.net,REJECT',
 		'DOMAIN-SUFFIX,9to5mac.com,Proxy',
 		'DOMAIN-SUFFIX,abpchina.org,Proxy',
 		'DOMAIN-SUFFIX,adblockplus.org,Proxy',
