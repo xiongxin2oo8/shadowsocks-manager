@@ -464,5 +464,5 @@ module.exports = {
 	'log-level': 'info',
 	mode: 'Rule',
 	port: 7890,
-	'socks-port': 1080,
+	'socks-port': 7891
 };

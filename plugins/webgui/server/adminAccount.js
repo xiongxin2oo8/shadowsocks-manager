@@ -426,7 +426,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
         if (app === 'clash') {
           const yaml = require('js-yaml');
           const clashConfig = appRequire('plugins/webgui/server/clash');
-          clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
+          //clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
           subscribeAccount.server.unshift(tip_date);
           if (tip_flow.show) {
             subscribeAccount.server.unshift(tip_flow);
@@ -546,7 +546,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             if (tip_flow.show) {
               subscribeAccount.server.unshift(tip_flow);
             }
-            clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
+            //clashConfig.dns = { enable: true, nameserver: ['119.29.29.29', '223.5.5.5'] }
             let cs = { Proxy: [], proxies: [] };
             subscribeAccount.server.map(server => {
               if (server.v2ray || server.flag) {
