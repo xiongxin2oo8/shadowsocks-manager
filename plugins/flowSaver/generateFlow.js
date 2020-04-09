@@ -7,20 +7,24 @@ const cron = appRequire('init/cron');
 const generateFlow = async (type) => {
   try {
     let tableName;
+    let sourceDataTableName = '';
     let interval;
     if (type === 'day') {
       tableName = 'saveFlowDay';
+      sourceDataTableName = 'saveFlowHour';
       interval = 24 * 3600 * 1000;
     }
     if (type === 'hour') {
       tableName = 'saveFlowHour';
+      sourceDataTableName = 'saveFlow5min';
       interval = 3600 * 1000;
     }
     if (type === '5min') {
       tableName = 'saveFlow5min';
+      sourceDataTableName = 'saveFlow';
       interval = 5 * 60 * 1000;
     }
-    const count = await knex('saveFlow').count('id as count').then(success => success[0].count);
+    const count = await knex(sourceDataTableName).count('id as count').then(success => success[0].count);
     if (!count) { return; }
     const recent = await knex(tableName).select().orderBy('time', 'DESC').limit(1).then(success => success[0]);
     let time;
@@ -43,13 +47,13 @@ const generateFlow = async (type) => {
       console.log(Date.now() - time, time, interval);
       return;
     }
-    let sum = await knex('saveFlow')
+    let sum = await knex(sourceDataTableName)
       .sum('flow as sumFlow')
       .groupBy(['port', 'id'])
       .select(['saveFlow.port as port'])
       .select(['saveFlow.id as id'])
       .select(['saveFlow.accountId as accountId'])
-      .whereBetween('time', [time, time + interval]);
+      .whereBetween('time', [time, time + interval - 1]);//between包含边界  故此处-1，避免重复统计
     if (!sum.length) { sum = [{ id: 0, port: 0, flow: 0 }]; }
     logger.info(`Generate ${type} flow, length: ${sum.length}`);
     const insertPromises = [];
@@ -82,10 +86,10 @@ const generateFlow = async (type) => {
 };
 
 cron.minute(async () => {
-  knex('saveFlow').delete().whereBetween('time', [0, Date.now() - 36 * 3600 * 1000]).then();
-  knex('saveFlowDay').delete().whereBetween('time', [0, Date.now() - 45 * 24 * 3600 * 1000]).then();
-  knex('saveFlowHour').delete().whereBetween('time', [0, Date.now() - 14 * 24 * 3600 * 1000]).then();
-  knex('saveFlow5min').delete().whereBetween('time', [0, Date.now() - 3 * 24 * 3600 * 1000]).then();
+  knex('saveFlow').delete().whereBetween('time', [0, Date.now() - 3 * 3600 * 1000]).then();
+  knex('saveFlowDay').delete().whereBetween('time', [0, Date.now() - 30 * 24 * 3600 * 1000]).then();
+  knex('saveFlowHour').delete().whereBetween('time', [0, Date.now() - 2 * 24 * 3600 * 1000]).then();
+  knex('saveFlow5min').delete().whereBetween('time', [0, Date.now() - 5 * 3600 * 1000]).then();
 }, 'RemoveOldFlow', 37);
 
 cron.minute(async () => {
