@@ -146,10 +146,12 @@ const list = async (options = {}) => {
         .sum(`flow as sumFlow`)
         .where({ id: server.id })
         .whereBetween(`time`, [last, now]).then(res => res[0].sumFlow || 0);
-      let today = await knex('saveFlow5min')
+      //今天的
+      let t = moment(last).startOf('day').valueOf();
+      let today = await knex('saveFlowHour')
         .sum(`flow as sumFlow`)
         .where({ id: server.id })
-        .whereBetween(`time`, [last, now]).then(res => res[0].sumFlow || 0);
+        .whereBetween(`time`, [t, now]).then(res => res[0].sumFlow || 0);
       server['useflow'] = yesterday + today;
     }
     // serverList.forEach((server, index) => {
