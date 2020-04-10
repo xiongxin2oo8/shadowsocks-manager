@@ -50,9 +50,9 @@ const generateFlow = async (type) => {
     let sum = await knex(sourceDataTableName)
       .sum('flow as sumFlow')
       .groupBy(['port', 'id'])
-      .select(['saveFlow.port as port'])
-      .select(['saveFlow.id as id'])
-      .select(['saveFlow.accountId as accountId'])
+      .select([`${sourceDataTableName}.port as port`])
+      .select([`${sourceDataTableName}.id as id`])
+      .select([`${sourceDataTableName}.accountId as accountId`])
       .whereBetween('time', [time, time + interval - 1]);//between包含边界  故此处-1，避免重复统计
     if (!sum.length) { sum = [{ id: 0, port: 0, flow: 0 }]; }
     logger.info(`Generate ${type} flow, length: ${sum.length}`);
