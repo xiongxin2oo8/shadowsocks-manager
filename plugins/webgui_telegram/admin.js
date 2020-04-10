@@ -46,14 +46,14 @@ const day_push = async (flag) => {
   }).whereBetween('createTime', [begin_time, end_time]).then(success => success[0].count);
   //总账号数
   const total_info = await knex('account_plugin').countDistinct('id as count').then(success => success[0]);
-  //当日使用端口数
-  const today_info = await knex('saveFlow').countDistinct('accountId as count').whereBetween('time', [begin_time, end_time]).then(success => success[0]);
+  //当日使用用户数
+  const today_info = await knex('saveFlowHour').countDistinct('accountId as count').whereBetween('time', [begin_time, end_time - 1]).then(success => success[0]);
   //当日更新订阅数
   const subscribe_info = await knex('account_plugin').count('id as count').whereBetween('lastSubscribeTime', [begin_time, end_time]).then(success => success[0]);
   //总流量
   //各个服务器使用情况
   const server_info = await knex('saveFlowHour')
-    .leftJoin('server', 'saveFlow.id', 'server.id')
+    .leftJoin('server', 'saveFlowHour.id', 'server.id')
     .countDistinct('saveFlowHour.accountId as count')
     .sum('saveFlowHour.flow as sumflow')
     .select('server.name')
