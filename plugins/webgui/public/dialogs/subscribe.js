@@ -73,7 +73,7 @@ app.factory('subscribeDialog', ['$mdDialog', '$http', ($mdDialog, $http) => {
             { code: 'quanx', name: 'QuanX' },
             { code: 'clash', name: 'Clash(X)' },
             //{ code: 'v2rayng', name: 'V2RayN(G)' }
-            { code: 'kitsunebi', name: 'Kitsunebi' }
+            { code: '标准链接', name: 'Kitsunebi' }
           ];
         }
       }
