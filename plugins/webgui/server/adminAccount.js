@@ -201,7 +201,7 @@ const v2ray = (account, server) => {
     host: server.v2rayHost || '',
     path: server.v2rayPath || '',
     tls: server.v2rayTLS ? 'tls' : '',
-    allowInsecure: false,
+    allowInsecure: true,
     add: server.host,
     port: server.v2rayPort,
     aid: server.v2rayAID || 0,
@@ -440,8 +440,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             }
             cs.proxies.push(server.name);
           });
-          clashConfig.Proxy = cs.Proxy;
-          clashConfig['Proxy Group'][0] = {
+          clashConfig.proxies = cs.Proxy;
+          clashConfig['proxy-groups'][0] = {
             name: 'Proxy',
             type: 'select',
             proxies: cs.proxies,
@@ -554,14 +554,14 @@ exports.getSubscribeAccountForUser = async (req, res) => {
                 cs.proxies.push(server.name);
               }
             });
-            clashConfig.Proxy = cs.Proxy;
+            clashConfig.proxies = cs.Proxy;
             //clashConfig['Proxy Group']=[];
-            clashConfig['Proxy Group'][0] = {
+            clashConfig['proxy-groups'][0] = {
               name: 'Proxy',
               type: 'select',
               proxies: ['自动选择'].concat(cs.proxies),
             };
-            clashConfig['Proxy Group'][1] = {
+            clashConfig['proxy-groups'][1] = {
               name: '自动选择',
               type: 'url-test',
               url: 'http://www.gstatic.com/generate_204',
