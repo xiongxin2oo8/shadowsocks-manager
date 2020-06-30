@@ -440,8 +440,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             }
             cs.proxies.push(server.name);
           });
-          clashConfig.Proxy = cs.Proxy;
-          clashConfig['Proxy Group'][0] = {
+          clashConfig.proxies = cs.Proxy;
+          clashConfig['proxy-groups'][0] = {
             name: 'Proxy',
             type: 'select',
             proxies: cs.proxies,
@@ -555,7 +555,7 @@ exports.getSubscribeAccountForUser = async (req, res) => {
               }
             });
             clashConfig.proxies = cs.Proxy;
-            clashConfig['proxy-groups']=[];
+            //clashConfig['proxy-groups']=[];
             clashConfig['proxy-groups'][0] = {
               name: 'Proxy',
               type: 'select',
