@@ -204,7 +204,7 @@ const v2ray = (account, server) => {
     allowInsecure: true,
     add: server.host,
     port: server.v2rayPort,
-    aid: server.v2rayAID || 0,
+    aid: server.v2rayAID || '',
     net: server.v2rayNet || 'tcp',
     type: "none",
     v: "2",
