@@ -170,6 +170,7 @@ module.exports = {
 		'DOMAIN-KEYWORD,zjtoolbar,REJECT',
 		'DOMAIN-KEYWORD,n3ro,REJECT',
 		'DOMAIN-KEYWORD,sy168,REJECT',
+		'DOMAIN-SUFFIX,cylink.link,REJECT',
 		'DOMAIN-SUFFIX,as64271.net,REJECT',
 		'DOMAIN-SUFFIX,9to5mac.com,Proxy',
 		'DOMAIN-SUFFIX,abpchina.org,Proxy',
