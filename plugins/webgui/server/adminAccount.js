@@ -578,8 +578,17 @@ exports.getSubscribeAccountForUser = async (req, res) => {
             //   }
             // }
             //return res.send(yaml.safeDump(clashConfig));
+
+            if (tip.admin) status = tip.admin;
+            else if (tip.stop) status = tip.stop + `❤${tip.time}`;
+            else if (accountInfo.hideFlow) status = tip.time;
+            else if ((tip.use || tip.sum) && showFlow) status = `流量：${tip.use}/${tip.sum}❤${tip.time}`
+            else status = `${tip.time}`
+
             res.setHeader('Content-Type', ' text/plain;charset=utf-8');
             res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title + accountInfo.port)}.yaml`);
+            res.setHeader("Profile-Update-Interval", `attachment; filename=${encodeURIComponent(12)}`);
+            res.setHeader("Subscription-Userinfo", `attachment; filename=${encodeURIComponent(status)}`);
             //var dataBuffer = Buffer.concat([Buffer.from('\xEF\xBB\xBF', 'binary'), Buffer.from(yaml.safeDump(clashConfig))]);
             return res.send(Buffer.from(yaml.safeDump(clashConfig)));
           }
