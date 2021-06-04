@@ -587,8 +587,8 @@ exports.getSubscribeAccountForUser = async (req, res) => {
 
             res.setHeader('Content-Type', ' text/plain;charset=utf-8');
             res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(baseSetting.title + accountInfo.port)}.yaml`);
-            res.setHeader("Profile-Update-Interval", `attachment; filename=${encodeURIComponent(12)}`);
-            res.setHeader("Subscription-Userinfo", `attachment; filename=${encodeURIComponent(status)}`);
+            res.setHeader("Profile-Update-Interval", `${encodeURIComponent(12)}`);
+            res.setHeader("Subscription-Userinfo", `${encodeURIComponent(status)}`);
             //var dataBuffer = Buffer.concat([Buffer.from('\xEF\xBB\xBF', 'binary'), Buffer.from(yaml.safeDump(clashConfig))]);
             return res.send(Buffer.from(yaml.safeDump(clashConfig)));
           }
